@@ -6,10 +6,6 @@ import StoreDetail from './Components/StoreDetail';
 import postStoreData from './Utils/firebase';
 
 const libraries = ['drawing', 'places'];
-// const mapContainerStyle = {
-//   width: '100vw',
-//   height: '100vh'
-// };
 const center = {
   lat: 25.020397,
   lng: 121.533053
@@ -29,7 +25,7 @@ function App() {
   const [bounds, setBounds] = React.useState(null);
   const [markers, setMarkers] = React.useState([]);
 
-  const [slescted, setSelect] = React.useState(null);
+  const [select, setSelect] = React.useState(null);
   const [content, setContent] = React.useState([]);
   const [mapContainerStyle, setMapContainerStyle] = React.useState({
     width: '100vw',
@@ -39,7 +35,8 @@ function App() {
     left: 0,
     zIndex: -10
   });
-  let productList;
+
+  let makerSelected = null;
 
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map;
@@ -47,14 +44,6 @@ function App() {
   const onSearchLoad = React.useCallback((search) => {
     searchRef.current = search;
   }, []);
-
-  // React.useEffect(() => {
-  //   console.log(content.length);
-  //   if (content.length > 1) {
-  //     constList = ;
-  //   }
-  //   console.log(constList);
-  // }, [content]);
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
@@ -66,28 +55,23 @@ function App() {
     const host_name = 'http://localhost:5000';
 
     setMarkers([]);
+    setSelect(null);
 
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
+
     places.forEach((place) => {
       let placeName = place.name.replaceAll('/', ' ');
       setMarkers((current) => [
         ...current,
-        { lat: place.geometry.location.lat(), lng: place.geometry.location.lng(), storename: placeName }
+        { lat: place.geometry.location.lat(), lng: place.geometry.location.lng(), storename: place.name }
       ]);
       if (place.geometry.viewport) {
         bounds.union(place.geometry.viewport);
       } else {
         bounds.extend(place.geometry.location);
-        // console.log(bounds.extend(place.geometry.location));
       }
-      // if (places.length > 1) {
-      //   setContent(places.map((place, key) => <StoreCard key={key} product={place} />));
-      //   // setZoom(8);
-      // } else if (places.length === 1) {
-      //   console.log(places.length);
-      // }
 
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
         const a = await res.json();
@@ -118,8 +102,6 @@ function App() {
       placePromises.push(placePromise);
     });
 
-    // setContent(places);
-
     setMapContainerStyle({
       width: 'calc(100vw - 435px)',
       height: '100vh',
@@ -136,25 +118,10 @@ function App() {
     });
   };
 
-  if (content.length > 1) {
-    productList = (
-      <InformationBg>
-        <InformationBox>
-          {content.map((product, key) => (
-            <StoreCard key={key} product={product} />
-          ))}
-        </InformationBox>
-      </InformationBg>
-    );
+  if (select) {
+    makerSelected = content.find((cont) => cont.name === select.storename);
+    console.log(select);
   }
-
-  if (content.length === 1) {
-    content.map((product) => (productList = <StoreDetail key={999} product={product}></StoreDetail>));
-  }
-
-  // if (content.length > 0) {
-  //   setMapContainerStyle({ width: '80vw', height: '90vh' });
-  // }
 
   return (
     <Frame>
@@ -163,7 +130,21 @@ function App() {
           <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
         </SearchBox>
       </StandaloneSearchBox>
-      {productList}
+      {content.length > 1 && select === null ? (
+        <InformationBg>
+          <InformationBox>
+            {content.map((product, key) => (
+              <StoreCard key={key} product={product} />
+            ))}
+          </InformationBox>
+        </InformationBg>
+      ) : content.length === 1 ? (
+        content.map((product, index) => <StoreDetail key={index} product={product}></StoreDetail>)
+      ) : select ? (
+        <StoreDetail key={999} product={makerSelected}></StoreDetail>
+      ) : (
+        <div></div>
+      )}
 
       <GoogleMap
         mapContainerStyle={mapContainerStyle}

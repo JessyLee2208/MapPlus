@@ -311,6 +311,37 @@ const AuthorImg = styled.img`
   padding-right: 12px;
 `;
 
+const TabBox = styled.div`
+  display: flex;
+  padding-left 20px;
+  border-bottom: 1px solid #efefef;
+  margin-bottom: 10px;
+`;
+const TabActive = styled.div`
+  margin: 10px 20px 0px 0;
+  padding-bottom: 6px;
+  border-bottom: 3px solid #185ee6;
+  color: #185ee6;
+  font-size: 15px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+`;
+const Tab = styled.div`
+  margin: 10px 20px 0px 0;
+  padding-bottom: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+`;
+
 function renderStar(data, newArray) {
   if (data) {
     // newArray = [];
@@ -340,7 +371,7 @@ function renderStar(data, newArray) {
 
 function StoreDetail(props) {
   let starArry = [];
-  let reviewArry = [];
+
   let URL = <div></div>;
   let OpenStatu = <div></div>;
   let websites = <div></div>;
@@ -349,8 +380,13 @@ function StoreDetail(props) {
   let deliverSiteTag = <div></div>;
   let typesCheck = props.product.types.includes('food');
   let showType = <div></div>;
+  const [selectedTab, setSelectedTab] = React.useState('information');
 
   renderStar(props.product.rating, starArry);
+
+  if (props.product.photos.length !== 0) {
+    URL = <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>;
+  }
 
   if (props.product.opening_hours !== undefined) {
     const today = new Date().getDay();
@@ -441,8 +477,12 @@ function StoreDetail(props) {
     });
   }
 
-  if (props.product.photos.length !== 0) {
-    URL = <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>;
+  function handleTabClick(e) {
+    if (e.target.id === 'information') {
+      setSelectedTab('information');
+    } else if (e.target.id === 'menu') {
+      setSelectedTab('menu');
+    }
   }
 
   return (
@@ -454,30 +494,44 @@ function StoreDetail(props) {
         <StarBoxStore>{starArry}</StarBoxStore>
         <Info>{props.product.user_ratings_total} 則評論</Info>
       </RatingDiv>
-      {showType}
-      <InforList>
-        <InfoBox>
-          <Icon src="/location.png"></Icon>
-          <InfoDetail>{props.product.formatted_address} </InfoDetail>
-        </InfoBox>
-        <InfoBox>
-          <Icon src="/time.png"></Icon>
-          {OpenStatu}
-        </InfoBox>
-        {deliverSiteTag}
-        {websites}
-        <InfoBox>
-          <Icon src="/phone.png"></Icon>
-          <InfoDetail>{props.product.formatted_phone_number}</InfoDetail>
-        </InfoBox>
-        <InfoBox>
-          <Icon src="/plusCode.png"></Icon>
-          <InfoDetail>{props.product.plus_code.compound_code}</InfoDetail>
-        </InfoBox>
-      </InforList>
+      <TabBox onClick={handleTabClick}>
+        {selectedTab === 'information' ? (
+          <TabActive id="information">資訊</TabActive>
+        ) : (
+          <Tab id="information">資訊</Tab>
+        )}
+        {selectedTab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
+      </TabBox>
+      {selectedTab === 'information' ? (
+        <div>
+          {showType}
+          <InforList>
+            <InfoBox>
+              <Icon src="/location.png"></Icon>
+              <InfoDetail>{props.product.formatted_address} </InfoDetail>
+            </InfoBox>
+            <InfoBox>
+              <Icon src="/time.png"></Icon>
+              {OpenStatu}
+            </InfoBox>
+            {deliverSiteTag}
+            {websites}
+            <InfoBox>
+              <Icon src="/phone.png"></Icon>
+              <InfoDetail>{props.product.formatted_phone_number}</InfoDetail>
+            </InfoBox>
+            <InfoBox>
+              <Icon src="/plusCode.png"></Icon>
+              <InfoDetail>{props.product.plus_code.compound_code}</InfoDetail>
+            </InfoBox>
+          </InforList>
 
-      <H3Title>評論摘要</H3Title>
-      {AllReviews}
+          <H3Title>評論摘要</H3Title>
+          {AllReviews}
+        </div>
+      ) : (
+        <div></div>
+      )}
     </Store>
   );
 }
