@@ -7,6 +7,7 @@ const SearchInput = styled.input`
   width: 80%;
   padding: 0;
   border: none;
+  outline: none;
 `;
 
 const SearchBox = styled.div`
@@ -33,20 +34,25 @@ const SearchBox = styled.div`
 `;
 
 const InformationBox = styled.div`
-  height: 100%;
   width: 435px;
-  position: absolute;
+  position: relative;
   top: 85px;
-
-  overflow: auto;
 `;
 
 const InformationBg = styled.div`
   background: #ffffff;
-  height: 100%;
+  height: 100vh;
   width: 435px;
-  position: absolute;
+  position: relative;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
+  // z-index: 5;
+  overflow: auto;
 `;
 
-export { SearchInput, InformationBox, SearchBox, InformationBg };
+const Frame = styled.div`
+  position: absolute;
+  top:0,
+  left:0
+`;
+
+export { SearchInput, InformationBox, SearchBox, InformationBg, Frame };

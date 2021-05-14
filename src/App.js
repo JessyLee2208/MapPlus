@@ -1,15 +1,15 @@
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { SearchInput, InformationBox, SearchBox, InformationBg } from './style';
+import { SearchInput, InformationBox, SearchBox, InformationBg, Frame } from './style';
 import StoreCard from './Components/StoreCard';
 import StoreDetail from './Components/StoreDetail';
 import postStoreData from './Utils/firebase';
 
 const libraries = ['drawing', 'places'];
-const mapContainerStyle = {
-  width: '100vw',
-  height: '100vh'
-};
+// const mapContainerStyle = {
+//   width: '100vw',
+//   height: '100vh'
+// };
 const center = {
   lat: 25.020397,
   lng: 121.533053
@@ -31,11 +31,17 @@ function App() {
 
   const [slescted, setSelect] = React.useState(null);
   const [content, setContent] = React.useState([]);
+  const [mapContainerStyle, setMapContainerStyle] = React.useState({
+    width: '100vw',
+    height: '100vh',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: -10
+  });
   let productList;
-  let constList = null;
 
   const onMapLoad = React.useCallback((map) => {
-    console.log(5);
     mapRef.current = map;
   }, []);
   const onSearchLoad = React.useCallback((search) => {
@@ -57,14 +63,13 @@ function App() {
     setBounds(mapRef.current.getBounds());
   };
   const hanldePlacesChanged = () => {
-    console.log(4);
     const host_name = 'http://localhost:5000';
 
     setMarkers([]);
 
     const places = searchRef.current.getPlaces();
-    console.log(places);
     const bounds = new window.google.maps.LatLngBounds();
+    const placePromises = [];
     places.forEach((place) => {
       let placeName = place.name.replaceAll('/', ' ');
       setMarkers((current) => [
@@ -73,14 +78,10 @@ function App() {
       ]);
       if (place.geometry.viewport) {
         bounds.union(place.geometry.viewport);
-        console.log(bounds.union(place.geometry.viewport));
       } else {
         bounds.extend(place.geometry.location);
         // console.log(bounds.extend(place.geometry.location));
       }
-
-      // console.log(place.opening_hours.open_now);
-      // console.log(place.opening_hours.periods);
       // if (places.length > 1) {
       //   setContent(places.map((place, key) => <StoreCard key={key} product={place} />));
       //   // setZoom(8);
@@ -88,33 +89,51 @@ function App() {
       //   console.log(places.length);
       // }
 
-      // fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
-      //   const a = await res.json();
-      //   console.log(a);
-      //   var storeData = {
-      //     formatted_address: place.formatted_address,
-      //     address_components: place.address_components,
-      //     geometry: {
-      //       lat: place.geometry.location.lat(),
-      //       lng: place.geometry.location.lng()
-      //     },
-      //     formatted_phone_number: place.formatted_phone_number,
-      //     rating: place.rating,
-      //     name: place.name,
-      //     user_ratings_total: place.user_ratings_total,
-      //     website: place.website,
-      //     business_status: place.business_status,
-      //     photo: place.photos[0].getUrl(),
-      //     periods: place.opening_hours.periods
-      //   };
+      const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
+        const a = await res.json();
+        //
+        // var storeData = {
+        //   address_components: place.address_components,
+        //   business_status: place.business_status,
+        //   deliver: a,
+        //   formatted_address: place.formatted_address,
+        //   formatted_phone_number: place.formatted_phone_number,
+        //   geometry: {
+        //     lat: place.geometry.location.lat(),
+        //     lng: place.geometry.location.lng()
+        //   },
+        //   name: place.name,
+        //   rating: place.rating,
+        //   photo: place.photos[0].getUrl(),
+        //   periods: place.opening_hours.periods,
+        //   user_ratings_total: place.user_ratings_total,
+        //   website: place.website,
+        //   weekday_text: place.weekday_text
+        // };
 
-      //   postStoreData(storeData);
-      // });
+        // postStoreData(storeData);
+
+        return { ...place, deliver: a };
+      });
+      placePromises.push(placePromise);
     });
-    setContent(places);
-    console.log(places.length);
+
+    // setContent(places);
+
+    setMapContainerStyle({
+      width: 'calc(100vw - 435px)',
+      height: '100vh',
+      position: 'absolute',
+      top: 0,
+      left: '435px',
+      zIndex: -10
+    });
 
     mapRef.current.fitBounds(bounds);
+    Promise.all(placePromises).then((res) => {
+      setContent(res);
+      console.log(res);
+    });
   };
 
   if (content.length > 1) {
@@ -129,8 +148,23 @@ function App() {
     );
   }
 
+  if (content.length === 1) {
+    content.map((product) => (productList = <StoreDetail key={999} product={product}></StoreDetail>));
+  }
+
+  // if (content.length > 0) {
+  //   setMapContainerStyle({ width: '80vw', height: '90vh' });
+  // }
+
   return (
-    <div>
+    <Frame>
+      <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+        <SearchBox>
+          <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+        </SearchBox>
+      </StandaloneSearchBox>
+      {productList}
+
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={zoom}
@@ -139,13 +173,6 @@ function App() {
         onBoundsChanged={onBoundsChanged}
         style={{ padding: 0 }}
       >
-        <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
-          <SearchBox>
-            <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
-          </SearchBox>
-        </StandaloneSearchBox>
-        {productList}
-        <StoreDetail proudct={content[0]}></StoreDetail>
         {markers.map((marker) => (
           <Marker
             key={marker.lat + marker.lng}
@@ -156,7 +183,7 @@ function App() {
           />
         ))}
       </GoogleMap>
-    </div>
+    </Frame>
   );
 }
 
