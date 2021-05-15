@@ -36,7 +36,19 @@ const SearchBox = styled.div`
 const InformationBox = styled.div`
   width: 435px;
   position: relative;
-  top: 85px;
+  top: 70px;
+`;
+
+const InformationBoxS = styled.div`
+  background: #ffffff;
+  width: calc(100vw - 435px);
+  position: absolute;
+  left: 435px;
+  bottom: 0;
+  z-index: -5;
+  display: flex;
+  overflow: auto;
+  // padding: 0 10px;
 `;
 
 const InformationBg = styled.div`
@@ -55,4 +67,4 @@ const Frame = styled.div`
   left:0
 `;
 
-export { SearchInput, InformationBox, SearchBox, InformationBg, Frame };
+export { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS };

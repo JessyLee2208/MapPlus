@@ -1,7 +1,8 @@
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { SearchInput, InformationBox, SearchBox, InformationBg, Frame } from './style';
-import StoreCard from './Components/StoreCard';
+import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS } from './style';
+import StoreCardL from './Components/StoreCardL';
+import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
 import postStoreData from './Utils/firebase';
 
@@ -10,8 +11,6 @@ const center = {
   lat: 25.020397,
   lng: 121.533053
 };
-
-const zoom = 16;
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -35,6 +34,7 @@ function App() {
     left: 0,
     zIndex: -10
   });
+  const [storCardsS, setStorCardsS] = React.useState(false);
 
   let makerSelected = null;
 
@@ -123,6 +123,28 @@ function App() {
     console.log(select);
   }
 
+  function handleStoreListClick(e) {
+    console.log(123);
+    markers.forEach((marker) => {
+      if (e.target.id === marker.storename) {
+        console.log(marker.lat, marker.lng);
+        setSelect(marker);
+        setStorCardsS(true);
+      }
+    });
+  }
+
+  function handleStoreListClickS(e) {
+    console.log(123);
+    markers.forEach((marker) => {
+      if (e.target.id === marker.storename) {
+        console.log(marker.lat, marker.lng);
+        setSelect(marker);
+        setStorCardsS(true);
+      }
+    });
+  }
+
   return (
     <Frame>
       <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
@@ -132,9 +154,14 @@ function App() {
       </StandaloneSearchBox>
       {content.length > 1 && select === null ? (
         <InformationBg>
-          <InformationBox>
+          <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
-              <StoreCard key={key} product={product} />
+              <StoreCardL
+                key={key}
+                product={product}
+                // position={{ lat: product.geometry.location.lat(), lng: product.geometry.location.lng() }}
+                id={product.name}
+              />
             ))}
           </InformationBox>
         </InformationBg>
@@ -145,18 +172,29 @@ function App() {
       ) : (
         <div></div>
       )}
+      {storCardsS ? (
+        <InformationBoxS onClick={handleStoreListClick}>
+          {content.length > 1 ? (
+            content.map((product, key) => <StoreCardS key={key} product={product} id={product.name} />)
+          ) : (
+            <div></div>
+          )}
+        </InformationBoxS>
+      ) : (
+        <div></div>
+      )}
 
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        zoom={zoom}
+        zoom={16}
         center={center}
         onLoad={onMapLoad}
         onBoundsChanged={onBoundsChanged}
         style={{ padding: 0 }}
       >
-        {markers.map((marker) => (
+        {markers.map((marker, key) => (
           <Marker
-            key={marker.lat + marker.lng}
+            key={key}
             position={{ lat: marker.lat, lng: marker.lng }}
             onClick={() => {
               setSelect(marker);

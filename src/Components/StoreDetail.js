@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-// import stat from '../';
+import RenderStar from './RenderStar';
 
 const product = {
   business_status: 'OPERATIONAL',
@@ -208,11 +208,6 @@ const StarBoxReview = styled.div`
   align-items: center;
 `;
 
-const Img = styled.img`
-  width: 16px;
-  height: 16px;
-`;
-
 const Icon = styled.img`
   width: 24px;
   height: 24px;
@@ -342,33 +337,6 @@ const Tab = styled.div`
   text-align: left;
 `;
 
-function renderStar(data, newArray) {
-  if (data) {
-    // newArray = [];
-    let length = Math.floor(data);
-
-    for (let i = 0; i < length; i++) {
-      const star = <Img src="/active_star.png" alt=""></Img>;
-      newArray.push(star);
-    }
-    if (data % length !== 0) {
-      for (let i = 0; i < 1; i++) {
-        const star = <Img src="/half_star.png" alt=""></Img>;
-        newArray.push(star);
-      }
-      for (let i = 0; i < 4 - length; i++) {
-        const star = <Img src="/default_star.png" alt=""></Img>;
-        newArray.push(star);
-      }
-    } else {
-      for (let i = 0; i < 5 - length; i++) {
-        const star = <Img src="/default_star.png" alt=""></Img>;
-        newArray.push(star);
-      }
-    }
-  }
-}
-
 function StoreDetail(props) {
   let starArry = [];
 
@@ -382,7 +350,7 @@ function StoreDetail(props) {
   let showType = <div></div>;
   const [selectedTab, setSelectedTab] = React.useState('information');
 
-  renderStar(props.product.rating, starArry);
+  RenderStar(props.product.rating, starArry);
 
   if (props.product.photos.length !== 0) {
     URL = <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>;
@@ -410,7 +378,7 @@ function StoreDetail(props) {
       </InfoBox>
     );
   }
-
+  // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
   if (props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null) {
     if (props.product.deliver.uberEatUrl) {
       deliverSite = props.product.deliver.uberEatUrl.split('/');
@@ -432,7 +400,7 @@ function StoreDetail(props) {
   }
 
   if (typesCheck) {
-    if (props.product.deliver.uber || props.product.deliver.foodpanda) {
+    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
       showType = (
         <InfoBox>
           <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
@@ -465,7 +433,7 @@ function StoreDetail(props) {
             <AuthorImg src={review.profile_photo_url}></AuthorImg>
             <div>{review.author_name}</div>
           </AuthorBox>
-          {renderStar(review.rating, reviewArry)}
+          {RenderStar(review.rating, reviewArry)}
           <StarBoxReview>
             {reviewArry}
             <Info> {review.relative_time_description}</Info>
