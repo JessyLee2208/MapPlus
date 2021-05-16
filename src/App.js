@@ -1,10 +1,11 @@
 import React from 'react';
-import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox, Autocomplete } from '@react-google-maps/api';
 import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS } from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
 import postStoreData from './Utils/firebase';
+import GetMorereDetail from './Components/GetMoreDetail';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -34,9 +35,10 @@ function App() {
     left: 0,
     zIndex: -10
   });
-  const [storCardsS, setStorCardsS] = React.useState(false);
 
-  let makerSelected = null;
+  const [makerSelected, setMakerSelected] = React.useState(null);
+
+  const service = new window.google.maps.places.PlacesService(mapRef.current);
 
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map;
@@ -61,7 +63,7 @@ function App() {
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
 
-    places.forEach((place) => {
+    places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
       setMarkers((current) => [
         ...current,
@@ -75,27 +77,6 @@ function App() {
 
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
         const a = await res.json();
-        //
-        // var storeData = {
-        //   address_components: place.address_components,
-        //   business_status: place.business_status,
-        //   deliver: a,
-        //   formatted_address: place.formatted_address,
-        //   formatted_phone_number: place.formatted_phone_number,
-        //   geometry: {
-        //     lat: place.geometry.location.lat(),
-        //     lng: place.geometry.location.lng()
-        //   },
-        //   name: place.name,
-        //   rating: place.rating,
-        //   photo: place.photos[0].getUrl(),
-        //   periods: place.opening_hours.periods,
-        //   user_ratings_total: place.user_ratings_total,
-        //   website: place.website,
-        //   weekday_text: place.weekday_text
-        // };
-
-        // postStoreData(storeData);
 
         return { ...place, deliver: a };
       });
@@ -112,38 +93,38 @@ function App() {
     });
 
     mapRef.current.fitBounds(bounds);
+
     Promise.all(placePromises).then((res) => {
-      setContent(res);
       console.log(res);
+      setContent(res);
     });
   };
 
-  if (select) {
-    makerSelected = content.find((cont) => cont.name === select.storename);
-    console.log(select);
-  }
-
   function handleStoreListClick(e) {
-    console.log(123);
     markers.forEach((marker) => {
       if (e.target.id === marker.storename) {
         console.log(marker.lat, marker.lng);
         setSelect(marker);
-        setStorCardsS(true);
+      }
+    });
+    content.forEach((product) => {
+      if (e.target.id === product.name) {
+        console.log(product.deliver);
+        const host_name = 'http://localhost:5000';
+        const placePromise = fetch(`${host_name}/getStoreProducts`, {
+          method: 'post',
+          body: JSON.stringify(product.deliver),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then(async (res) => {
+          console.log(await res.json());
+        });
+        GetMorereDetail(product, service, setMakerSelected);
       }
     });
   }
-
-  function handleStoreListClickS(e) {
-    console.log(123);
-    markers.forEach((marker) => {
-      if (e.target.id === marker.storename) {
-        console.log(marker.lat, marker.lng);
-        setSelect(marker);
-        setStorCardsS(true);
-      }
-    });
-  }
+  console.log(select);
 
   return (
     <Frame>
@@ -156,23 +137,18 @@ function App() {
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
-              <StoreCardL
-                key={key}
-                product={product}
-                // position={{ lat: product.geometry.location.lat(), lng: product.geometry.location.lng() }}
-                id={product.name}
-              />
+              <StoreCardL key={key} product={product} id={product.name} />
             ))}
           </InformationBox>
         </InformationBg>
       ) : content.length === 1 ? (
         content.map((product, index) => <StoreDetail key={index} product={product}></StoreDetail>)
-      ) : select ? (
+      ) : makerSelected !== null ? (
         <StoreDetail key={999} product={makerSelected}></StoreDetail>
       ) : (
         <div></div>
       )}
-      {storCardsS ? (
+      {select ? (
         <InformationBoxS onClick={handleStoreListClick}>
           {content.length > 1 ? (
             content.map((product, key) => <StoreCardS key={key} product={product} id={product.name} />)
@@ -197,7 +173,15 @@ function App() {
             key={key}
             position={{ lat: marker.lat, lng: marker.lng }}
             onClick={() => {
+              console.log(marker);
+              console.log(123);
               setSelect(marker);
+              content.forEach((product) => {
+                if (marker.storename === product.name) {
+                  console.log(product.name);
+                  GetMorereDetail(product, service, setMakerSelected);
+                }
+              });
             }}
           />
         ))}

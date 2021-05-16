@@ -346,7 +346,7 @@ function StoreDetail(props) {
   let websitesURL = '';
   let deliverSite = '';
   let deliverSiteTag = <div></div>;
-  let typesCheck = props.product.types.includes('food');
+  let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
   let showType = <div></div>;
   const [selectedTab, setSelectedTab] = React.useState('information');
 
@@ -365,8 +365,8 @@ function StoreDetail(props) {
     } else {
       OpenStatu = <InfoDetail>營業中</InfoDetail>;
     }
-  } else {
-    OpenStatu = <InfoDetail></InfoDetail>;
+  } else if (props.product.business_status === 'CLOSED_TEMPORARILY') {
+    OpenStatu = <InfoDetail> 歇業中</InfoDetail>;
   }
 
   if (props.product.website) {
@@ -484,10 +484,15 @@ function StoreDetail(props) {
             </InfoBox>
             {deliverSiteTag}
             {websites}
-            <InfoBox>
-              <Icon src="/phone.png"></Icon>
-              <InfoDetail>{props.product.formatted_phone_number}</InfoDetail>
-            </InfoBox>
+            {props.product.formatted_phone_number ? (
+              <InfoBox>
+                <Icon src="/phone.png"></Icon>
+                <InfoDetail>{props.product.formatted_phone_number}</InfoDetail>
+              </InfoBox>
+            ) : (
+              <div></div>
+            )}
+
             <InfoBox>
               <Icon src="/plusCode.png"></Icon>
               <InfoDetail>{props.product.plus_code.compound_code}</InfoDetail>
