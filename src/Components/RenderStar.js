@@ -6,7 +6,7 @@ const Img = styled.img`
 `;
 
 function RenderStar(data, newArray) {
-  if (data) {
+  if (data !== 0) {
     // newArray = [];
     let length = Math.floor(data);
 
@@ -28,6 +28,11 @@ function RenderStar(data, newArray) {
         const star = <Img src="/default_star.png" alt=""></Img>;
         newArray.push(star);
       }
+    }
+  } else {
+    for (let i = 0; i < 5; i++) {
+      const star = <Img src="/default_star.png" alt=""></Img>;
+      newArray.push(star);
     }
   }
 }

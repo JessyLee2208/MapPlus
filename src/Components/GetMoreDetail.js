@@ -1,4 +1,4 @@
-import postStoreData from '../Utils/firebase';
+import { postStoreData } from '../Utils/firebase';
 
 function GetMorereDetail(product, service, setMakerSelected) {
   const request = {
@@ -27,7 +27,6 @@ function GetMorereDetail(product, service, setMakerSelected) {
         opening_hours: place.opening_hours
       };
       const all = { ...product, ...moreDetail };
-      console.log(all);
       setMakerSelected(all);
 
       let upLoadDataToFirebaseData = {

@@ -1,10 +1,14 @@
-const initState = {};
+const initState = {
+  selectedTab: 'information'
+};
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
 
   switch (type) {
-    case 'saveData':
-      return {};
+    case 'setSelectedTab':
+      return {
+        selectedTab: data
+      };
     case 'setVariant':
       return {};
 

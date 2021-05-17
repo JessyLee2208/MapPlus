@@ -81,8 +81,6 @@ function StoreCard(props) {
   let typesCheck = props.product.types.includes('food');
   let showType = <div></div>;
   let OpenStatu = <div></div>;
-  let URL = <div></div>;
-  let priceLevelDOM = <div></div>;
 
   RenderStar(props.product.rating, starArry);
   // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
@@ -115,11 +113,6 @@ function StoreCard(props) {
       const leval = <Info>$</Info>;
       priceLevel.push(leval);
     }
-    priceLevelDOM = (
-      <PriceLevel>
-        <Info>・</Info> {priceLevel}
-      </PriceLevel>
-    );
   }
 
   if (props.product.opening_hours !== undefined) {
@@ -138,10 +131,6 @@ function StoreCard(props) {
     OpenStatu = <Info></Info>;
   }
 
-  if (props.product.photos.length !== 0) {
-    URL = <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>;
-  }
-
   // console.log(deliverSiteTag);
 
   return (
@@ -154,14 +143,24 @@ function StoreCard(props) {
           <Info id={props.id}>{props.product.rating}</Info>
           <StarBox id={props.id}>{starArry}</StarBox>
           <Info id={props.id}>({props.product.user_ratings_total})</Info>
-          {priceLevelDOM}
+          {props.product.price_level ? (
+            <PriceLevel>
+              <Info>・</Info> {priceLevel}
+            </PriceLevel>
+          ) : (
+            <div></div>
+          )}
         </RatingDiv>
         <Info id={props.id}>{props.product.formatted_address}</Info>
         <Info id={props.id}>{props.product.formatted_phone_number}</Info>
         {OpenStatu}
         {showType}
       </StoreInfo>
-      {URL}
+      {props.product.photos.length !== 0 ? (
+        <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>
+      ) : (
+        <div></div>
+      )}
     </Store>
   );
 }

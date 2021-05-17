@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import RenderStar from './RenderStar';
+import MenuCard from './MenuCard';
+import { useDispatch, useSelector } from 'react-redux';
 
 const product = {
   business_status: 'OPERATIONAL',
@@ -348,7 +350,10 @@ function StoreDetail(props) {
   let deliverSiteTag = <div></div>;
   let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
   let showType = <div></div>;
-  const [selectedTab, setSelectedTab] = React.useState('information');
+  // const [selectedTab, setSelectedTab] = React.useState('information');
+  const dispatch = useDispatch();
+  const tab = useSelector((state) => state.selectedTab);
+  console.log(tab);
 
   RenderStar(props.product.rating, starArry);
 
@@ -447,12 +452,19 @@ function StoreDetail(props) {
 
   function handleTabClick(e) {
     if (e.target.id === 'information') {
-      setSelectedTab('information');
+      // setSelectedTab('information');
+      dispatch({
+        type: 'setSelectedTab',
+        data: 'information'
+      });
     } else if (e.target.id === 'menu') {
-      setSelectedTab('menu');
+      // setSelectedTab('menu');
+      dispatch({
+        type: 'setSelectedTab',
+        data: 'menu'
+      });
     }
   }
-
   return (
     <Store>
       {URL}
@@ -462,15 +474,16 @@ function StoreDetail(props) {
         <StarBoxStore>{starArry}</StarBoxStore>
         <Info>{props.product.user_ratings_total} 則評論</Info>
       </RatingDiv>
-      <TabBox onClick={handleTabClick}>
-        {selectedTab === 'information' ? (
-          <TabActive id="information">資訊</TabActive>
-        ) : (
-          <Tab id="information">資訊</Tab>
-        )}
-        {selectedTab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
-      </TabBox>
-      {selectedTab === 'information' ? (
+      {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+        <TabBox onClick={handleTabClick}>
+          {tab === 'information' ? <TabActive id="information">資訊</TabActive> : <Tab id="information">資訊</Tab>}
+          {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
+        </TabBox>
+      ) : (
+        <div></div>
+      )}
+
+      {tab === 'information' ? (
         <div>
           {showType}
           <InforList>
@@ -502,6 +515,8 @@ function StoreDetail(props) {
           <H3Title>評論摘要</H3Title>
           {AllReviews}
         </div>
+      ) : props.menu !== undefined ? (
+        props.menu.map((item) => <MenuCard data={item} />)
       ) : (
         <div></div>
       )}

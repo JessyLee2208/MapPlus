@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -94,6 +95,21 @@ const InfoLink = styled.a`
   text-decoration:none;
   flex-grow:1;
 `;
+const InfoMenu = styled.p`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #185EE6;
+  margin: 1px;
+  letter-spacing: 0.5px;　
+  text-decoration:none;
+  flex-grow:1;
+`;
 
 const Border = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
@@ -112,28 +128,20 @@ const Border = styled.p`
 function StoreCardS(props, key) {
   let priceLevel = [];
 
-  let URL = <div></div>;
-  let priceLevelDOM = <div></div>;
-
   if (props.product.price_level !== undefined) {
     for (let i = 0; i < props.product.price_level; i++) {
       const leval = <Info>$</Info>;
       priceLevel.push(leval);
     }
-    priceLevelDOM = (
-      <PriceLevel id={props.id}>
-        <Info>・</Info> {priceLevel}
-      </PriceLevel>
-    );
-  }
-
-  if (props.product.photos) {
-    URL = <StoreImg id={props.id} alt="" src={props.product.photos[0].getUrl()}></StoreImg>;
   }
 
   return (
     <Store id={props.id}>
-      {URL}
+      {props.product.photos ? (
+        <StoreImg id={props.id} alt="" src={props.product.photos[0].getUrl()}></StoreImg>
+      ) : (
+        <div></div>
+      )}
       <StoreInfo id={props.id}>
         <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
         <RatingDiv id={props.id}>
@@ -142,9 +150,16 @@ function StoreCardS(props, key) {
             <Img src="/active_star.png" alt=""></Img>
           </StarBox>
           <Info id={props.id}>({props.product.user_ratings_total})</Info>
-          {priceLevelDOM}
+          {props.product.price_level ? (
+            <PriceLevel id={props.id}>
+              <Info>・</Info> {priceLevel}
+            </PriceLevel>
+          ) : (
+            <div></div>
+          )}
+          {/* {priceLevelDOM} */}
         </RatingDiv>
-        <LinkDiv id={props.id}>
+        <LinkDiv id={props.id} className="Link">
           {props.product.website ? <InfoLink href={props.product.website}>網站</InfoLink> : ''}
           {props.product.website && (props.product.deliver.foodPandaUrl || props.product.deliver.uberEatUrl) ? (
             <Border>|</Border>
@@ -152,9 +167,9 @@ function StoreCardS(props, key) {
             ''
           )}
           {props.product.deliver.foodPandaUrl ? (
-            <InfoLink href={props.product.deliver.foodPandaUrl}>菜單</InfoLink>
-          ) : props.product.deliver.foodPandaUrl ? (
-            <InfoLink href={props.product.deliver.foodPandaUrl}>菜單</InfoLink>
+            <InfoMenu id="Link">菜單</InfoMenu>
+          ) : props.product.deliver.uberEatUrl ? (
+            <InfoMenu id="Link">菜單</InfoMenu>
           ) : (
             ''
           )}

@@ -17,11 +17,25 @@ const db = firebase.firestore();
 const postStoreData = (storeData) => {
   return db
     .collection('store')
-    .doc()
+    .doc(storeData.place_id)
     .set(storeData)
     .then(() => {
       console.log('Document successfully written!');
     });
 };
 
-export default postStoreData;
+const GetMenuData = (selectedStoreName) => {
+  return new Promise((res, rej) => {
+    const promises = [];
+    db.collection('menu')
+      .where('storeName', '==', selectedStoreName)
+      .onSnapshot((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          promises.push(doc.data());
+        });
+        res(promises);
+      });
+  });
+};
+
+export { postStoreData, GetMenuData };

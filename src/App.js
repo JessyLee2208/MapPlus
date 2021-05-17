@@ -1,11 +1,12 @@
 import React from 'react';
-import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
 import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS } from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
-import postStoreData from './Utils/firebase';
+import { postStoreData, GetMenuData } from './Utils/firebase';
 import GetMorereDetail from './Components/GetMoreDetail';
+import { useDispatch, useSelector } from 'react-redux';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -19,6 +20,10 @@ function App() {
     libraries
   });
 
+  const dispatch = useDispatch();
+
+  const menuList = [];
+
   const mapRef = React.useRef();
   const searchRef = React.useRef();
 
@@ -27,6 +32,7 @@ function App() {
 
   const [select, setSelect] = React.useState(null);
   const [content, setContent] = React.useState([]);
+  const [menuData, setMenuData] = React.useState([]);
   const [mapContainerStyle, setMapContainerStyle] = React.useState({
     width: '100vw',
     height: '100vh',
@@ -38,8 +44,6 @@ function App() {
 
   const [makerSelected, setMakerSelected] = React.useState(null);
 
-  const service = new window.google.maps.places.PlacesService(mapRef.current);
-
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map;
   }, []);
@@ -49,6 +53,7 @@ function App() {
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
+  const service = new window.google.maps.places.PlacesService(mapRef.current);
 
   const onBoundsChanged = () => {
     setBounds(mapRef.current.getBounds());
@@ -105,6 +110,10 @@ function App() {
       if (e.target.id === marker.storename) {
         console.log(marker.lat, marker.lng);
         setSelect(marker);
+        dispatch({
+          type: 'setSelectedTab',
+          data: 'information'
+        });
       }
     });
     content.forEach((product) => {
@@ -121,10 +130,27 @@ function App() {
           console.log(await res.json());
         });
         GetMorereDetail(product, service, setMakerSelected);
+        dispatch({
+          type: 'setSelectedTab',
+          data: 'information'
+        });
+        if (product.deliver.uberEatUrl) {
+          GetMenuData(product.name, menuList).then((res) => {
+            console.log(res);
+            setMenuData(res);
+          });
+        } else {
+          setMenuData(null);
+        }
+        console.log(e.target);
+        if (e.target.className === 'link') {
+          console.log(e.target);
+        }
+
+        //
       }
     });
   }
-  console.log(select);
 
   return (
     <Frame>
@@ -143,8 +169,10 @@ function App() {
         </InformationBg>
       ) : content.length === 1 ? (
         content.map((product, index) => <StoreDetail key={index} product={product}></StoreDetail>)
+      ) : makerSelected !== null && menuData !== null ? (
+        <StoreDetail key={makerSelected.place_id} product={makerSelected} menu={menuData}></StoreDetail>
       ) : makerSelected !== null ? (
-        <StoreDetail key={999} product={makerSelected}></StoreDetail>
+        <StoreDetail key={makerSelected.place_id} product={makerSelected}></StoreDetail>
       ) : (
         <div></div>
       )}
@@ -176,6 +204,10 @@ function App() {
               console.log(marker);
               console.log(123);
               setSelect(marker);
+              dispatch({
+                type: 'setSelectedTab',
+                data: 'information'
+              });
               content.forEach((product) => {
                 if (marker.storename === product.name) {
                   console.log(product.name);
