@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import RenderStar from './RenderStar';
 import { useDispatch, useSelector } from 'react-redux';
+import { userReviewCheck } from '../Utils/firebase';
 
 const Menu = styled.div`
   background: #ffffff;
@@ -101,6 +102,19 @@ const CommentBtn = styled.button`
   margin-right: 20px;
 `;
 
+const EditorBtn = styled.button`
+  border: 1px solid #4285f4;
+  background: #4285f4;
+  color: #fff;
+  //   width: 64px;
+  height: 2em;
+  border-radius: 25px;
+  padding: 0.1em 1em;
+  font-size: 15px;
+
+  margin-right: 20px;
+`;
+
 const product = {
   imageUrl: 'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
   name: '雙層享受牛肉黑麥堡',
@@ -113,23 +127,41 @@ const product = {
 
 function MenuCard(props) {
   let starArry = [];
+  const [userReviewSet, setUserReviewSet] = React.useState(undefined);
   //   const show = useSelector((state) => state.modalShow);
   const dispatch = useDispatch();
+  const userStatus = useSelector((state) => state.userStatus);
+
+  if (userStatus) {
+    userReviewCheck(userStatus).then((res) => {
+      if (res.reviews.length !== 0) {
+        const target = res.reviews.find(
+          (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+        );
+        setUserReviewSet(target);
+      }
+    });
+  }
 
   RenderStar(props.data.rating, starArry);
+
   // const show = useSelector((state) => state.modalShow);
   // const tab = useSelector((state) => state.selectedTab);
 
   function callModal(e) {
-    dispatch({
-      type: 'setModalShow',
-      data: true
-    });
+    if (userStatus) {
+      dispatch({
+        type: 'setModalShow',
+        data: true
+      });
 
-    dispatch({
-      type: 'setSelectedDish',
-      data: props.data
-    });
+      dispatch({
+        type: 'setSelectedDish',
+        data: props.data
+      });
+    } else {
+      console.log('Please login first');
+    }
 
     // console.log(props.data);
     // console.log(tab);
@@ -151,10 +183,15 @@ function MenuCard(props) {
         </div>
         <MenuPrice>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
-
-      <CommentBtn type="button" onClick={callModal}>
-        評論
-      </CommentBtn>
+      {userReviewSet === undefined ? (
+        <CommentBtn type="button" onClick={callModal}>
+          評論
+        </CommentBtn>
+      ) : (
+        <EditorBtn type="button" onClick={callModal}>
+          編輯
+        </EditorBtn>
+      )}
     </Menu>
   );
 }

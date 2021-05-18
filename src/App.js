@@ -9,7 +9,8 @@ import {
   GetMenuData,
   GoogleAccountSignIn,
   GoogleAccountStateChanged,
-  GoogleAccountLogOut
+  GoogleAccountLogOut,
+  userReviewCheck
 } from './Utils/firebase';
 import GetMorereDetail from './Components/GetMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,8 +33,13 @@ function App() {
   const dispatch = useDispatch();
   const show = useSelector((state) => state.modalShow);
   const userStatus = useSelector((state) => state.userStatus);
+  const menuData = useSelector((state) => state.menuData);
   GoogleAccountStateChanged();
-  console.log(userStatus);
+  if (userStatus) {
+    userReviewCheck(userStatus).then((res) => {
+      // console.log(res);
+    });
+  }
 
   const menuList = [];
 
@@ -45,7 +51,7 @@ function App() {
 
   const [select, setSelect] = React.useState(null);
   const [content, setContent] = React.useState([]);
-  const [menuData, setMenuData] = React.useState([]);
+  // const [menuData, setMenuData] = React.useState([]);
   const [mapContainerStyle, setMapContainerStyle] = React.useState({
     width: '100vw',
     height: '100vh',
@@ -154,12 +160,21 @@ function App() {
           data: 'information'
         });
         if (product.deliver.uberEatUrl) {
-          GetMenuData(product.name, menuList).then((res) => {
+          GetMenuData(product.name, menuList, dispatch).then((res) => {
             console.log(res);
-            setMenuData(res);
+            // setMenuData(res);
+            dispatch({
+              type: 'setMenuData',
+              data: res
+            });
           });
+          // GetMenuData(product.name);
         } else {
-          setMenuData(null);
+          // setMenuData(null);
+          dispatch({
+            type: 'setMenuData',
+            data: null
+          });
         }
 
         console.log(e.target);
