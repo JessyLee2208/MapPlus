@@ -17,11 +17,57 @@ const db = firebase.firestore();
 const postStoreData = (storeData) => {
   return db
     .collection('store')
-    .doc()
+    .doc(storeData.place_id)
     .set(storeData)
     .then(() => {
       console.log('Document successfully written!');
     });
 };
 
-export default postStoreData;
+const GetMenuData = (selectedStoreName) => {
+  return new Promise((res, rej) => {
+    db.collection('menu')
+      .where('storeName', '==', selectedStoreName)
+      .onSnapshot((querySnapshot) => {
+        const promises = [];
+        querySnapshot.forEach((doc) => {
+          promises.push(doc.data());
+        });
+        res(promises);
+      });
+  });
+};
+
+const UpLoadPhotoToFirebase = (e) => {
+  let file = e.target.files[0];
+
+  let storageRef = firebase.storage().ref('img/' + file.name);
+
+  let task = storageRef.put(file);
+  return new Promise((res, rej) => {
+    task.on(
+      firebase.storage.TaskEvent.STATE_CHANGED,
+      (snapshot) => {},
+      (error) => {
+        console.log('error');
+      },
+      () => {
+        let URL = task.snapshot.ref.getDownloadURL();
+        res(URL);
+      }
+    );
+  });
+};
+
+const UpLoadReview = (ReviewData) => {
+  console.log(ReviewData);
+  // return db
+  //   .collection('store')
+  //   .doc(storeData.place_id)
+  //   .set(storeData)
+  //   .then(() => {
+  //     console.log('Document successfully written!');
+  //   });
+};
+
+export { postStoreData, GetMenuData, UpLoadPhotoToFirebase, UpLoadReview };
