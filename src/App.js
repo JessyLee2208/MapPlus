@@ -7,6 +7,9 @@ import StoreDetail from './Components/StoreDetail';
 import { postStoreData, GetMenuData } from './Utils/firebase';
 import GetMorereDetail from './Components/GetMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
+// import { Modal } from 'react-bootstrap';
+import ModalControl from './Components/Modal';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -21,6 +24,7 @@ function App() {
   });
 
   const dispatch = useDispatch();
+  const show = useSelector((state) => state.modalShow);
 
   const menuList = [];
 
@@ -50,6 +54,13 @@ function App() {
   const onSearchLoad = React.useCallback((search) => {
     searchRef.current = search;
   }, []);
+
+  // modal
+  // const [show, setShow] = React.useState(false);
+
+  // const handleClose = () => setShow(false);
+  // const handleShow = () => setShow(true);
+  //
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
@@ -108,7 +119,6 @@ function App() {
   function handleStoreListClick(e) {
     markers.forEach((marker) => {
       if (e.target.id === marker.storename) {
-        console.log(marker.lat, marker.lng);
         setSelect(marker);
         dispatch({
           type: 'setSelectedTab',
@@ -142,9 +152,9 @@ function App() {
         } else {
           setMenuData(null);
         }
+
         console.log(e.target);
-        if (e.target.className === 'link') {
-          console.log(e.target);
+        if (e.target.id === 'link') {
         }
 
         //
@@ -154,6 +164,7 @@ function App() {
 
   return (
     <Frame>
+      {show ? <ModalControl show={show}></ModalControl> : <div></div>}
       <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
         <SearchBox>
           <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
@@ -163,12 +174,12 @@ function App() {
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
-              <StoreCardL key={key} product={product} id={product.name} />
+              <StoreCardL key={product.place_id} product={product} id={product.name} />
             ))}
           </InformationBox>
         </InformationBg>
       ) : content.length === 1 ? (
-        content.map((product, index) => <StoreDetail key={index} product={product}></StoreDetail>)
+        content.map((product, index) => <StoreDetail key={product.place_id} product={product}></StoreDetail>)
       ) : makerSelected !== null && menuData !== null ? (
         <StoreDetail key={makerSelected.place_id} product={makerSelected} menu={menuData}></StoreDetail>
       ) : makerSelected !== null ? (
@@ -179,7 +190,7 @@ function App() {
       {select ? (
         <InformationBoxS onClick={handleStoreListClick}>
           {content.length > 1 ? (
-            content.map((product, key) => <StoreCardS key={key} product={product} id={product.name} />)
+            content.map((product, key) => <StoreCardS key={key + 's'} product={product} id={product.name} />)
           ) : (
             <div></div>
           )}
@@ -187,7 +198,16 @@ function App() {
       ) : (
         <div></div>
       )}
-
+      {/* <ModalControl
+        show={show}
+        onClose={() => {
+          dispatch({
+            type: 'setModalShow',
+            data: false
+          });
+          // this.setState({ show: false });
+        }}
+      ></ModalControl> */}
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={16}

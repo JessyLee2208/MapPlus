@@ -11,7 +11,7 @@ function RenderStar(data, newArray) {
     let length = Math.floor(data);
 
     for (let i = 0; i < length; i++) {
-      const star = <Img src="/active_star.png" alt=""></Img>;
+      const star = <Img src="/active_star.png" alt="" id={i + 1}></Img>;
       newArray.push(star);
     }
     if (data % length !== 0) {
@@ -25,13 +25,13 @@ function RenderStar(data, newArray) {
       }
     } else {
       for (let i = 0; i < 5 - length; i++) {
-        const star = <Img src="/default_star.png" alt=""></Img>;
+        const star = <Img src="/default_star.png" alt="" id={i + length + 1}></Img>;
         newArray.push(star);
       }
     }
   } else {
     for (let i = 0; i < 5; i++) {
-      const star = <Img src="/default_star.png" alt=""></Img>;
+      const star = <Img src="/default_star.png" alt="" id={i + 1}></Img>;
       newArray.push(star);
     }
   }

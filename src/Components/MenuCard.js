@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import RenderStar from './RenderStar';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Menu = styled.div`
   background: #ffffff;
@@ -112,8 +113,27 @@ const product = {
 
 function MenuCard(props) {
   let starArry = [];
+  //   const show = useSelector((state) => state.modalShow);
+  const dispatch = useDispatch();
 
   RenderStar(props.data.rating, starArry);
+  // const show = useSelector((state) => state.modalShow);
+  // const tab = useSelector((state) => state.selectedTab);
+
+  function callModal(e) {
+    dispatch({
+      type: 'setModalShow',
+      data: true
+    });
+
+    dispatch({
+      type: 'setSelectedDish',
+      data: props.data
+    });
+
+    // console.log(props.data);
+    // console.log(tab);
+  }
 
   return (
     <Menu>
@@ -132,7 +152,9 @@ function MenuCard(props) {
         <MenuPrice>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
 
-      <CommentBtn type="button">評論</CommentBtn>
+      <CommentBtn type="button" onClick={callModal}>
+        評論
+      </CommentBtn>
     </Menu>
   );
 }

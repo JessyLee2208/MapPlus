@@ -131,8 +131,6 @@ function StoreCard(props) {
     OpenStatu = <Info></Info>;
   }
 
-  // console.log(deliverSiteTag);
-
   return (
     <Store id={props.id} position={props.position}>
       <StoreInfo id={props.id}>

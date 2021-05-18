@@ -167,9 +167,9 @@ function StoreCardS(props, key) {
             ''
           )}
           {props.product.deliver.foodPandaUrl ? (
-            <InfoMenu id="Link">菜單</InfoMenu>
+            <InfoMenu id={props.id}>菜單</InfoMenu>
           ) : props.product.deliver.uberEatUrl ? (
-            <InfoMenu id="Link">菜單</InfoMenu>
+            <InfoMenu id={props.id}>菜單</InfoMenu>
           ) : (
             ''
           )}

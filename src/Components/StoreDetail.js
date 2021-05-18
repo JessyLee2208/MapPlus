@@ -211,7 +211,7 @@ const StarBoxReview = styled.div`
 `;
 
 const Icon = styled.img`
-  width: 24px;
+  // width: 24px;
   height: 24px;
   padding-right: 18px;
 `;
@@ -303,7 +303,7 @@ const AuthorBox = styled.div`
 `;
 
 const AuthorImg = styled.img`
-  width: 32px;
+  // width: 32px;
   height: 32px;
   padding-right: 12px;
 `;
@@ -353,7 +353,7 @@ function StoreDetail(props) {
   // const [selectedTab, setSelectedTab] = React.useState('information');
   const dispatch = useDispatch();
   const tab = useSelector((state) => state.selectedTab);
-  console.log(tab);
+  const show = useSelector((state) => state.modalShow);
 
   RenderStar(props.product.rating, starArry);
 
@@ -516,7 +516,7 @@ function StoreDetail(props) {
           {AllReviews}
         </div>
       ) : props.menu !== undefined ? (
-        props.menu.map((item) => <MenuCard data={item} />)
+        props.menu.map((item, key) => <MenuCard data={item} key={key + 'menu'} />)
       ) : (
         <div></div>
       )}
