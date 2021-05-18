@@ -1,10 +1,16 @@
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS } from './style';
+import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS, SingInBtn } from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
-import { postStoreData, GetMenuData } from './Utils/firebase';
+import {
+  postStoreData,
+  GetMenuData,
+  GoogleAccountSignIn,
+  GoogleAccountStateChanged,
+  GoogleAccountLogOut
+} from './Utils/firebase';
 import GetMorereDetail from './Components/GetMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
 // import { Modal } from 'react-bootstrap';
@@ -25,6 +31,9 @@ function App() {
 
   const dispatch = useDispatch();
   const show = useSelector((state) => state.modalShow);
+  const userStatus = useSelector((state) => state.userStatus);
+  GoogleAccountStateChanged();
+  console.log(userStatus);
 
   const menuList = [];
 
@@ -208,6 +217,18 @@ function App() {
           // this.setState({ show: false });
         }}
       ></ModalControl> */}
+      {!userStatus ? (
+        <SingInBtn
+          onClick={(e) => {
+            GoogleAccountSignIn(e, dispatch);
+          }}
+        >
+          登入
+        </SingInBtn>
+      ) : (
+        <SingInBtn onClick={GoogleAccountLogOut}>登出</SingInBtn>
+      )}
+
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={16}

@@ -67,4 +67,20 @@ const Frame = styled.div`
   left:0
 `;
 
-export { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS };
+const SingInBtn = styled.button`
+  position: fixed;
+  right: 62px;
+  top: 13px;
+
+  background: #4285f4;
+  color: #fff;
+  outline: none;
+  font-weight: bold;
+  display: inline-block;
+  line-height: 36px;
+  padding: 0 16px;
+  border-radius: 2px;
+  border: 0;
+`;
+
+export { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS, SingInBtn };

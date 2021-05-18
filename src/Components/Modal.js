@@ -21,7 +21,7 @@ function ModalControl({ show, data }) {
     });
   }
   const DishData = useSelector((state) => state.selectedDish);
-  console.log(DishData);
+  // console.log(DishData);
 
   RenderStar(starRating, starArry);
   function handleStarRating(e) {
@@ -45,6 +45,7 @@ function ModalControl({ show, data }) {
     };
 
     UpLoadReview(ReviewData, DishData);
+    handleClose();
   }
 
   function handleInputChange(e) {
