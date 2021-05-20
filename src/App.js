@@ -100,7 +100,6 @@ function App() {
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
     const a = GoogleAccountStateChanged();
-    console.log(a);
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
@@ -134,13 +133,10 @@ function App() {
     mapRef.current.fitBounds(bounds);
 
     Promise.all(placePromises).then((res) => {
-      console.log(res);
       setContent(res);
       if (res.length === 1) {
         if (res[0].deliver.uberEatUrl) {
           GetMenuData(res[0].name, menuList, dispatch).then((res) => {
-            console.log(res);
-            // setMenuData(res);
             dispatch({
               type: 'setMenuData',
               data: res
@@ -173,7 +169,6 @@ function App() {
     });
     content.forEach((product) => {
       if (e.target.id === product.name) {
-        console.log(product.deliver);
         const host_name = 'http://localhost:5000';
         const placePromise = fetch(`${host_name}/getStoreProducts`, {
           method: 'post',
@@ -182,7 +177,7 @@ function App() {
             'Content-Type': 'application/json'
           }
         }).then(async (res) => {
-          console.log(await res.json());
+          await res.json();
         });
 
         GetMorereDetail(product, service, setMakerSelected);

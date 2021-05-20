@@ -98,11 +98,14 @@ const UpLoadReview = async (ReviewData, DishData) => {
     .where('dishCollectionID', '==', DishData.dishCollectionID)
     .get()
     .then((review) => {
-      console.log(review.size);
+      // console.log(review.size);
       return review.size;
     });
 
-  const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / reviewsCount;
+  console.log(reviewsCount);
+
+  const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
+  console.log(averageRating);
 
   let userReviewData = {
     dishCollectionID: DishData.dishCollectionID,
@@ -111,8 +114,7 @@ const UpLoadReview = async (ReviewData, DishData) => {
     storeName: DishData.storeName
   };
 
-  let NewReviewData = { ...ReviewData, ...userReviewData };
-
+  //這是編輯評論的寫法
   // db.collection('review')
   //   .doc()
   //   .set({ ...ReviewData, ...userReviewData }, { merge: true })

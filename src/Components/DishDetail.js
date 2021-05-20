@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import RenderStar from './RenderStar';
 import MenuCard from './MenuCard';
 import { useDispatch, useSelector, connect } from 'react-redux';
-import { GetMenuReviews } from '../Utils/firebase';
+import { GetMenuReviews, userReviewCheck, setUserReviewSet } from '../Utils/firebase';
 
 const selectedDish = {
   imageUrl: 'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
@@ -144,6 +144,17 @@ const CommentBtn = styled.button`
   margin-right: 18px;
 `;
 
+const EditorBtn = styled.button`
+  border: 1px solid #4285f4;
+  background: #4285f4;
+  color: #fff;
+  height: 2em;
+  border-radius: 25px;
+  padding: 0.1em 1em;
+  font-size: 15px;
+  margin-right: 18px;
+`;
+
 const TopDiv = styled.div`
   display: flex;
   align-items: center;
@@ -221,12 +232,24 @@ function DishDetail(props) {
   const dispatch = useDispatch();
   // const reviewsCount = GetMenuReviews(selectedDish);
   const [reviewsData, setReviewsData] = React.useState(null);
+  const [userReviewSet, setUserReviewSet] = React.useState(undefined);
 
   GetMenuReviews(selectedDish).then((res) => {
     if (res.length !== 0) {
       setReviewsData(res);
     }
   });
+
+  if (userStatus) {
+    userReviewCheck(userStatus).then((res) => {
+      if (res && res.reviews.length !== 0) {
+        const target = res.reviews.find(
+          (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+        );
+        setUserReviewSet(target);
+      }
+    });
+  }
 
   let reviewsDoms = [];
   if (reviewsData) {
@@ -266,6 +289,7 @@ function DishDetail(props) {
       console.log('Please login first');
     }
   }
+
   // function A() {}
   return (
     <Dish>
@@ -284,7 +308,15 @@ function DishDetail(props) {
             <Info>{selectedDish.rating}</Info>
           </RatingDiv>
         </DishBox>
-        <CommentBtn onClick={callModal}>評論</CommentBtn>
+        {userReviewSet === undefined ? (
+          <CommentBtn type="button" onClick={callModal}>
+            評論
+          </CommentBtn>
+        ) : (
+          <EditorBtn type="button" onClick={callModal}>
+            編輯
+          </EditorBtn>
+        )}
       </TopDiv>
 
       <RatingDiv style={{ padding: '0px 0 0 18px', borderBottom: '1px solid #efefef' }}>
