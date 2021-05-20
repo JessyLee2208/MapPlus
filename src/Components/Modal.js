@@ -2,13 +2,14 @@ import { Modal, Button, InputGroup, Form, Container, Row, Col } from 'react-boot
 import { useDispatch } from 'react-redux';
 import React from 'react';
 import RenderStar from './RenderStar';
-import { UpLoadPhotoToFirebase, UpLoadReview } from '../Utils/firebase';
+import { UpLoadPhotoToFirebase, UpLoadReview, GetMenuData, GetMenuReviews } from '../Utils/firebase';
 import { useSelector } from 'react-redux';
 
 function ModalControl({ show, data }) {
   // const uploadBtn = <input type="file" accept="image/gif,image/jpeg, image/png" onChange={bindUploadPhotoBtn}></input>;
   const dispatch = useDispatch();
   let starArry = [];
+  const userStatus = useSelector((state) => state.userStatus);
 
   const [starRating, setStarRating] = React.useState(0);
   const [commentValue, setCommentValue] = React.useState('');
@@ -21,7 +22,7 @@ function ModalControl({ show, data }) {
     });
   }
   const DishData = useSelector((state) => state.selectedDish);
-  console.log(DishData);
+  const menuData = useSelector((state) => state.menuData);
 
   RenderStar(starRating, starArry);
   function handleStarRating(e) {
@@ -34,19 +35,36 @@ function ModalControl({ show, data }) {
     setImgUrl(url);
   };
 
-  function bindUpLoadReviewUpLoadReview() {
+  // const reviewsCount = GetMenuReviews(DishData).then(() => {});
+
+  function bindUpLoadReview() {
     const datetime = new Date().getTime();
     const ReviewData = {
-      name: 'Jessy22008',
+      name: userStatus.displayName,
+      email: userStatus.email,
+      userPhotoUrl: userStatus.photoURL,
       rating: starRating,
       comment: commentValue,
       time: datetime,
       imageUrl: imgUrl
     };
 
-    UpLoadReview(ReviewData, DishData);
-  }
+    UpLoadReview(ReviewData, DishData).then((res) => {
+      console.log('OK???');
+      dispatch({
+        type: 'upDateMenuData',
+        data: res
+      });
 
+      dispatch({
+        type: 'upDateSelectMenuData',
+        data: res
+      });
+    });
+
+    handleClose();
+  }
+  // console.log(DishData);
   function handleInputChange(e) {
     setCommentValue(e.target.value);
   }
@@ -55,12 +73,12 @@ function ModalControl({ show, data }) {
     <>
       <Modal show={show} onHide={handleClose} animation={true}>
         <Modal.Header closeButton>
-          <Modal.Title style={{ textAlign: 'center' }}>小籠包</Modal.Title>
+          <Modal.Title style={{ textAlign: 'center' }}>{DishData.name}</Modal.Title>
         </Modal.Header>
 
         <Container style={{ padding: '16px 18px' }}>
           <Row>
-            <Col>Jessy2208</Col>
+            <Col>{userStatus.displayName}</Col>
           </Row>
 
           <Row>
@@ -92,7 +110,7 @@ function ModalControl({ show, data }) {
         </Modal.Body>
         <Modal.Footer style={{ borderTop: 'none', paddingTop: '10px' }}>
           <Button onHide={handleClose}>取消</Button>
-          <Button onClick={bindUpLoadReviewUpLoadReview}>評論</Button>
+          <Button onClick={bindUpLoadReview}>評論</Button>
         </Modal.Footer>
       </Modal>
     </>

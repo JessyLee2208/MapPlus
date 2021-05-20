@@ -1,7 +1,9 @@
 const initState = {
   selectedTab: 'information',
-  modalShow: true,
-  selectedDish: null
+  modalShow: false,
+  selectedDish: null,
+  userStatus: null,
+  menuData: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -9,22 +11,51 @@ export default function storeReducer(preState = initState, action) {
   switch (type) {
     case 'setSelectedTab':
       return {
-        modalShow: preState.modalShow,
-        selectedTab: data,
-        selectedDish: preState.selectedDish
+        ...preState,
+        selectedTab: data
       };
     case 'setModalShow':
       return {
-        selectedTab: preState.selectedTab,
-        modalShow: data,
-        selectedDish: preState.selectedDish
+        ...preState,
+        modalShow: data
       };
     case 'setSelectedDish':
       return {
-        selectedTab: preState.selectedTab,
-        modalShow: preState.modalShow,
+        ...preState,
         selectedDish: data
       };
+    case 'setUserState':
+      return {
+        ...preState,
+        userStatus: data
+      };
+
+    case 'setMenuData':
+      return {
+        ...preState,
+        menuData: data
+      };
+    case 'upDateMenuData': {
+      const index = preState.menuData.findIndex((data) => data.name === preState.selectedDish.name);
+      const newMenuData = [...preState.menuData];
+      const NewObj = { ...newMenuData[index], rating: data };
+      newMenuData[index] = NewObj;
+      return {
+        ...preState,
+        menuData: newMenuData
+      };
+    }
+
+    case 'upDateSelectMenuData': {
+      // const index = preState.menuData.findIndex((data) => data.name === preState.selectedDish.name);
+      // const newMenuData = [...preState.selectedDish];
+      const NewObj = { ...preState.selectedDish, rating: data };
+      // newMenuData[index] = NewObj;
+      return {
+        ...preState,
+        selectedDish: NewObj
+      };
+    }
 
     default:
       return preState;
