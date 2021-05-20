@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import RenderStar from './RenderStar';
+import renderStar from '../Utils/renderStar';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -82,7 +82,7 @@ function StoreCard(props) {
   let showType = <div></div>;
   let OpenStatu = <div></div>;
 
-  RenderStar(props.product.rating, starArry);
+  renderStar(props.product.rating, starArry);
   // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
   if (typesCheck) {
     if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {

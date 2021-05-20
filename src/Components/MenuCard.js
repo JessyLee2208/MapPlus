@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import RenderStar from './RenderStar';
+import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { userReviewCheck } from '../Utils/firebase';
 
@@ -22,7 +22,6 @@ const MenuImg = styled.img`
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
-  //   background: #f0f0f0;
 `;
 
 const NoImg = styled.div`
@@ -128,7 +127,7 @@ const product = {
 function MenuCard(props) {
   let starArry = [];
   const [userReviewSet, setUserReviewSet] = React.useState(undefined);
-  //   const show = useSelector((state) => state.modalShow);
+
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
 
@@ -143,10 +142,7 @@ function MenuCard(props) {
     });
   }
 
-  RenderStar(props.data.rating, starArry);
-
-  // const show = useSelector((state) => state.modalShow);
-  // const tab = useSelector((state) => state.selectedTab);
+  renderStar(props.data.rating, starArry);
 
   function callModal(e) {
     if (userStatus) {
@@ -159,13 +155,9 @@ function MenuCard(props) {
         type: 'setSelectedDish',
         data: props.data
       });
-      console.log(props.data);
     } else {
       console.log('Please login first');
     }
-
-    // console.log(props.data);
-    // console.log(tab);
   }
 
   return (

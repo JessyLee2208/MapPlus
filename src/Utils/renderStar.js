@@ -5,7 +5,7 @@ const Img = styled.img`
   height: 16px;
 `;
 
-function RenderStar(data, newArray) {
+function renderStar(data, newArray) {
   if (data !== 0) {
     // newArray = [];
     let length = Math.floor(data);
@@ -37,4 +37,4 @@ function RenderStar(data, newArray) {
   }
 }
 
-export default RenderStar;
+export default renderStar;

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import RenderStar from './RenderStar';
-import MenuCard from './MenuCard';
-import { useDispatch, useSelector, connect } from 'react-redux';
-import { GetMenuReviews, userReviewCheck, setUserReviewSet } from '../Utils/firebase';
+import renderStar from '../Utils/renderStar';
+import { useDispatch, useSelector } from 'react-redux';
+import { getMenuReviews, userReviewCheck, setUserReviewSet } from '../Utils/firebase';
+import Collection from './Collection';
 
 const selectedDish = {
   imageUrl: 'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
@@ -137,11 +137,11 @@ const CommentBtn = styled.button`
   border: 1px solid #185ee6;
   background: #fff;
   color: #185ee6;
-  height: 2em;
+  // height: 2em;
   border-radius: 25px;
-  padding: 0.1em 1em;
+  padding: 0.1em 2em;
   font-size: 15px;
-  margin-right: 18px;
+  margin: 0px 18px 0px 18px;
 `;
 
 const EditorBtn = styled.button`
@@ -150,9 +150,9 @@ const EditorBtn = styled.button`
   color: #fff;
   height: 2em;
   border-radius: 25px;
-  padding: 0.1em 1em;
+  padding: 0.1em 2em;
   font-size: 15px;
-  margin-right: 18px;
+  margin: 0px 18px 0px 18px;
 `;
 
 const TopDiv = styled.div`
@@ -164,7 +164,7 @@ const TopDiv = styled.div`
 const DishBox = styled.div`
   display: flex;
   // align-items: center;
-  width: 340px;
+  width: 380px;
   flex-direction: column;
 `;
 
@@ -226,15 +226,36 @@ const NoComment = styled.p`
   letter-spacing: 0.5px;　
 `;
 
+const CollectIcon = styled.img`
+  // width: 30px;
+  height: 30px;
+  padding-right: 18px;
+`;
+
+const InfoBold = styled.p`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #black;
+  margin: 0px 0 0 10px;
+`;
+
 function DishDetail(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
   const dispatch = useDispatch();
-  // const reviewsCount = GetMenuReviews(selectedDish);
+
   const [reviewsData, setReviewsData] = React.useState(null);
   const [userReviewSet, setUserReviewSet] = React.useState(undefined);
+  const [collect, setCollect] = React.useState(false);
 
-  GetMenuReviews(selectedDish).then((res) => {
+  getMenuReviews(selectedDish).then((res) => {
+    // let menuReview = res.data();
     if (res.length !== 0) {
       setReviewsData(res);
     }
@@ -242,11 +263,27 @@ function DishDetail(props) {
 
   if (userStatus) {
     userReviewCheck(userStatus).then((res) => {
-      if (res && res.reviews.length !== 0) {
-        const target = res.reviews.find(
-          (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+      if (res) {
+        //評論
+        if (res.reviews.length !== 0) {
+          // console.log(res);
+          const target = res.reviews.find(
+            (recoom) =>
+              recoom.storeCollectionID === selectedDish.storeCollectionID && recoom.dishName === selectedDish.name
+          );
+          // console.log(target);
+          setUserReviewSet(target);
+        }
+      } else if (res.collection.length !== 0) {
+        const target = res.collection.find(
+          (collect) =>
+            collect.storeCollectionID === selectedDish.storeCollectionID && collect.dishName === selectedDish.dishName
         );
-        setUserReviewSet(target);
+        if (target) {
+          setCollect(target);
+        }
+
+        //
       }
     });
   }
@@ -263,10 +300,10 @@ function DishDetail(props) {
             <AuthorImg src={review.userPhotoUrl}></AuthorImg>
             <Authortitle>
               <div>{review.name}</div>
-              <P style={{ margin: '0px' }}>{time}</P>
+              <P style={{ margin: '8px 0 0 12px' }}>{time}</P>
             </Authortitle>
           </AuthorBox>
-          {RenderStar(Number(review.rating), reviewRatingArray)}
+          {renderStar(Number(review.rating), reviewRatingArray)}
           <StarBoxReview>
             {reviewRatingArray}
             <P>{review.rating}</P>
@@ -290,9 +327,28 @@ function DishDetail(props) {
     }
   }
 
-  // function A() {}
+  function handleCollectIconClick(e) {
+    if (userStatus) {
+      if (e.target.id === 'collectIcon' || e.target.id === 'collect') {
+        dispatch({
+          type: 'setCollect',
+          data: true
+        });
+      } else {
+        dispatch({
+          type: 'setCollect',
+          data: false
+        });
+      }
+    } else {
+      console.log('Please login first');
+    }
+  }
+
   return (
-    <Dish>
+    <Dish onClick={handleCollectIconClick}>
+      {collect ? <Collection></Collection> : <></>}
+
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
       ) : (
@@ -302,29 +358,34 @@ function DishDetail(props) {
       <TopDiv>
         <DishBox>
           <DishTitle>{selectedDish.name}</DishTitle>
+
           <RatingDiv>
             <DishPrice>NT${selectedDish.price}</DishPrice>
             <Icon src="/active_star.png" alt=""></Icon>
             <Info>{selectedDish.rating}</Info>
           </RatingDiv>
         </DishBox>
-        {userReviewSet === undefined ? (
-          <CommentBtn type="button" onClick={callModal}>
-            評論
-          </CommentBtn>
+        {collect ? (
+          <CollectIcon src="/collect.png" id="collectIcon"></CollectIcon>
         ) : (
-          <EditorBtn type="button" onClick={callModal}>
-            編輯
-          </EditorBtn>
+          <CollectIcon src="/collected.png" id="collectIcon"></CollectIcon>
         )}
       </TopDiv>
-
-      <RatingDiv style={{ padding: '0px 0 0 18px', borderBottom: '1px solid #efefef' }}>
+      {userReviewSet === undefined ? (
+        <CommentBtn type="button" onClick={callModal}>
+          評論
+        </CommentBtn>
+      ) : (
+        <EditorBtn type="button" onClick={callModal}>
+          編輯
+        </EditorBtn>
+      )}
+      <RatingDiv style={{ padding: '10px 0 0 18px', borderBottom: '1px solid #efefef' }}>
         <Info style={{ color: 'black' }}>評論</Info>
         {reviewsData ? (
           <Info style={{ color: 'black', fontWeight: '600' }}>{reviewsData.length}</Info>
         ) : (
-          <Info style={{ color: 'black', fontWeight: '600' }}>0</Info>
+          <InfoBold>0</InfoBold>
         )}
       </RatingDiv>
 

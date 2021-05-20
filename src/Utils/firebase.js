@@ -26,7 +26,7 @@ const postStoreData = (storeData) => {
     });
 };
 
-const GetMenuData = (selectedStoreName) => {
+const getMenuData = (selectedStoreName) => {
   // const promises = [];
   return new Promise((res, rej) => {
     db.collection('menu')
@@ -44,7 +44,7 @@ const GetMenuData = (selectedStoreName) => {
   });
 };
 
-const UpLoadPhotoToFirebase = (e) => {
+const upLoadPhotoToFirebase = (e) => {
   let file = e.target.files[0];
 
   let storageRef = firebase.storage().ref('img/' + file.name);
@@ -65,47 +65,32 @@ const UpLoadPhotoToFirebase = (e) => {
   });
 };
 
-function GetMenuReviews(DishData) {
+function getMenuReviews(DishData) {
   return new Promise((res, rej) => {
     db.collection('review')
       .where('dishCollectionID', '==', DishData.dishCollectionID)
-      // .doc(DishData.disdCollectionId)
+
       .onSnapshot((querySnapshot) => {
-        // console.log(querySnapshot.size);
         const promises = [];
         querySnapshot.forEach((doc) => {
-          // console.log(doc);
           const data = doc.data();
           promises.push(data);
         });
-        // console.log(promises);
         res(promises);
-        // if (querySnapshot) {
-        //   return querySnapshot.doc;
-        // } else {
-        //   console.log('No such document!');
-        //   return null;
-        //   // console.log(review);
-        //   // res(review.size);
-        // }
       });
   });
 }
 
-const UpLoadReview = async (ReviewData, DishData) => {
+const upLoadReview = async (ReviewData, DishData) => {
   const reviewsCount = await db
     .collection('review')
     .where('dishCollectionID', '==', DishData.dishCollectionID)
     .get()
     .then((review) => {
-      // console.log(review.size);
       return review.size;
     });
 
-  console.log(reviewsCount);
-
   const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
-  console.log(averageRating);
 
   let userReviewData = {
     dishCollectionID: DishData.dishCollectionID,
@@ -148,6 +133,19 @@ const UpLoadReview = async (ReviewData, DishData) => {
     });
 };
 
+function addDishToCollectList(ReviewData, selectedDish, collectList) {
+  const newSelectDish = { ...selectedDish, collectName: collectList };
+
+  db.collection('user')
+    .doc(ReviewData)
+    .set(
+      {
+        collection: firebase.firestore.FieldValue.arrayUnion(newSelectDish)
+      },
+      { merge: true }
+    );
+}
+
 function userReviewCheck(userStatus) {
   // console.log(userStatus);
   return new Promise((res, rej) => {
@@ -155,18 +153,12 @@ function userReviewCheck(userStatus) {
       .doc(userStatus.email)
       .get()
       .then((data) => {
-        // let data = res.docs[0];
-        // console.log(data.data());
-        // res.forEach((d) => {
-        //   console.log(d);
-        // });
         res(data.data());
       });
   });
 }
 
-function GoogleAccountSignIn(e, dispatch) {
-  // const dispatch = useDispatch();
+function googleAccountSignIn(e, dispatch) {
   firebase
     .auth()
     .signInWithPopup(provider)
@@ -193,7 +185,7 @@ function GoogleAccountSignIn(e, dispatch) {
     });
 }
 
-function GoogleAccountStateChanged() {
+function googleAccountStateChanged() {
   // const dispatch = useDispatch();
   firebase.auth().onAuthStateChanged((firebaseUser) => {
     if (firebaseUser) {
@@ -212,7 +204,7 @@ function GoogleAccountStateChanged() {
   });
 }
 
-function GoogleAccountLogOut(e, dispatch) {
+function googleAccountLogOut(e, dispatch) {
   firebase
     .auth()
     .signOut()
@@ -231,13 +223,14 @@ function GoogleAccountLogOut(e, dispatch) {
 
 export {
   postStoreData,
-  GetMenuData,
-  UpLoadPhotoToFirebase,
-  UpLoadReview,
-  GoogleAccountSignIn,
-  GoogleAccountStateChanged,
-  GoogleAccountLogOut,
+  getMenuData,
+  upLoadPhotoToFirebase,
+  upLoadReview,
+  googleAccountSignIn,
+  googleAccountStateChanged,
+  googleAccountLogOut,
   userReviewCheck,
-  GetMenuReviews
+  getMenuReviews,
+  addDishToCollectList
   // GetDishCollection
 };

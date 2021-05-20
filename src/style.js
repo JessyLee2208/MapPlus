@@ -23,7 +23,7 @@ const SearchBox = styled.div`
   outline: none;
   textoverflow: ellipses;
   position: absolute;
-  left: 0;
+  left: 10px;
   top: 20px;
   margin-left: 8px;
   transition-property: background, box-shadow;

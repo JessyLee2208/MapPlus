@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import RenderStar from './RenderStar';
+import renderStar from '../Utils/renderStar';
 import MenuCard from './MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -190,25 +190,19 @@ const Tab = styled.div`
 function StoreDetail(props) {
   let starArry = [];
 
-  let URL = <div></div>;
   let OpenStatu = <div></div>;
-  let websites = <div></div>;
   let websitesURL = '';
   let deliverSite = '';
   let deliverSiteTag = <div></div>;
   let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
-  let showType = <div></div>;
+  // let showType = <div></div>;
   // const [selectedTab, setSelectedTab] = React.useState('information');
   const dispatch = useDispatch();
   const tab = useSelector((state) => state.selectedTab);
   const show = useSelector((state) => state.modalShow);
   // const dishData = useSelector((state) => state.selectedDish);
 
-  RenderStar(props.product.rating, starArry);
-
-  if (props.product.photos.length !== 0 && props.product.photos) {
-    URL = <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>;
-  }
+  renderStar(props.product.rating, starArry);
 
   if (props.product.opening_hours !== undefined) {
     const today = new Date().getDay();
@@ -225,12 +219,6 @@ function StoreDetail(props) {
 
   if (props.product.website) {
     websitesURL = props.product.website.split('/');
-    websites = (
-      <InfoBox>
-        <Icon src="/earth.png"></Icon>
-        <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
-      </InfoBox>
-    );
   }
   // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
   if (props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null) {
@@ -253,29 +241,29 @@ function StoreDetail(props) {
     }
   }
 
-  if (typesCheck) {
-    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
-      showType = (
-        <InfoBox>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-          <Info>．</Info>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-          <Info>．</Info>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>外送</Info>
-        </InfoBox>
-      );
-    } else {
-      showType = (
-        <InfoBox>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-          <Info>．</Info>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-          <Info>．</Info>
-          <CheckIcon src="/false.png"></CheckIcon> <Info>外送</Info>
-        </InfoBox>
-      );
-    }
-  }
+  // if (typesCheck) {
+  //   if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
+  //     showType = (
+  //       <InfoBox>
+  //         <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
+  //         <Info>．</Info>
+  //         <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
+  //         <Info>．</Info>
+  //         <CheckIcon src="/true.png"></CheckIcon> <Info>外送</Info>
+  //       </InfoBox>
+  //     );
+  //   } else {
+  //     showType = (
+  //       <InfoBox>
+  //         <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
+  //         <Info>．</Info>
+  //         <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
+  //         <Info>．</Info>
+  //         <CheckIcon src="/false.png"></CheckIcon> <Info>外送</Info>
+  //       </InfoBox>
+  //     );
+  //   }
+  // }
 
   const AllReviews = [];
   if (props.product.reviews) {
@@ -287,7 +275,7 @@ function StoreDetail(props) {
             <AuthorImg src={review.profile_photo_url}></AuthorImg>
             <div>{review.author_name}</div>
           </AuthorBox>
-          {RenderStar(review.rating, reviewArry)}
+          {renderStar(review.rating, reviewArry)}
           <StarBoxReview>
             {reviewArry}
             <Info> {review.relative_time_description}</Info>
@@ -346,7 +334,12 @@ function StoreDetail(props) {
 
   return (
     <Store onClick={handleClickEvent}>
-      {URL}
+      {props.product.photos.length !== 0 && props.product.photos ? (
+        <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>
+      ) : (
+        <div></div>
+      )}
+
       <StoreTitle>{props.product.name}</StoreTitle>
       <RatingDiv>
         <Info>{props.product.rating}</Info>
@@ -364,7 +357,28 @@ function StoreDetail(props) {
 
       {tab === 'information' ? (
         <div>
-          {showType}
+          {typesCheck ? (
+            props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+              <InfoBox>
+                <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
+                <Info>．</Info>
+                <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
+                <Info>．</Info>
+                <CheckIcon src="/true.png"></CheckIcon> <Info>外送</Info>
+              </InfoBox>
+            ) : (
+              <InfoBox>
+                <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
+                <Info>．</Info>
+                <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
+                <Info>．</Info>
+                <CheckIcon src="/false.png"></CheckIcon> <Info>外送</Info>
+              </InfoBox>
+            )
+          ) : (
+            <div></div>
+          )}
+
           <InforList>
             <InfoBox>
               <Icon src="/location.png"></Icon>
@@ -375,7 +389,14 @@ function StoreDetail(props) {
               {OpenStatu}
             </InfoBox>
             {deliverSiteTag}
-            {websites}
+            {props.product.website ? (
+              <InfoBox>
+                <Icon src="/earth.png"></Icon>
+                <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
+              </InfoBox>
+            ) : (
+              <div></div>
+            )}
             {props.product.formatted_phone_number ? (
               <InfoBox>
                 <Icon src="/phone.png"></Icon>
@@ -394,7 +415,7 @@ function StoreDetail(props) {
           <H3Title>評論摘要</H3Title>
           {AllReviews}
         </div>
-      ) : props.menu !== undefined ? (
+      ) : props.menu !== undefined && props.menu !== null ? (
         props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
       ) : (
         <div></div>
