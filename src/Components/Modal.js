@@ -2,7 +2,7 @@ import { Modal, Button, InputGroup, Form, Container, Row, Col } from 'react-boot
 import { useDispatch } from 'react-redux';
 import React from 'react';
 import RenderStar from './RenderStar';
-import { UpLoadPhotoToFirebase, UpLoadReview, GetMenuData } from '../Utils/firebase';
+import { UpLoadPhotoToFirebase, UpLoadReview, GetMenuData, GetMenuReviews } from '../Utils/firebase';
 import { useSelector } from 'react-redux';
 
 function ModalControl({ show, data }) {
@@ -35,7 +35,9 @@ function ModalControl({ show, data }) {
     setImgUrl(url);
   };
 
-  function bindUpLoadReviewUpLoadReview() {
+  // const reviewsCount = GetMenuReviews(DishData).then(() => {});
+
+  function bindUpLoadReview() {
     const datetime = new Date().getTime();
     const ReviewData = {
       name: userStatus.displayName,
@@ -47,21 +49,22 @@ function ModalControl({ show, data }) {
       imageUrl: imgUrl
     };
 
-    UpLoadReview(ReviewData, DishData);
-    // console.log(UpLoadReview(ReviewData, DishData));
-    console.log(DishData);
-    GetMenuData(DishData.storeName).then((res) => {
-      console.log(res);
+    UpLoadReview(ReviewData, DishData).then((res) => {
+      console.log('OK???');
       dispatch({
-        type: 'setMenuData',
+        type: 'upDateMenuData',
+        data: res
+      });
+
+      dispatch({
+        type: 'upDateSelectMenuData',
         data: res
       });
     });
-    // console.log(menuData);
 
     handleClose();
   }
-  console.log(DishData);
+  // console.log(DishData);
   function handleInputChange(e) {
     setCommentValue(e.target.value);
   }
@@ -107,7 +110,7 @@ function ModalControl({ show, data }) {
         </Modal.Body>
         <Modal.Footer style={{ borderTop: 'none', paddingTop: '10px' }}>
           <Button onHide={handleClose}>取消</Button>
-          <Button onClick={bindUpLoadReviewUpLoadReview}>評論</Button>
+          <Button onClick={bindUpLoadReview}>評論</Button>
         </Modal.Footer>
       </Modal>
     </>

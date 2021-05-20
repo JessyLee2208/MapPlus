@@ -4,13 +4,14 @@ import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, Informati
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
+import DishDetail from './Components/DishDetail';
 import {
   postStoreData,
   GetMenuData,
   GoogleAccountSignIn,
   GoogleAccountStateChanged,
-  GoogleAccountLogOut,
-  userReviewCheck
+  GoogleAccountLogOut
+  // userReviewCheck
 } from './Utils/firebase';
 import GetMorereDetail from './Components/GetMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,12 +35,13 @@ function App() {
   const show = useSelector((state) => state.modalShow);
   const userStatus = useSelector((state) => state.userStatus);
   const menuData = useSelector((state) => state.menuData);
+  const selectedDish = useSelector((state) => state.selectedDish);
   GoogleAccountStateChanged();
-  if (userStatus) {
-    userReviewCheck(userStatus).then((res) => {
-      // console.log(res);
-    });
-  }
+  // if (userStatus) {
+  //   userReviewCheck(userStatus).then((res) => {
+  //     // console.log(res);
+  //   });
+  // }
 
   const menuList = [];
 
@@ -89,10 +91,16 @@ function App() {
 
     setMarkers([]);
     setSelect(null);
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
 
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
+    const a = GoogleAccountStateChanged();
+    console.log(a);
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
@@ -128,17 +136,39 @@ function App() {
     Promise.all(placePromises).then((res) => {
       console.log(res);
       setContent(res);
+      if (res.length === 1) {
+        if (res[0].deliver.uberEatUrl) {
+          GetMenuData(res[0].name, menuList, dispatch).then((res) => {
+            console.log(res);
+            // setMenuData(res);
+            dispatch({
+              type: 'setMenuData',
+              data: res
+            });
+          });
+        } else {
+          dispatch({
+            type: 'setMenuData',
+            data: null
+          });
+        }
+      }
     });
   };
 
   function handleStoreListClick(e) {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
+    });
+
     markers.forEach((marker) => {
       if (e.target.id === marker.storename) {
         setSelect(marker);
-        dispatch({
-          type: 'setSelectedTab',
-          data: 'information'
-        });
       }
     });
     content.forEach((product) => {
@@ -154,11 +184,9 @@ function App() {
         }).then(async (res) => {
           console.log(await res.json());
         });
+
         GetMorereDetail(product, service, setMakerSelected);
-        dispatch({
-          type: 'setSelectedTab',
-          data: 'information'
-        });
+
         if (product.deliver.uberEatUrl) {
           GetMenuData(product.name, menuList, dispatch).then((res) => {
             console.log(res);
@@ -188,13 +216,14 @@ function App() {
 
   return (
     <Frame>
-      {show ? <ModalControl show={show}></ModalControl> : <div></div>}
+      {show ? <ModalControl show={show} key="ModalControl"></ModalControl> : <div></div>}
       <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
         <SearchBox>
           <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
         </SearchBox>
       </StandaloneSearchBox>
-      {content.length > 1 && select === null ? (
+      {/* <DishDetail></DishDetail> */}
+      {content.length > 1 && select === null && selectedDish === null ? (
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
@@ -202,12 +231,16 @@ function App() {
             ))}
           </InformationBox>
         </InformationBg>
-      ) : content.length === 1 ? (
-        content.map((product, index) => <StoreDetail key={product.place_id} product={product}></StoreDetail>)
-      ) : makerSelected !== null && menuData !== null ? (
-        <StoreDetail key={makerSelected.place_id} product={makerSelected} menu={menuData}></StoreDetail>
-      ) : makerSelected !== null ? (
-        <StoreDetail key={makerSelected.place_id} product={makerSelected}></StoreDetail>
+      ) : content.length === 1 && selectedDish === null ? (
+        content.map((product, index) => (
+          <StoreDetail key={product.place_id + 'detail'} product={product} menu={menuData}></StoreDetail>
+        ))
+      ) : makerSelected !== null && menuData !== null && selectedDish === null ? (
+        <StoreDetail key={makerSelected.place_id + 'detail'} product={makerSelected} menu={menuData}></StoreDetail>
+      ) : makerSelected !== null && selectedDish === null ? (
+        <StoreDetail key={makerSelected.place_id + 'detail'} product={makerSelected}></StoreDetail>
+      ) : selectedDish ? (
+        <DishDetail></DishDetail>
       ) : (
         <div></div>
       )}
@@ -222,26 +255,23 @@ function App() {
       ) : (
         <div></div>
       )}
-      {/* <ModalControl
-        show={show}
-        onClose={() => {
-          dispatch({
-            type: 'setModalShow',
-            data: false
-          });
-          // this.setState({ show: false });
-        }}
-      ></ModalControl> */}
       {!userStatus ? (
         <SingInBtn
           onClick={(e) => {
-            GoogleAccountSignIn(e, dispatch);
+            const signin = GoogleAccountSignIn(e, dispatch);
           }}
         >
           登入
         </SingInBtn>
       ) : (
-        <SingInBtn onClick={GoogleAccountLogOut}>登出</SingInBtn>
+        <SingInBtn
+          onClick={(e) => {
+            const logOut = GoogleAccountLogOut(e, dispatch);
+            console.log(logOut);
+          }}
+        >
+          登出
+        </SingInBtn>
       )}
 
       <GoogleMap
@@ -268,6 +298,10 @@ function App() {
                 if (marker.storename === product.name) {
                   console.log(product.name);
                   GetMorereDetail(product, service, setMakerSelected);
+                  dispatch({
+                    type: 'setSelectedDish',
+                    data: null
+                  });
                 }
               });
             }}

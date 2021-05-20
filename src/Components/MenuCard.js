@@ -134,7 +134,7 @@ function MenuCard(props) {
 
   if (userStatus) {
     userReviewCheck(userStatus).then((res) => {
-      if (res.reviews.length !== 0) {
+      if (res && res.reviews.length !== 0) {
         const target = res.reviews.find(
           (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
         );
@@ -159,6 +159,7 @@ function MenuCard(props) {
         type: 'setSelectedDish',
         data: props.data
       });
+      console.log(props.data);
     } else {
       console.log('Please login first');
     }
@@ -168,20 +169,24 @@ function MenuCard(props) {
   }
 
   return (
-    <Menu>
-      {props.data.imageUrl !== '' ? <MenuImg alt="" src={props.data.imageUrl}></MenuImg> : <NoImg></NoImg>}
+    <Menu id={props.data.name}>
+      {props.data.imageUrl !== '' ? (
+        <MenuImg alt="" src={props.data.imageUrl} id={props.data.name}></MenuImg>
+      ) : (
+        <NoImg id={props.data.name}></NoImg>
+      )}
       {}
 
-      <InfoBox>
-        <div>
-          <MenuTitle>{props.data.name}</MenuTitle>
-          <RatingDiv>
-            <Info>{props.data.rating}</Info>
+      <InfoBox id={props.data.name}>
+        <div id={props.data.name}>
+          <MenuTitle id={props.data.name}>{props.data.name}</MenuTitle>
+          <RatingDiv id={props.data.name}>
+            <Info id={props.data.name}>{props.data.rating}</Info>
             {starArry}
             {/* <Info>({props.data.user_ratings_total})</Info> */}
           </RatingDiv>
         </div>
-        <MenuPrice>NT$ {props.data.price}</MenuPrice>
+        <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
       {userReviewSet === undefined ? (
         <CommentBtn type="button" onClick={callModal}>

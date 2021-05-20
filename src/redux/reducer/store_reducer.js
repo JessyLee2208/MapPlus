@@ -11,45 +11,52 @@ export default function storeReducer(preState = initState, action) {
   switch (type) {
     case 'setSelectedTab':
       return {
-        modalShow: preState.modalShow,
-        selectedTab: data,
-        selectedDish: preState.selectedDish,
-        userStatus: preState.userStatus,
-        menuData: preState.menuData
+        ...preState,
+        selectedTab: data
       };
     case 'setModalShow':
       return {
-        selectedTab: preState.selectedTab,
-        modalShow: data,
-        selectedDish: preState.selectedDish,
-        userStatus: preState.userStatus,
-        menuData: preState.menuData
+        ...preState,
+        modalShow: data
       };
     case 'setSelectedDish':
       return {
-        selectedTab: preState.selectedTab,
-        modalShow: preState.modalShow,
-        selectedDish: data,
-        userStatus: preState.userStatus,
-        menuData: preState.menuData
+        ...preState,
+        selectedDish: data
       };
     case 'setUserState':
       return {
-        selectedTab: preState.selectedTab,
-        modalShow: preState.modalShow,
-        selectedDish: preState.selectedDish,
-        userStatus: data,
-        menuData: preState.menuData
+        ...preState,
+        userStatus: data
       };
 
     case 'setMenuData':
       return {
-        selectedTab: preState.selectedTab,
-        modalShow: preState.modalShow,
-        selectedDish: preState.selectedDish,
-        userStatus: preState.userStatus,
+        ...preState,
         menuData: data
       };
+    case 'upDateMenuData': {
+      const index = preState.menuData.findIndex((data) => data.name === preState.selectedDish.name);
+      const newMenuData = [...preState.menuData];
+      const NewObj = { ...newMenuData[index], rating: data };
+      newMenuData[index] = NewObj;
+      return {
+        ...preState,
+        menuData: newMenuData
+      };
+    }
+
+    case 'upDateSelectMenuData': {
+      // const index = preState.menuData.findIndex((data) => data.name === preState.selectedDish.name);
+      // const newMenuData = [...preState.selectedDish];
+      const NewObj = { ...preState.selectedDish, rating: data };
+      // newMenuData[index] = NewObj;
+      return {
+        ...preState,
+        selectedDish: NewObj
+      };
+    }
+
     default:
       return preState;
   }
