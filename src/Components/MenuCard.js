@@ -131,17 +131,6 @@ function MenuCard(props) {
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
 
-  // if (userStatus) {
-  //   userReviewCheck(userStatus).then((res) => {
-  //     if (res && res.reviews.length !== 0) {
-  //       const target = res.reviews.find(
-  //         (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
-  //       );
-  //       setUserReviewSet(target);
-  //     }
-  //   });
-  // }
-
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
@@ -153,7 +142,6 @@ function MenuCard(props) {
           );
           console.log(target);
           target ? setUserReviewSet(target) : setUserReviewSet(null);
-          // setUserReviewSet(target);
         }
       }
       reviewData();
@@ -193,7 +181,6 @@ function MenuCard(props) {
           <RatingDiv id={props.data.name}>
             <Info id={props.data.name}>{props.data.rating}</Info>
             {starArry}
-            {/* <Info>({props.data.user_ratings_total})</Info> */}
           </RatingDiv>
         </div>
         <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>

@@ -4,6 +4,17 @@ import React from 'react';
 import renderStar from '../Utils/renderStar';
 import { upLoadPhotoToFirebase, upLoadReview, getMenuReviews } from '../Utils/firebase';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+
+const Img = styled.img`
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  margin: 0px 0px 0px 12px;
+  text-align: right;
+  flex-shrink: 1;
+  object-fit: cover;
+`;
 
 function ModalControl({ show, data }) {
   const dispatch = useDispatch();
@@ -62,6 +73,11 @@ function ModalControl({ show, data }) {
   function handleInputChange(e) {
     setCommentValue(e.target.value);
   }
+  const ref = React.useRef();
+
+  function handleInputClick() {
+    ref.current.click();
+  }
 
   return (
     <>
@@ -93,14 +109,21 @@ function ModalControl({ show, data }) {
           </Form.Group>
         </Form>
         <Modal.Body style={{ padding: '0 18px' }}>
-          <input type="file" accept="image/gif,image/jpeg, image/png" onChange={bindUploadPhotoBtn}></input>
-          {/* {uploadBtn} */}
+          <input
+            type="file"
+            accept="image/gif,image/jpeg, image/png"
+            onChange={bindUploadPhotoBtn}
+            ref={ref}
+            style={{ display: 'none' }}
+          ></input>
+
           <img
             src="/uploadbtn.png"
             alt=""
             style={{ border: ' 1px solid #D0D0D0', borderRadius: '6px' }}
-            onClick={bindUploadPhotoBtn}
+            onClick={handleInputClick}
           ></img>
+          {imgUrl ? <Img src={imgUrl}></Img> : <></>}
         </Modal.Body>
         <Modal.Footer style={{ borderTop: 'none', paddingTop: '10px' }}>
           <Button onHide={handleClose}>取消</Button>

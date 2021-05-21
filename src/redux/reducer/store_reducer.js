@@ -5,7 +5,8 @@ const initState = {
   userStatus: null,
   menuData: null,
   collect: false,
-  collectData: null
+  collectData: [],
+  userData: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -68,6 +69,13 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         collectData: data
+      };
+    }
+
+    case 'setUserData': {
+      return {
+        ...preState,
+        userData: data
       };
     }
 

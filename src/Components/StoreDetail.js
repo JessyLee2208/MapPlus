@@ -199,8 +199,6 @@ function StoreDetail(props) {
   // const [selectedTab, setSelectedTab] = React.useState('information');
   const dispatch = useDispatch();
   const tab = useSelector((state) => state.selectedTab);
-  const show = useSelector((state) => state.modalShow);
-  // const dishData = useSelector((state) => state.selectedDish);
 
   renderStar(props.product.rating, starArry);
 
@@ -241,30 +239,6 @@ function StoreDetail(props) {
     }
   }
 
-  // if (typesCheck) {
-  //   if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
-  //     showType = (
-  //       <InfoBox>
-  //         <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-  //         <Info>．</Info>
-  //         <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-  //         <Info>．</Info>
-  //         <CheckIcon src="/true.png"></CheckIcon> <Info>外送</Info>
-  //       </InfoBox>
-  //     );
-  //   } else {
-  //     showType = (
-  //       <InfoBox>
-  //         <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-  //         <Info>．</Info>
-  //         <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-  //         <Info>．</Info>
-  //         <CheckIcon src="/false.png"></CheckIcon> <Info>外送</Info>
-  //       </InfoBox>
-  //     );
-  //   }
-  // }
-
   const AllReviews = [];
   if (props.product.reviews) {
     props.product.reviews.forEach((review, key) => {
@@ -287,21 +261,6 @@ function StoreDetail(props) {
     });
   }
 
-  // function handleTabClick(e) {
-  //   if (e.target.id === 'information') {
-  //     // setSelectedTab('information');
-  //     dispatch({
-  //       type: 'setSelectedTab',
-  //       data: 'information'
-  //     });
-  //   } else if (e.target.id === 'menu') {
-  //     // setSelectedTab('menu');
-  //     dispatch({
-  //       type: 'setSelectedTab',
-  //       data: 'menu'
-  //     });
-  //   }
-  // }
   function handleClickEvent(e) {
     // if(e.target.id ===)
     if (props.menu) {

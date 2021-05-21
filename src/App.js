@@ -220,7 +220,11 @@ function App() {
       type: 'setSelectedDish',
       data: null
     });
-    console.log('123');
+
+    dispatch({
+      type: 'setCollectData',
+      data: []
+    });
   }
 
   return (
@@ -247,7 +251,7 @@ function App() {
         </>
       )}
 
-      {content.length > 1 && select === null && selectedDish === null && content ? (
+      {content.length > 1 && select === null && selectedDish === null ? (
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
@@ -268,6 +272,7 @@ function App() {
       ) : (
         <div></div>
       )}
+
       {select ? (
         <InformationBoxS onClick={handleStoreListClick}>
           {content.length > 1 ? (

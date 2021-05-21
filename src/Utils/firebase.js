@@ -1,5 +1,5 @@
 import firebase from 'firebase';
-import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -36,43 +36,9 @@ function getMenuData(selectedStoreName, callback) {
         data.dishCollectionID = doc.id;
         promises.push(data);
       });
-      // console.log(promises);
       callback(promises);
     });
 }
-
-// function getMenuReviews(DishData, callback) {
-//   db.collection('review')
-//     .where('dishCollectionID', '==', DishData.dishCollectionID)
-
-//     .onSnapshot((querySnapshot) => {
-//       const promises = [];
-//       querySnapshot.forEach((doc) => {
-//         const data = doc.data();
-//         promises.push(data);
-//       });
-//       callback(promises);
-//       // promises;
-//     });
-// }
-
-// const getMenuData = (selectedStoreName, callback) => {
-//   // const promises = [];
-//   // return new Promise((res, rej) => {
-//   db.collection('menu')
-//     .where('storeName', '==', selectedStoreName)
-//     .onSnapshot((querySnapshot) => {
-//       const promises = [];
-//       querySnapshot.forEach((doc) => {
-//         const data = doc.data();
-//         data.dishCollectionID = doc.id;
-//         promises.push(data);
-//       });
-//       // console.log(promises);
-//       callback(promises);
-//     });
-//   // });
-// };
 
 const upLoadPhotoToFirebase = (e) => {
   let file = e.target.files[0];
@@ -162,9 +128,8 @@ const upLoadReview = async (ReviewData, DishData) => {
     });
 };
 
-function addDishToCollectList(usermail, selectedDish, collectList) {
+function addDishToCollectList(usermail, selectedDish, collectList, userData) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
-  console.log(usermail);
   return db
     .collection('user')
     .doc(usermail)
@@ -173,9 +138,23 @@ function addDishToCollectList(usermail, selectedDish, collectList) {
         collection: firebase.firestore.FieldValue.arrayUnion(newSelectDish)
       },
       { merge: true }
+    );
+}
+
+function removeDishToCollectList(usermail, selectedDish, collectList) {
+  const newSelectDish = { ...selectedDish, collectName: collectList };
+  console.log(newSelectDish);
+  return db
+    .collection('user')
+    .doc(usermail)
+    .update(
+      {
+        collection: firebase.firestore.FieldValue.arrayRemove(newSelectDish)
+      },
+      { merge: true }
     )
     .then(() => {
-      console.log('upload OK!');
+      console.log('remove OK!');
     });
 }
 
@@ -268,6 +247,7 @@ export {
   googleAccountLogOut,
   userReviewCheck,
   getMenuReviews,
-  addDishToCollectList
+  addDishToCollectList,
+  removeDishToCollectList
   // GetDishCollection
 };

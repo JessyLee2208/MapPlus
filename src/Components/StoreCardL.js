@@ -40,6 +40,16 @@ const StoreImg = styled.img`
   flex-shrink: 1;
   object-fit: cover;
 `;
+
+const WithoutImg = styled.div`
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  margin: 10px 10px 10px 10px;
+  text-align: right;
+  flex-shrink: 1;
+  background: #f0f0f0;
+`;
 const Info = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 14px;
@@ -132,11 +142,9 @@ function StoreCard(props) {
   }
 
   return (
-    <Store id={props.id} position={props.position}>
+    <Store id={props.id}>
       <StoreInfo id={props.id}>
-        <StoreTitle id={props.id} position={props.position}>
-          {props.product.name}
-        </StoreTitle>
+        <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
         <RatingDiv id={props.id}>
           <Info id={props.id}>{props.product.rating}</Info>
           <StarBox id={props.id}>{starArry}</StarBox>
@@ -154,10 +162,10 @@ function StoreCard(props) {
         {OpenStatu}
         {showType}
       </StoreInfo>
-      {props.product.photos.length !== 0 ? (
+      {props.product.photos && props.product.photos.length !== 0 ? (
         <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>
       ) : (
-        <div></div>
+        <WithoutImg></WithoutImg>
       )}
     </Store>
   );
