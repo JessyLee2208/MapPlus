@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -126,21 +126,39 @@ const product = {
 
 function MenuCard(props) {
   let starArry = [];
-  const [userReviewSet, setUserReviewSet] = React.useState(undefined);
+  const [userReviewSet, setUserReviewSet] = React.useState(null);
 
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
 
-  if (userStatus) {
-    userReviewCheck(userStatus).then((res) => {
-      if (res && res.reviews.length !== 0) {
-        const target = res.reviews.find(
-          (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
-        );
-        setUserReviewSet(target);
+  // if (userStatus) {
+  //   userReviewCheck(userStatus).then((res) => {
+  //     if (res && res.reviews.length !== 0) {
+  //       const target = res.reviews.find(
+  //         (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+  //       );
+  //       setUserReviewSet(target);
+  //     }
+  //   });
+  // }
+
+  useEffect(() => {
+    if (userStatus) {
+      async function reviewData() {
+        let data = await userReviewCheck(userStatus);
+        console.log(data);
+        if (data.reviews.length !== 0) {
+          const target = data.reviews.find(
+            (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+          );
+          console.log(target);
+          target ? setUserReviewSet(target) : setUserReviewSet(null);
+          // setUserReviewSet(target);
+        }
       }
-    });
-  }
+      reviewData();
+    }
+  }, [userStatus]);
 
   renderStar(props.data.rating, starArry);
 
@@ -180,7 +198,7 @@ function MenuCard(props) {
         </div>
         <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
-      {userReviewSet === undefined ? (
+      {!userReviewSet ? (
         <CommentBtn type="button" onClick={callModal}>
           評論
         </CommentBtn>

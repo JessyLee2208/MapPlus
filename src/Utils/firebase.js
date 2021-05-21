@@ -26,23 +26,53 @@ const postStoreData = (storeData) => {
     });
 };
 
-const getMenuData = (selectedStoreName) => {
-  // const promises = [];
-  return new Promise((res, rej) => {
-    db.collection('menu')
-      .where('storeName', '==', selectedStoreName)
-      .onSnapshot((querySnapshot) => {
-        const promises = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          data.dishCollectionID = doc.id;
-          promises.push(data);
-        });
-        // console.log(promises);
-        res(promises);
+function getMenuData(selectedStoreName, callback) {
+  db.collection('menu')
+    .where('storeName', '==', selectedStoreName)
+    .onSnapshot((querySnapshot) => {
+      const promises = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        data.dishCollectionID = doc.id;
+        promises.push(data);
       });
-  });
-};
+      // console.log(promises);
+      callback(promises);
+    });
+}
+
+// function getMenuReviews(DishData, callback) {
+//   db.collection('review')
+//     .where('dishCollectionID', '==', DishData.dishCollectionID)
+
+//     .onSnapshot((querySnapshot) => {
+//       const promises = [];
+//       querySnapshot.forEach((doc) => {
+//         const data = doc.data();
+//         promises.push(data);
+//       });
+//       callback(promises);
+//       // promises;
+//     });
+// }
+
+// const getMenuData = (selectedStoreName, callback) => {
+//   // const promises = [];
+//   // return new Promise((res, rej) => {
+//   db.collection('menu')
+//     .where('storeName', '==', selectedStoreName)
+//     .onSnapshot((querySnapshot) => {
+//       const promises = [];
+//       querySnapshot.forEach((doc) => {
+//         const data = doc.data();
+//         data.dishCollectionID = doc.id;
+//         promises.push(data);
+//       });
+//       // console.log(promises);
+//       callback(promises);
+//     });
+//   // });
+// };
 
 const upLoadPhotoToFirebase = (e) => {
   let file = e.target.files[0];
@@ -65,20 +95,19 @@ const upLoadPhotoToFirebase = (e) => {
   });
 };
 
-function getMenuReviews(DishData) {
-  return new Promise((res, rej) => {
-    db.collection('review')
-      .where('dishCollectionID', '==', DishData.dishCollectionID)
+function getMenuReviews(DishData, callback) {
+  db.collection('review')
+    .where('dishCollectionID', '==', DishData.dishCollectionID)
 
-      .onSnapshot((querySnapshot) => {
-        const promises = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          promises.push(data);
-        });
-        res(promises);
+    .onSnapshot((querySnapshot) => {
+      const promises = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        promises.push(data);
       });
-  });
+      callback(promises);
+      // promises;
+    });
 }
 
 const upLoadReview = async (ReviewData, DishData) => {
@@ -133,29 +162,37 @@ const upLoadReview = async (ReviewData, DishData) => {
     });
 };
 
-function addDishToCollectList(ReviewData, selectedDish, collectList) {
+function addDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
-
-  db.collection('user')
-    .doc(ReviewData)
+  console.log(usermail);
+  return db
+    .collection('user')
+    .doc(usermail)
     .set(
       {
         collection: firebase.firestore.FieldValue.arrayUnion(newSelectDish)
       },
       { merge: true }
-    );
+    )
+    .then(() => {
+      console.log('upload OK!');
+    });
 }
+
+//1. caollback
+// return => async awiat 接直
 
 function userReviewCheck(userStatus) {
   // console.log(userStatus);
-  return new Promise((res, rej) => {
-    db.collection('user')
-      .doc(userStatus.email)
-      .get()
-      .then((data) => {
-        res(data.data());
-      });
-  });
+  // return new Promise((res, rej) => {
+  return db
+    .collection('user')
+    .doc(userStatus.email)
+    .get()
+    .then((data) => {
+      return data.data();
+    });
+  // });
 }
 
 function googleAccountSignIn(e, dispatch) {

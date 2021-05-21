@@ -1,6 +1,18 @@
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS, SingInBtn } from './style';
+import {
+  SearchInput,
+  InformationBox,
+  SearchBox,
+  InformationBg,
+  Frame,
+  InformationBoxS,
+  SingInBtn,
+  Back,
+  BackTitle,
+  SearchBoxNoShadow,
+  SearchBg
+} from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
@@ -28,14 +40,14 @@ function App() {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KRY,
     libraries
   });
-  googleAccountStateChanged();
+  // googleAccountStateChanged();
 
   const dispatch = useDispatch();
   const show = useSelector((state) => state.modalShow);
   const userStatus = useSelector((state) => state.userStatus);
   const menuData = useSelector((state) => state.menuData);
   const selectedDish = useSelector((state) => state.selectedDish);
-  googleAccountStateChanged();
+  // googleAccountStateChanged();
   // if (userStatus) {
   //   userReviewCheck(userStatus).then((res) => {
   //     // console.log(res);
@@ -82,16 +94,20 @@ function App() {
     const host_name = 'http://localhost:5000';
 
     setMarkers([]);
-    setSelect(null);
+    // setSelect(null);
     dispatch({
       type: 'setSelectedDish',
       data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
     });
 
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
-    const a = googleAccountStateChanged();
+    // const a = googleAccountStateChanged();
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
@@ -124,16 +140,18 @@ function App() {
 
     mapRef.current.fitBounds(bounds);
 
+    const callback = (data) => {
+      dispatch({
+        type: 'setMenuData',
+        data: data
+      });
+    };
+
     Promise.all(placePromises).then((res) => {
       setContent(res);
       if (res.length === 1) {
         if (res[0].deliver.uberEatUrl) {
-          getMenuData(res[0].name, menuList, dispatch).then((res) => {
-            dispatch({
-              type: 'setMenuData',
-              data: res
-            });
-          });
+          getMenuData(res[0].name, callback);
         } else {
           dispatch({
             type: 'setMenuData',
@@ -175,12 +193,13 @@ function App() {
         getMorereDetail(product, service, setMakerSelected);
 
         if (product.deliver.uberEatUrl) {
-          getMenuData(product.name, menuList, dispatch).then((res) => {
+          function setData(data) {
             dispatch({
               type: 'setMenuData',
-              data: res
+              data: data
             });
-          });
+          }
+          getMenuData(product.name, setData);
         } else {
           dispatch({
             type: 'setMenuData',
@@ -196,14 +215,37 @@ function App() {
     });
   }
 
+  function handleBack() {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    console.log('123');
+  }
+
   return (
     <Frame>
       {show ? <ModalControl show={show} key="ModalControl"></ModalControl> : <div></div>}
-      <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
-        <SearchBox>
-          <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
-        </SearchBox>
-      </StandaloneSearchBox>
+
+      {!selectedDish ? (
+        <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+          <SearchBox>
+            <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+          </SearchBox>
+        </StandaloneSearchBox>
+      ) : (
+        <>
+          <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+            <SearchBoxNoShadow>
+              <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+            </SearchBoxNoShadow>
+          </StandaloneSearchBox>
+          <Back>
+            <BackTitle onClick={handleBack}>返回上一頁</BackTitle>
+          </Back>
+          <SearchBg></SearchBg>
+        </>
+      )}
 
       {content.length > 1 && select === null && selectedDish === null && content ? (
         <InformationBg>

@@ -4,7 +4,8 @@ const initState = {
   selectedDish: null,
   userStatus: null,
   menuData: null,
-  collect: false
+  collect: false,
+  collectData: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -62,6 +63,14 @@ export default function storeReducer(preState = initState, action) {
         collect: true
       };
     }
+
+    case 'setCollectData': {
+      return {
+        ...preState,
+        collectData: data
+      };
+    }
+
     default:
       return preState;
   }

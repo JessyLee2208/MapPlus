@@ -267,10 +267,10 @@ function StoreDetail(props) {
 
   const AllReviews = [];
   if (props.product.reviews) {
-    props.product.reviews.forEach((review) => {
+    props.product.reviews.forEach((review, key) => {
       let reviewArry = [];
       let reviewer = (
-        <ReviewerBox>
+        <ReviewerBox key={key}>
           <AuthorBox>
             <AuthorImg src={review.profile_photo_url}></AuthorImg>
             <div>{review.author_name}</div>
@@ -307,8 +307,6 @@ function StoreDetail(props) {
     if (props.menu) {
       props.menu.forEach((dish) => {
         if (e.target.id === dish.name) {
-          console.log(e.target.id);
-          console.log(dish);
           dispatch({
             type: 'setSelectedDish',
             data: dish
@@ -415,7 +413,7 @@ function StoreDetail(props) {
           <H3Title>評論摘要</H3Title>
           {AllReviews}
         </div>
-      ) : props.menu !== undefined && props.menu !== null ? (
+      ) : props.menu !== undefined && props.menu !== null && tab === 'menu' ? (
         props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
       ) : (
         <div></div>

@@ -76,11 +76,13 @@ function Collection() {
   function handleCollectListClick(e) {
     const selectedCollect = e.target.innerHTML;
     console.log(e.target.innerHTML);
+    // e.target.innerHTML === '想去的地點' ?
     addDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(() => {
-      dispatch({
-        type: 'setCollect',
-        data: false
-      });
+      console.log('upload OK!');
+      // dispatch({
+      //   type: 'setCollect',
+      //   data: false
+      // });
     });
   }
   return (
@@ -88,17 +90,13 @@ function Collection() {
       <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }} id="collect">
         儲存至清單中
       </InfoBold>
-      <CollectListBox id="collect" value="想去的地點">
+      <CollectListBox id="collect">
         <Icon src="/falg.png"></Icon>
-        <CollectTitle id="collect" value="想去的地點">
-          想去的地點
-        </CollectTitle>
+        <CollectTitle id="collect">想去的地點</CollectTitle>
       </CollectListBox>
       <CollectListBox id="collect">
         <Icon src="/heart.png"></Icon>
-        <CollectTitle id="collect" value="喜愛的地點">
-          喜愛的地點
-        </CollectTitle>
+        <CollectTitle id="collect">喜愛的地點</CollectTitle>
       </CollectListBox>
       <CollectListBox id="collect">
         <Icon src="/active_star.png"></Icon>

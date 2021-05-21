@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -248,54 +248,67 @@ const InfoBold = styled.p`
 function DishDetail(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
+  const collect = useSelector((state) => state.collect);
+  const collectData = useSelector((state) => state.collectData);
   const dispatch = useDispatch();
 
   const [reviewsData, setReviewsData] = React.useState(null);
-  const [userReviewSet, setUserReviewSet] = React.useState(undefined);
-  const [collect, setCollect] = React.useState(false);
+  const [userReviewSet, setUserReviewSet] = React.useState(null);
+  const [select, selected] = React.useState(false);
 
-  getMenuReviews(selectedDish).then((res) => {
-    // let menuReview = res.data();
-    if (res.length !== 0) {
-      setReviewsData(res);
+  useEffect(() => {
+    getMenuReviews(selectedDish, getdata);
+
+    function getdata(data) {
+      setReviewsData(data);
     }
-  });
+    // return getMenuReviews(selectedDish, getdata);
+  }, []);
 
-  if (userStatus) {
-    userReviewCheck(userStatus).then((res) => {
-      if (res) {
-        //評論
-        if (res.reviews.length !== 0) {
-          // console.log(res);
-          const target = res.reviews.find(
+  useEffect(() => {
+    if (userStatus) {
+      async function reviewData() {
+        let data = await userReviewCheck(userStatus);
+        console.log(data);
+        if (data.reviews.length !== 0) {
+          const target = data.reviews.find(
             (recoom) =>
               recoom.storeCollectionID === selectedDish.storeCollectionID && recoom.dishName === selectedDish.name
           );
-          // console.log(target);
-          setUserReviewSet(target);
+          console.log(target);
+          target ? setUserReviewSet(target) : setUserReviewSet(null);
+          // setUserReviewSet(target);
         }
-      } else if (res.collection.length !== 0) {
-        const target = res.collection.find(
-          (collect) =>
-            collect.storeCollectionID === selectedDish.storeCollectionID && collect.dishName === selectedDish.dishName
-        );
-        if (target) {
-          setCollect(target);
+        if (data.collection.length !== 0) {
+          const target = data.collection.find(
+            (collect) =>
+              collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name
+          );
+          console.log(target);
+          dispatch({
+            type: 'setCollectData',
+            data: target
+          });
         }
-
-        //
       }
-    });
-  }
+      reviewData();
+    } else {
+      dispatch({
+        type: 'setCollectData',
+        data: null
+      });
+    }
+  }, [userStatus]);
 
   let reviewsDoms = [];
+
   if (reviewsData) {
-    reviewsData.forEach((review) => {
+    reviewsData.forEach((review, key) => {
       let reviewRatingArray = [];
       let time = new Date(review.time).toISOString().split('T')[0];
 
       let reviewsDom = (
-        <ReviewerBox>
+        <ReviewerBox key={key}>
           <AuthorBox>
             <AuthorImg src={review.userPhotoUrl}></AuthorImg>
             <Authortitle>
@@ -330,15 +343,17 @@ function DishDetail(props) {
   function handleCollectIconClick(e) {
     if (userStatus) {
       if (e.target.id === 'collectIcon' || e.target.id === 'collect') {
-        dispatch({
-          type: 'setCollect',
-          data: true
-        });
+        // dispatch({
+        //   type: 'setCollect',
+        //   data: true
+        // });
+        selected(true);
       } else {
-        dispatch({
-          type: 'setCollect',
-          data: false
-        });
+        // dispatch({
+        //   type: 'setCollect',
+        //   data: false
+        // });
+        selected(false);
       }
     } else {
       console.log('Please login first');
@@ -347,14 +362,12 @@ function DishDetail(props) {
 
   return (
     <Dish onClick={handleCollectIconClick}>
-      {collect ? <Collection></Collection> : <></>}
-
+      {select ? <Collection></Collection> : <></>}
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
       ) : (
         <WithoutDishImg></WithoutDishImg>
       )}
-
       <TopDiv>
         <DishBox>
           <DishTitle>{selectedDish.name}</DishTitle>
@@ -365,13 +378,32 @@ function DishDetail(props) {
             <Info>{selectedDish.rating}</Info>
           </RatingDiv>
         </DishBox>
-        {collect ? (
-          <CollectIcon src="/collect.png" id="collectIcon"></CollectIcon>
-        ) : (
+        {collectData ? (
           <CollectIcon src="/collected.png" id="collectIcon"></CollectIcon>
+        ) : (
+          <CollectIcon src="/collect.png" id="collectIcon"></CollectIcon>
         )}
       </TopDiv>
-      {userReviewSet === undefined ? (
+
+      {collectData ? (
+        <RatingDiv>
+          {collectData.collectName === '想去的地點' ? (
+            <Icon src="/falg.png"></Icon>
+          ) : collectData.collectName === '喜愛的地點' ? (
+            <Icon src="/heart.png"></Icon>
+          ) : collectData.collectName === '已加星號的地點' ? (
+            <Icon src="/active_star.png"></Icon>
+          ) : (
+            <></>
+          )}
+          <Info>已儲存於「{collectData.collectName}」</Info>
+          <Info style={{ fontWeight: '600' }}>查看清單</Info>
+        </RatingDiv>
+      ) : (
+        <></>
+      )}
+
+      {!userReviewSet ? (
         <CommentBtn type="button" onClick={callModal}>
           評論
         </CommentBtn>
@@ -388,7 +420,6 @@ function DishDetail(props) {
           <InfoBold>0</InfoBold>
         )}
       </RatingDiv>
-
       {reviewsData ? reviewsDoms : <NoComment>目前沒有任何評論</NoComment>}
     </Dish>
   );
