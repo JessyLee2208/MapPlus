@@ -12,7 +12,7 @@ const selectedDish = {
   storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
   storeName: 'miniB 手作漢堡',
   rating: 0,
-  user_ratings_total: 0
+  user_ratings_total: 0,
 };
 const reviews = [
   {
@@ -22,7 +22,7 @@ const reviews = [
     rating: '5',
     comment: '小籠包要快快吃，要不然皮很容易硬/湯汁濃郁 味道中規中矩 對得起價格',
     time: 1621412072924,
-    imageUrl: ''
+    imageUrl: '',
   },
   {
     name: 'TWM Jessy',
@@ -31,8 +31,8 @@ const reviews = [
     rating: '5',
     comment: '小籠包要快快吃，要不然皮很容易硬/湯汁濃郁 味道中規中矩 對得起價格',
     time: 1621412072924,
-    imageUrl: ''
-  }
+    imageUrl: '',
+  },
 ];
 
 const Dish = styled.div`
@@ -264,7 +264,7 @@ const CollectionBox = styled.div`
 function DishDetail(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
-  const collect = useSelector((state) => state.collect);
+
   const collectData = useSelector((state) => state.collectData);
   const userData = useSelector((state) => state.userData);
   const dispatch = useDispatch();
@@ -292,12 +292,12 @@ function DishDetail(props) {
 
         dispatch({
           type: 'setUserData',
-          data: data
+          data: data,
         });
         if (data.reviews.length !== 0) {
           const target = data.reviews.find(
             (recoom) =>
-              recoom.storeCollectionID === selectedDish.storeCollectionID && recoom.dishName === selectedDish.name
+              recoom.storeCollectionID === selectedDish.storeCollectionID && recoom.dishName === selectedDish.name,
           );
           console.log(target);
           target ? setUserReviewSet(target) : setUserReviewSet(null);
@@ -311,7 +311,7 @@ function DishDetail(props) {
           });
           dispatch({
             type: 'setCollectData',
-            data: collectionArray
+            data: collectionArray,
           });
         }
       }
@@ -319,7 +319,7 @@ function DishDetail(props) {
     } else {
       dispatch({
         type: 'setCollectData',
-        data: []
+        data: [],
       });
     }
   }, [userStatus]);
@@ -358,7 +358,7 @@ function DishDetail(props) {
     if (userStatus) {
       dispatch({
         type: 'setModalShow',
-        data: true
+        data: true,
       });
     } else {
       console.log('Please login first');
