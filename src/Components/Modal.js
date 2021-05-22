@@ -1,15 +1,26 @@
-import { Modal, Button, InputGroup, Form, Container, Row, Col } from 'react-bootstrap';
+import { Modal, Button, Form, Container, Row, Col } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import React from 'react';
-import RenderStar from './RenderStar';
-import { UpLoadPhotoToFirebase, UpLoadReview, GetMenuData, GetMenuReviews } from '../Utils/firebase';
+import renderStar from '../Utils/renderStar';
+import { upLoadPhotoToFirebase, upLoadReview, getMenuReviews } from '../Utils/firebase';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+
+const Img = styled.img`
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  margin: 0px 0px 0px 12px;
+  text-align: right;
+  flex-shrink: 1;
+  object-fit: cover;
+`;
 
 function ModalControl({ show, data }) {
-  // const uploadBtn = <input type="file" accept="image/gif,image/jpeg, image/png" onChange={bindUploadPhotoBtn}></input>;
   const dispatch = useDispatch();
   let starArry = [];
   const userStatus = useSelector((state) => state.userStatus);
+  const DishData = useSelector((state) => state.selectedDish);
 
   const [starRating, setStarRating] = React.useState(0);
   const [commentValue, setCommentValue] = React.useState('');
@@ -21,23 +32,18 @@ function ModalControl({ show, data }) {
       data: false
     });
   }
-  const DishData = useSelector((state) => state.selectedDish);
-  const menuData = useSelector((state) => state.menuData);
 
-  RenderStar(starRating, starArry);
+  renderStar(starRating, starArry);
   function handleStarRating(e) {
-    console.log(e.target.id);
     setStarRating(e.target.id);
   }
 
   const bindUploadPhotoBtn = async (e) => {
-    const url = await UpLoadPhotoToFirebase(e);
+    const url = await upLoadPhotoToFirebase(e);
     setImgUrl(url);
   };
 
-  // const reviewsCount = GetMenuReviews(DishData).then(() => {});
-
-  function bindUpLoadReview() {
+  function bindupLoadReview() {
     const datetime = new Date().getTime();
     const ReviewData = {
       name: userStatus.displayName,
@@ -49,8 +55,7 @@ function ModalControl({ show, data }) {
       imageUrl: imgUrl
     };
 
-    UpLoadReview(ReviewData, DishData).then((res) => {
-      console.log('OK???');
+    upLoadReview(ReviewData, DishData).then((res) => {
       dispatch({
         type: 'upDateMenuData',
         data: res
@@ -64,9 +69,14 @@ function ModalControl({ show, data }) {
 
     handleClose();
   }
-  // console.log(DishData);
+
   function handleInputChange(e) {
     setCommentValue(e.target.value);
+  }
+  const ref = React.useRef();
+
+  function handleInputClick() {
+    ref.current.click();
   }
 
   return (
@@ -99,18 +109,25 @@ function ModalControl({ show, data }) {
           </Form.Group>
         </Form>
         <Modal.Body style={{ padding: '0 18px' }}>
-          <input type="file" accept="image/gif,image/jpeg, image/png" onChange={bindUploadPhotoBtn}></input>
-          {/* {uploadBtn} */}
+          <input
+            type="file"
+            accept="image/gif,image/jpeg, image/png"
+            onChange={bindUploadPhotoBtn}
+            ref={ref}
+            style={{ display: 'none' }}
+          ></input>
+
           <img
             src="/uploadbtn.png"
             alt=""
             style={{ border: ' 1px solid #D0D0D0', borderRadius: '6px' }}
-            onClick={bindUploadPhotoBtn}
+            onClick={handleInputClick}
           ></img>
+          {imgUrl ? <Img src={imgUrl}></Img> : <></>}
         </Modal.Body>
         <Modal.Footer style={{ borderTop: 'none', paddingTop: '10px' }}>
           <Button onHide={handleClose}>取消</Button>
-          <Button onClick={bindUpLoadReview}>評論</Button>
+          <Button onClick={bindupLoadReview}>評論</Button>
         </Modal.Footer>
       </Modal>
     </>

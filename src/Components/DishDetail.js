@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import RenderStar from './RenderStar';
-import MenuCard from './MenuCard';
-import { useDispatch, useSelector, connect } from 'react-redux';
-import { GetMenuReviews, userReviewCheck, setUserReviewSet } from '../Utils/firebase';
+import renderStar from '../Utils/renderStar';
+import { useDispatch, useSelector } from 'react-redux';
+import { getMenuReviews, userReviewCheck, setUserReviewSet } from '../Utils/firebase';
+import Collection from './Collection';
 
 const selectedDish = {
   imageUrl: 'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
@@ -12,7 +12,7 @@ const selectedDish = {
   storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
   storeName: 'miniB 手作漢堡',
   rating: 0,
-  user_ratings_total: 0
+  user_ratings_total: 0,
 };
 const reviews = [
   {
@@ -22,7 +22,7 @@ const reviews = [
     rating: '5',
     comment: '小籠包要快快吃，要不然皮很容易硬/湯汁濃郁 味道中規中矩 對得起價格',
     time: 1621412072924,
-    imageUrl: ''
+    imageUrl: '',
   },
   {
     name: 'TWM Jessy',
@@ -31,8 +31,8 @@ const reviews = [
     rating: '5',
     comment: '小籠包要快快吃，要不然皮很容易硬/湯汁濃郁 味道中規中矩 對得起價格',
     time: 1621412072924,
-    imageUrl: ''
-  }
+    imageUrl: '',
+  },
 ];
 
 const Dish = styled.div`
@@ -57,7 +57,7 @@ const DishImg = styled.img`
 
 const WithoutDishImg = styled.div`
   width: 100%;
-  height: 80px;
+  height: 112px;
 
   text-align: right;
   flex-shrink: 1;
@@ -137,22 +137,22 @@ const CommentBtn = styled.button`
   border: 1px solid #185ee6;
   background: #fff;
   color: #185ee6;
-  height: 2em;
+
   border-radius: 25px;
-  padding: 0.1em 1em;
+  padding: 0.4em 2em;
   font-size: 15px;
-  margin-right: 18px;
+  margin: 0px 18px 0px 18px;
 `;
 
 const EditorBtn = styled.button`
   border: 1px solid #4285f4;
   background: #4285f4;
   color: #fff;
-  height: 2em;
+
   border-radius: 25px;
-  padding: 0.1em 1em;
+  padding: 0.4em 2em;
   font-size: 15px;
-  margin-right: 18px;
+  margin: 0px 18px 0px 18px;
 `;
 
 const TopDiv = styled.div`
@@ -164,7 +164,7 @@ const TopDiv = styled.div`
 const DishBox = styled.div`
   display: flex;
   // align-items: center;
-  width: 340px;
+  width: 380px;
   flex-direction: column;
 `;
 
@@ -226,52 +226,127 @@ const NoComment = styled.p`
   letter-spacing: 0.5px;　
 `;
 
+const CollectIcon = styled.img`
+  // width: 30px;
+  height: 30px;
+  padding-right: 18px;
+`;
+
+const InfoBold = styled.p`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #black;
+  margin: 0px 0 0 10px;
+`;
+
+const MenuImg = styled.img`
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  margin: 10px 10px 10px 0px;
+  text-align: right;
+  flex-shrink: 1;
+  object-fit: cover;
+`;
+
+const CollectionBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
 function DishDetail(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
+
+  const collectData = useSelector((state) => state.collectData);
+  const userData = useSelector((state) => state.userData);
   const dispatch = useDispatch();
-  // const reviewsCount = GetMenuReviews(selectedDish);
+
   const [reviewsData, setReviewsData] = React.useState(null);
-  const [userReviewSet, setUserReviewSet] = React.useState(undefined);
+  const [userReviewSet, setUserReviewSet] = React.useState(null);
+  const [select, selected] = React.useState(false);
+  // const [userData, setUserData] = React.useState(null);
+  let array = [];
 
-  GetMenuReviews(selectedDish).then((res) => {
-    if (res.length !== 0) {
-      setReviewsData(res);
+  useEffect(() => {
+    getMenuReviews(selectedDish, getdata);
+
+    function getdata(data) {
+      setReviewsData(data);
     }
-  });
+    // return getMenuReviews(selectedDish, getdata);
+  }, []);
 
-  if (userStatus) {
-    userReviewCheck(userStatus).then((res) => {
-      if (res && res.reviews.length !== 0) {
-        const target = res.reviews.find(
-          (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
-        );
-        setUserReviewSet(target);
+  useEffect(() => {
+    if (userStatus) {
+      async function reviewData() {
+        let data = await userReviewCheck(userStatus);
+        console.log(data);
+
+        dispatch({
+          type: 'setUserData',
+          data: data,
+        });
+        if (data.reviews.length !== 0) {
+          const target = data.reviews.find(
+            (recoom) =>
+              recoom.storeCollectionID === selectedDish.storeCollectionID && recoom.dishName === selectedDish.name,
+          );
+          console.log(target);
+          target ? setUserReviewSet(target) : setUserReviewSet(null);
+        }
+        if (data.collection.length !== 0) {
+          let collectionArray = [];
+          data.collection.forEach((collect) => {
+            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
+              collectionArray.push(collect);
+            }
+          });
+          dispatch({
+            type: 'setCollectData',
+            data: collectionArray,
+          });
+        }
       }
-    });
-  }
+      reviewData();
+    } else {
+      dispatch({
+        type: 'setCollectData',
+        data: [],
+      });
+    }
+  }, [userStatus]);
 
   let reviewsDoms = [];
+
   if (reviewsData) {
-    reviewsData.forEach((review) => {
+    reviewsData.forEach((review, key) => {
       let reviewRatingArray = [];
       let time = new Date(review.time).toISOString().split('T')[0];
 
       let reviewsDom = (
-        <ReviewerBox>
+        <ReviewerBox key={key}>
           <AuthorBox>
             <AuthorImg src={review.userPhotoUrl}></AuthorImg>
             <Authortitle>
               <div>{review.name}</div>
-              <P style={{ margin: '0px' }}>{time}</P>
+              <P style={{ margin: '4px 0 0 0px' }}>{time}</P>
             </Authortitle>
           </AuthorBox>
-          {RenderStar(Number(review.rating), reviewRatingArray)}
+          {renderStar(Number(review.rating), reviewRatingArray)}
           <StarBoxReview>
             {reviewRatingArray}
             <P>{review.rating}</P>
           </StarBoxReview>
           <InfoDetail>{review.comment}</InfoDetail>
+          {review.imageUrl !== '' ? <MenuImg src={review.imageUrl}></MenuImg> : <></>}
         </ReviewerBox>
       );
 
@@ -283,51 +358,93 @@ function DishDetail(props) {
     if (userStatus) {
       dispatch({
         type: 'setModalShow',
-        data: true
+        data: true,
       });
     } else {
       console.log('Please login first');
     }
   }
 
-  // function A() {}
+  function handleCollectIconClick(e) {
+    if (userStatus) {
+      if (e.target.id === 'collectIcon' || e.target.id === 'collect') {
+        selected(true);
+        console.log(e.target.id);
+      } else {
+        selected(false);
+      }
+    } else {
+      console.log('Please login first');
+    }
+  }
+
+  if (collectData.length > 0) {
+    collectData.forEach((data, key) => {
+      let collect = (
+        <RatingDiv key={key}>
+          {data.collectName === '想去的地點' ? (
+            <Icon src="/falg_select.png"></Icon>
+          ) : data.collectName === '喜愛的地點' ? (
+            <Icon src="/heart_select.png"></Icon>
+          ) : data.collectName === '已加星號的地點' ? (
+            <Icon src="/star_select.png"></Icon>
+          ) : (
+            <></>
+          )}
+          <CollectionBox>
+            <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
+            <Info style={{ fontWeight: '600', fontSize: '15px', margin: '0px 18px 0 0' }}>查看清單</Info>
+          </CollectionBox>
+        </RatingDiv>
+      );
+      array.push(collect);
+    });
+  }
+
   return (
-    <Dish>
+    <Dish onClick={handleCollectIconClick}>
+      {select ? <Collection></Collection> : <></>}
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
       ) : (
         <WithoutDishImg></WithoutDishImg>
       )}
-
       <TopDiv>
         <DishBox>
           <DishTitle>{selectedDish.name}</DishTitle>
+
           <RatingDiv>
             <DishPrice>NT${selectedDish.price}</DishPrice>
             <Icon src="/active_star.png" alt=""></Icon>
             <Info>{selectedDish.rating}</Info>
           </RatingDiv>
         </DishBox>
-        {userReviewSet === undefined ? (
-          <CommentBtn type="button" onClick={callModal}>
-            評論
-          </CommentBtn>
+        {collectData.length > 0 ? (
+          <CollectIcon src="/collected.png" id="collectIcon"></CollectIcon>
         ) : (
-          <EditorBtn type="button" onClick={callModal}>
-            編輯
-          </EditorBtn>
+          <CollectIcon src="/collect.png" id="collectIcon"></CollectIcon>
         )}
       </TopDiv>
 
-      <RatingDiv style={{ padding: '0px 0 0 18px', borderBottom: '1px solid #efefef' }}>
-        <Info style={{ color: 'black' }}>評論</Info>
+      {collectData.length > 0 ? array : <></>}
+
+      {!userReviewSet ? (
+        <CommentBtn type="button" onClick={callModal}>
+          評論
+        </CommentBtn>
+      ) : (
+        <EditorBtn type="button" onClick={callModal}>
+          編輯
+        </EditorBtn>
+      )}
+      <RatingDiv style={{ padding: '24px 0 0 18px', borderBottom: '1px solid #efefef' }}>
+        <Info style={{ color: 'black', margin: '10px 0 10px 0' }}>評論</Info>
         {reviewsData ? (
-          <Info style={{ color: 'black', fontWeight: '600' }}>{reviewsData.length}</Info>
+          <Info style={{ color: 'black', fontWeight: '600', margin: '10px 0px 10px 6px' }}>{reviewsData.length}</Info>
         ) : (
-          <Info style={{ color: 'black', fontWeight: '600' }}>0</Info>
+          <InfoBold>0</InfoBold>
         )}
       </RatingDiv>
-
       {reviewsData ? reviewsDoms : <NoComment>目前沒有任何評論</NoComment>}
     </Dish>
   );

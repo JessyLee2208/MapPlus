@@ -1,6 +1,6 @@
-import { postStoreData } from '../Utils/firebase';
+import { postStoreData } from './firebase';
 
-function GetMorereDetail(product, service, setMakerSelected) {
+function getMorereDetail(product, service, setMakerSelected) {
   const request = {
     placeId: product.place_id,
     fields: [
@@ -62,4 +62,4 @@ function GetMorereDetail(product, service, setMakerSelected) {
   });
 }
 
-export default GetMorereDetail;
+export default getMorereDetail;

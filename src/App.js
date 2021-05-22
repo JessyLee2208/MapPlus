@@ -1,21 +1,31 @@
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { SearchInput, InformationBox, SearchBox, InformationBg, Frame, InformationBoxS, SingInBtn } from './style';
+import {
+  SearchInput,
+  InformationBox,
+  SearchBox,
+  InformationBg,
+  Frame,
+  InformationBoxS,
+  SingInBtn,
+  Back,
+  BackTitle,
+  SearchBoxNoShadow,
+  SearchBg
+} from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
 import DishDetail from './Components/DishDetail';
 import {
   postStoreData,
-  GetMenuData,
-  GoogleAccountSignIn,
-  GoogleAccountStateChanged,
-  GoogleAccountLogOut
-  // userReviewCheck
+  getMenuData,
+  googleAccountSignIn,
+  googleAccountStateChanged,
+  googleAccountLogOut
 } from './Utils/firebase';
-import GetMorereDetail from './Components/GetMoreDetail';
+import getMorereDetail from './Utils/getMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
-// import { Modal } from 'react-bootstrap';
 import ModalControl from './Components/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -30,13 +40,14 @@ function App() {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KRY,
     libraries
   });
+  // googleAccountStateChanged();
 
   const dispatch = useDispatch();
   const show = useSelector((state) => state.modalShow);
   const userStatus = useSelector((state) => state.userStatus);
   const menuData = useSelector((state) => state.menuData);
   const selectedDish = useSelector((state) => state.selectedDish);
-  GoogleAccountStateChanged();
+  // googleAccountStateChanged();
   // if (userStatus) {
   //   userReviewCheck(userStatus).then((res) => {
   //     // console.log(res);
@@ -50,9 +61,9 @@ function App() {
 
   const [bounds, setBounds] = React.useState(null);
   const [markers, setMarkers] = React.useState([]);
-
   const [select, setSelect] = React.useState(null);
   const [content, setContent] = React.useState([]);
+
   // const [menuData, setMenuData] = React.useState([]);
   const [mapContainerStyle, setMapContainerStyle] = React.useState({
     width: '100vw',
@@ -72,13 +83,6 @@ function App() {
     searchRef.current = search;
   }, []);
 
-  // modal
-  // const [show, setShow] = React.useState(false);
-
-  // const handleClose = () => setShow(false);
-  // const handleShow = () => setShow(true);
-  //
-
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
   const service = new window.google.maps.places.PlacesService(mapRef.current);
@@ -90,16 +94,20 @@ function App() {
     const host_name = 'http://localhost:5000';
 
     setMarkers([]);
-    setSelect(null);
+    // setSelect(null);
     dispatch({
       type: 'setSelectedDish',
       data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
     });
 
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
-    const a = GoogleAccountStateChanged();
+    // const a = googleAccountStateChanged();
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
@@ -132,16 +140,18 @@ function App() {
 
     mapRef.current.fitBounds(bounds);
 
+    const callback = (data) => {
+      dispatch({
+        type: 'setMenuData',
+        data: data
+      });
+    };
+
     Promise.all(placePromises).then((res) => {
       setContent(res);
       if (res.length === 1) {
         if (res[0].deliver.uberEatUrl) {
-          GetMenuData(res[0].name, menuList, dispatch).then((res) => {
-            dispatch({
-              type: 'setMenuData',
-              data: res
-            });
-          });
+          getMenuData(res[0].name, callback);
         } else {
           dispatch({
             type: 'setMenuData',
@@ -180,27 +190,23 @@ function App() {
           await res.json();
         });
 
-        GetMorereDetail(product, service, setMakerSelected);
+        getMorereDetail(product, service, setMakerSelected);
 
         if (product.deliver.uberEatUrl) {
-          GetMenuData(product.name, menuList, dispatch).then((res) => {
-            console.log(res);
-            // setMenuData(res);
+          function setData(data) {
             dispatch({
               type: 'setMenuData',
-              data: res
+              data: data
             });
-          });
-          // GetMenuData(product.name);
+          }
+          getMenuData(product.name, setData);
         } else {
-          // setMenuData(null);
           dispatch({
             type: 'setMenuData',
             data: null
           });
         }
 
-        console.log(e.target);
         if (e.target.id === 'link') {
         }
 
@@ -209,15 +215,42 @@ function App() {
     });
   }
 
+  function handleBack() {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+
+    dispatch({
+      type: 'setCollectData',
+      data: []
+    });
+  }
+
   return (
     <Frame>
       {show ? <ModalControl show={show} key="ModalControl"></ModalControl> : <div></div>}
-      <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
-        <SearchBox>
-          <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
-        </SearchBox>
-      </StandaloneSearchBox>
-      {/* <DishDetail></DishDetail> */}
+
+      {!selectedDish ? (
+        <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+          <SearchBox>
+            <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+          </SearchBox>
+        </StandaloneSearchBox>
+      ) : (
+        <>
+          <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+            <SearchBoxNoShadow>
+              <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+            </SearchBoxNoShadow>
+          </StandaloneSearchBox>
+          <Back>
+            <BackTitle onClick={handleBack}>返回上一頁</BackTitle>
+          </Back>
+          <SearchBg></SearchBg>
+        </>
+      )}
+
       {content.length > 1 && select === null && selectedDish === null ? (
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
@@ -226,7 +259,7 @@ function App() {
             ))}
           </InformationBox>
         </InformationBg>
-      ) : content.length === 1 && selectedDish === null ? (
+      ) : content && content.length === 1 && selectedDish === null ? (
         content.map((product, index) => (
           <StoreDetail key={product.place_id + 'detail'} product={product} menu={menuData}></StoreDetail>
         ))
@@ -239,6 +272,7 @@ function App() {
       ) : (
         <div></div>
       )}
+
       {select ? (
         <InformationBoxS onClick={handleStoreListClick}>
           {content.length > 1 ? (
@@ -253,7 +287,7 @@ function App() {
       {!userStatus ? (
         <SingInBtn
           onClick={(e) => {
-            const signin = GoogleAccountSignIn(e, dispatch);
+            const signin = googleAccountSignIn(e, dispatch);
           }}
         >
           登入
@@ -261,8 +295,7 @@ function App() {
       ) : (
         <SingInBtn
           onClick={(e) => {
-            const logOut = GoogleAccountLogOut(e, dispatch);
-            console.log(logOut);
+            const logOut = googleAccountLogOut(e, dispatch);
           }}
         >
           登出
@@ -292,7 +325,7 @@ function App() {
               content.forEach((product) => {
                 if (marker.storename === product.name) {
                   console.log(product.name);
-                  GetMorereDetail(product, service, setMakerSelected);
+                  getMorereDetail(product, service, setMakerSelected);
                   dispatch({
                     type: 'setSelectedDish',
                     data: null

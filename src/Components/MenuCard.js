@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import RenderStar from './RenderStar';
+import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { userReviewCheck } from '../Utils/firebase';
 
@@ -22,7 +22,6 @@ const MenuImg = styled.img`
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
-  //   background: #f0f0f0;
 `;
 
 const NoImg = styled.div`
@@ -127,26 +126,29 @@ const product = {
 
 function MenuCard(props) {
   let starArry = [];
-  const [userReviewSet, setUserReviewSet] = React.useState(undefined);
-  //   const show = useSelector((state) => state.modalShow);
+  const [userReviewSet, setUserReviewSet] = React.useState(null);
+
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
 
-  if (userStatus) {
-    userReviewCheck(userStatus).then((res) => {
-      if (res && res.reviews.length !== 0) {
-        const target = res.reviews.find(
-          (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
-        );
-        setUserReviewSet(target);
+  useEffect(() => {
+    if (userStatus) {
+      async function reviewData() {
+        let data = await userReviewCheck(userStatus);
+        console.log(data);
+        if (data.reviews.length !== 0) {
+          const target = data.reviews.find(
+            (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+          );
+          console.log(target);
+          target ? setUserReviewSet(target) : setUserReviewSet(null);
+        }
       }
-    });
-  }
+      reviewData();
+    }
+  }, [userStatus]);
 
-  RenderStar(props.data.rating, starArry);
-
-  // const show = useSelector((state) => state.modalShow);
-  // const tab = useSelector((state) => state.selectedTab);
+  renderStar(props.data.rating, starArry);
 
   function callModal(e) {
     if (userStatus) {
@@ -159,13 +161,9 @@ function MenuCard(props) {
         type: 'setSelectedDish',
         data: props.data
       });
-      console.log(props.data);
     } else {
       console.log('Please login first');
     }
-
-    // console.log(props.data);
-    // console.log(tab);
   }
 
   return (
@@ -183,12 +181,11 @@ function MenuCard(props) {
           <RatingDiv id={props.data.name}>
             <Info id={props.data.name}>{props.data.rating}</Info>
             {starArry}
-            {/* <Info>({props.data.user_ratings_total})</Info> */}
           </RatingDiv>
         </div>
         <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
-      {userReviewSet === undefined ? (
+      {!userReviewSet ? (
         <CommentBtn type="button" onClick={callModal}>
           評論
         </CommentBtn>

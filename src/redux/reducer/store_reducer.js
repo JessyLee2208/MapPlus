@@ -3,7 +3,10 @@ const initState = {
   modalShow: false,
   selectedDish: null,
   userStatus: null,
-  menuData: null
+  menuData: null,
+  collect: false,
+  collectData: [],
+  userData: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -47,13 +50,32 @@ export default function storeReducer(preState = initState, action) {
     }
 
     case 'upDateSelectMenuData': {
-      // const index = preState.menuData.findIndex((data) => data.name === preState.selectedDish.name);
-      // const newMenuData = [...preState.selectedDish];
       const NewObj = { ...preState.selectedDish, rating: data };
-      // newMenuData[index] = NewObj;
+
       return {
         ...preState,
         selectedDish: NewObj
+      };
+    }
+
+    case 'setCollect': {
+      return {
+        ...preState,
+        collect: true
+      };
+    }
+
+    case 'setCollectData': {
+      return {
+        ...preState,
+        collectData: data
+      };
+    }
+
+    case 'setUserData': {
+      return {
+        ...preState,
+        userData: data
       };
     }
 
