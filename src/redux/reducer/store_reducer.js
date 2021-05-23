@@ -7,7 +7,8 @@ const initState = {
   collect: false,
   collectData: [],
   userData: null,
-  searchMenu: null
+  searchMenu: null,
+  userReviewSet: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -86,6 +87,13 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         searchMenu: data
+      };
+    }
+
+    case 'setUserReviewSet': {
+      return {
+        ...preState,
+        userReviewSet: data
       };
     }
 

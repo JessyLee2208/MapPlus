@@ -84,6 +84,7 @@ function getMenuReviews(DishData, callback) {
         promises.push(data);
       });
       callback(promises);
+
       // promises;
     });
 }
@@ -116,7 +117,7 @@ const upLoadReview = async (ReviewData, DishData) => {
   //   });
   db.collection('review')
     .doc()
-    .set({ ...ReviewData, ...userReviewData })
+    .set({ ...ReviewData, ...userReviewData }, { merge: true })
     .then(() => {
       console.log('Dish document successfully written!');
     });
@@ -185,6 +186,23 @@ function userReviewCheck(userStatus) {
       return data.data();
     });
   // });
+}
+
+function userReviewEdit(reviewData, newData) {
+  return db
+    .collection('review')
+    .where('email', '==', reviewData.email)
+    .where('dishCollectionID', '==', reviewData.dishCollectionID)
+    .limit(1)
+    .get()
+    .then((data) => {
+      let dataDocument = data.docs[0];
+      dataDocument.ref.update({
+        comment: newData.comment,
+        imageUrl: newData.imageUrl,
+        rating: newData.rating
+      });
+    });
 }
 
 function googleAccountSignIn(e, dispatch) {
@@ -262,6 +280,7 @@ export {
   getMenuReviews,
   addDishToCollectList,
   removeDishToCollectList,
-  getStoreData
+  getStoreData,
+  userReviewEdit
   // GetDishCollection
 };

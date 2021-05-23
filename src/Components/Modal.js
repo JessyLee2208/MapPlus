@@ -1,8 +1,12 @@
 import { Modal, Button, Form, Container, Row, Col } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import React from 'react';
+import React, { useEffect } from 'react';
 import renderStar from '../Utils/renderStar';
-import { upLoadPhotoToFirebase, upLoadReview, getMenuReviews } from '../Utils/firebase';
+import {
+  upLoadPhotoToFirebase,
+  upLoadReview,
+  userReviewEdit
+} from '../Utils/firebase';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -21,6 +25,7 @@ function ModalControl({ show, data }) {
   let starArry = [];
   const userStatus = useSelector((state) => state.userStatus);
   const DishData = useSelector((state) => state.selectedDish);
+  const userReviewSet = useSelector((state) => state.userReviewSet);
 
   const [starRating, setStarRating] = React.useState(0);
   const [commentValue, setCommentValue] = React.useState('');
@@ -32,8 +37,18 @@ function ModalControl({ show, data }) {
       data: false
     });
   }
+  useEffect(() => {
+    setStarRating(userReviewSet.rating);
+    setImgUrl(userReviewSet.imageUrl);
+  }, [userReviewSet]);
 
+  // if (!userReviewSet) {
+  //   setStarRating(0);
+  // } else {
+  //   ;
+  // }
   renderStar(starRating, starArry);
+
   function handleStarRating(e) {
     setStarRating(e.target.id);
   }
@@ -54,18 +69,21 @@ function ModalControl({ show, data }) {
       time: datetime,
       imageUrl: imgUrl
     };
+    if (!userReviewSet) {
+      upLoadReview(ReviewData, DishData).then((res) => {
+        dispatch({
+          type: 'upDateMenuData',
+          data: res
+        });
 
-    upLoadReview(ReviewData, DishData).then((res) => {
-      dispatch({
-        type: 'upDateMenuData',
-        data: res
+        dispatch({
+          type: 'upDateSelectMenuData',
+          data: res
+        });
       });
-
-      dispatch({
-        type: 'upDateSelectMenuData',
-        data: res
-      });
-    });
+    } else {
+      userReviewEdit(userReviewSet, ReviewData);
+    }
 
     handleClose();
   }
@@ -83,7 +101,9 @@ function ModalControl({ show, data }) {
     <>
       <Modal show={show} onHide={handleClose} animation={true}>
         <Modal.Header closeButton>
-          <Modal.Title style={{ textAlign: 'center' }}>{DishData.name}</Modal.Title>
+          <Modal.Title style={{ textAlign: 'center' }}>
+            {DishData.name}
+          </Modal.Title>
         </Modal.Header>
 
         <Container style={{ padding: '16px 18px' }}>
@@ -99,13 +119,24 @@ function ModalControl({ show, data }) {
         <Form style={{ padding: '0 18px' }}>
           <Form.Group controlId="formPlaintextEmail">
             <Form.Label>我要留言</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              style={{ resize: 'none', border: ' 1px solid #000000' }}
-              placeholder="分享你的心得或感想"
-              onChange={handleInputChange}
-            />
+            {!userReviewSet ? (
+              <Form.Control
+                as="textarea"
+                rows={3}
+                style={{ resize: 'none', border: ' 1px solid #000000' }}
+                placeholder="分享你的心得或感想"
+                onChange={handleInputChange}
+              />
+            ) : (
+              <Form.Control
+                as="textarea"
+                rows={3}
+                style={{ resize: 'none', border: ' 1px solid #000000' }}
+                onChange={handleInputChange}
+              >
+                {userReviewSet.comment}
+              </Form.Control>
+            )}
           </Form.Group>
         </Form>
         <Modal.Body style={{ padding: '0 18px' }}>
@@ -116,7 +147,6 @@ function ModalControl({ show, data }) {
             ref={ref}
             style={{ display: 'none' }}
           ></input>
-
           <img
             src="/uploadbtn.png"
             alt=""
