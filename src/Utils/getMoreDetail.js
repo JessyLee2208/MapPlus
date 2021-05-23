@@ -14,8 +14,10 @@ function getMorereDetail(product, service, setMakerSelected) {
       'website'
     ]
   };
+  console.log(product);
 
   service.getDetails(request, (place, status) => {
+    console.log(request, '234');
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
       const moreDetail = {
         name: place.name,
@@ -27,18 +29,29 @@ function getMorereDetail(product, service, setMakerSelected) {
         opening_hours: place.opening_hours
       };
       const all = { ...product, ...moreDetail };
+      console.log(all);
       setMakerSelected(all);
 
       let upLoadDataToFirebaseData = {
-        address_components: all.address_components ? all.address_components : '',
+        address_components: all.address_components
+          ? all.address_components
+          : '',
         business_status: all.business_status ? all.business_status : '',
         deliver: all.deliver,
         formatted_address: all.formatted_address ? all.formatted_address : '',
-        formatted_phone_number: all.formatted_phone_number ? all.formatted_phone_number : '',
-        geometry: {
-          lat: all.geometry.location.lat(),
-          lng: all.geometry.location.lng()
-        },
+        formatted_phone_number: all.formatted_phone_number
+          ? all.formatted_phone_number
+          : '',
+        geometry:
+          all.geometry.lat && all.geometry.lng
+            ? {
+                lat: all.geometry.lat,
+                lng: all.geometry.lng
+              }
+            : {
+                lat: all.geometry.location.lat(),
+                lng: all.geometry.location.lng()
+              },
         icon: all.icon ? all.icon : '',
         name: all.name ? all.name : '',
         rating: all.rating ? all.rating : 0,
@@ -50,11 +63,15 @@ function getMorereDetail(product, service, setMakerSelected) {
           : {},
 
         place_id: all.place_id ? all.place_id : '',
+        plus_code: all.plus_code ? all.plus_code : '',
         price_level: all.price_level ? all.price_level : '',
-        photo: all.photos ? all.photos[0].getUrl() : '',
+
+        photo: all.photos ? [all.photos[0].getUrl()] : all.photo,
         reviews: all.reviews ? all.reviews : [],
         types: all.types ? all.types : [],
-        user_ratings_total: all.user_ratings_total ? all.user_ratings_total : '',
+        user_ratings_total: all.user_ratings_total
+          ? all.user_ratings_total
+          : '',
         website: all.website ? all.website : ''
       };
       postStoreData(upLoadDataToFirebaseData);

@@ -124,6 +124,16 @@ const Border = styled.p`
   margin: 0;
 `;
 
+const WithoutImg = styled.div`
+  width: 160px;
+  height: 100px;
+  border-radius: 8px;
+  margin: 10px 10px 10px 10px;
+  text-align: right;
+  flex-shrink: 1;
+  background: #f0f0f0;
+`;
+
 function StoreCardS(props, key) {
   let priceLevel = [];
 
@@ -136,10 +146,16 @@ function StoreCardS(props, key) {
 
   return (
     <Store id={props.id}>
-      {props.product.photos ? (
-        <StoreImg id={props.id} alt="" src={props.product.photos[0].getUrl()}></StoreImg>
+      {props.product.photos && props.product.photos.length > 0 ? (
+        <StoreImg
+          id={props.id}
+          alt=""
+          src={props.product.photos[0].getUrl()}
+        ></StoreImg>
+      ) : props.product.photo ? (
+        <StoreImg id={props.id} alt="" src={props.product.photo[0]}></StoreImg>
       ) : (
-        <div></div>
+        <WithoutImg></WithoutImg>
       )}
       <StoreInfo id={props.id}>
         <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
@@ -159,8 +175,14 @@ function StoreCardS(props, key) {
           {/* {priceLevelDOM} */}
         </RatingDiv>
         <LinkDiv id={props.id} className="Link">
-          {props.product.website ? <InfoLink href={props.product.website}>網站</InfoLink> : ''}
-          {props.product.website && (props.product.deliver.foodPandaUrl || props.product.deliver.uberEatUrl) ? (
+          {props.product.website ? (
+            <InfoLink href={props.product.website}>網站</InfoLink>
+          ) : (
+            ''
+          )}
+          {props.product.website &&
+          (props.product.deliver.foodPandaUrl ||
+            props.product.deliver.uberEatUrl) ? (
             <Border>|</Border>
           ) : (
             ''

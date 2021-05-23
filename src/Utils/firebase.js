@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: 'map-780c3.firebaseapp.com',
-  databaseURL: 'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
+  databaseURL:
+    'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'map-780c3',
   storageBucket: 'map-780c3.appspot.com',
   messagingSenderId: '325004892900',
@@ -27,6 +28,7 @@ const postStoreData = (storeData) => {
 };
 
 function getMenuData(selectedStoreName, callback) {
+  console.log(selectedStoreName);
   db.collection('menu')
     .where('storeName', '==', selectedStoreName)
     .onSnapshot((querySnapshot) => {
@@ -37,6 +39,16 @@ function getMenuData(selectedStoreName, callback) {
         promises.push(data);
       });
       callback(promises);
+    });
+}
+
+function getStoreData(collectionID) {
+  return db
+    .collection('store')
+    .doc(collectionID)
+    .get()
+    .then((data) => {
+      return data.data();
     });
 }
 
@@ -85,7 +97,8 @@ const upLoadReview = async (ReviewData, DishData) => {
       return review.size;
     });
 
-  const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
+  const averageRating =
+    (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
 
   let userReviewData = {
     dishCollectionID: DishData.dishCollectionID,
@@ -248,6 +261,7 @@ export {
   userReviewCheck,
   getMenuReviews,
   addDishToCollectList,
-  removeDishToCollectList
+  removeDishToCollectList,
+  getStoreData
   // GetDishCollection
 };

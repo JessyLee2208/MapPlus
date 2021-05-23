@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   GoogleMap,
   useLoadScript,
   Marker,
-  StandaloneSearchBox,
+  StandaloneSearchBox
 } from '@react-google-maps/api';
 import {
   SearchInput,
@@ -16,7 +16,7 @@ import {
   Back,
   BackTitle,
   SearchBoxNoShadow,
-  SearchBg,
+  SearchBg
 } from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
@@ -28,6 +28,7 @@ import {
   googleAccountSignIn,
   googleAccountStateChanged,
   googleAccountLogOut,
+  getStoreData
 } from './Utils/firebase';
 import getMorereDetail from './Utils/getMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
@@ -39,20 +40,27 @@ import algoliasearch from 'algoliasearch';
 const libraries = ['drawing', 'places'];
 const center = {
   lat: 25.020397,
-  lng: 121.533053,
+  lng: 121.533053
 };
 
 const searchClient = algoliasearch(
   process.env.REACT_APP_ALGOLIA_API_ID,
-  process.env.REACT_APP_ALGOLIA_SEARCH_KEY,
+  process.env.REACT_APP_ALGOLIA_SEARCH_KEY
 );
 
 const searchIndex = searchClient.initIndex('googlemap_search');
+// searchIndex
+//   .setSettings({
+//     attributesForFaceting: ['name'],
+//   })
+//   .then(() => {
+//     // done
+//   });
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KRY,
-    libraries,
+    libraries
   });
   // googleAccountStateChanged();
 
@@ -62,11 +70,6 @@ function App() {
   const menuData = useSelector((state) => state.menuData);
   const selectedDish = useSelector((state) => state.selectedDish);
 
-  console.log(
-    process.env.REACT_APP_ALGOLIA_API_ID,
-    process.env.REACT_APP_ALGOLIA_SEARCH_KEY,
-    process.env.REACT_APP_GOOGLE_MAPS_API_KRY,
-  );
   // googleAccountStateChanged();
   // if (userStatus) {
   //   userReviewCheck(userStatus).then((res) => {
@@ -83,6 +86,9 @@ function App() {
   const [markers, setMarkers] = React.useState([]);
   const [select, setSelect] = React.useState(null);
   const [content, setContent] = React.useState([]);
+  const [mapStore, setMapStore] = React.useState([]);
+  // const [algoliaMenu, setAlgoliaMenu] = React.useState(null);
+  const [algoliaStore, setAlgoliaStore] = React.useState(null);
   const [searchText, setSearchText] = React.useState('');
 
   // const [menuData, setMenuData] = React.useState([]);
@@ -92,7 +98,7 @@ function App() {
     position: 'absolute',
     top: 0,
     left: 0,
-    zIndex: -10,
+    zIndex: -10
   });
 
   const [makerSelected, setMakerSelected] = React.useState(null);
@@ -103,6 +109,31 @@ function App() {
   const onSearchLoad = React.useCallback((search) => {
     searchRef.current = search;
   }, []);
+
+  useEffect(() => {
+    if (mapStore.length > 0 && algoliaStore && mapStore) {
+      console.log(mapStore, algoliaStore);
+      algoliaStore.forEach((store) => {
+        if (store) {
+          const mach = mapStore.find(
+            (storename) => storename.name === store.name
+          );
+          if (!mach) {
+            mapStore.push(store);
+            setMarkers((current) => [
+              ...current,
+              {
+                lat: store.geometry.lat,
+                lng: store.geometry.lng,
+                storename: store.name
+              }
+            ]);
+          }
+        }
+      });
+      setContent(mapStore);
+    }
+  }, [mapStore, algoliaStore]);
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
@@ -115,14 +146,14 @@ function App() {
     const host_name = 'http://localhost:5000';
 
     setMarkers([]);
-    // setSelect(null);
+    setSelect(null);
     dispatch({
       type: 'setSelectedDish',
-      data: null,
+      data: null
     });
     dispatch({
       type: 'setSelectedTab',
-      data: 'information',
+      data: 'information'
     });
 
     const places = searchRef.current.getPlaces();
@@ -132,13 +163,14 @@ function App() {
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
+      console.log(markers);
       setMarkers((current) => [
         ...current,
         {
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
-          storename: place.name,
-        },
+          storename: place.name
+        }
       ]);
       if (place.geometry.viewport) {
         bounds.union(place.geometry.viewport);
@@ -151,7 +183,7 @@ function App() {
           const a = await res.json();
 
           return { ...place, deliver: a };
-        },
+        }
       );
       placePromises.push(placePromise);
     });
@@ -162,7 +194,7 @@ function App() {
       position: 'absolute',
       top: 0,
       left: '435px',
-      zIndex: -10,
+      zIndex: -10
     });
 
     mapRef.current.fitBounds(bounds);
@@ -170,19 +202,20 @@ function App() {
     const callback = (data) => {
       dispatch({
         type: 'setMenuData',
-        data: data,
+        data: data
       });
     };
 
     Promise.all(placePromises).then((res) => {
-      setContent(res);
+      // setContent(res);
+      setMapStore(res);
       if (res.length === 1) {
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
         } else {
           dispatch({
             type: 'setMenuData',
-            data: null,
+            data: null
           });
         }
       }
@@ -192,11 +225,11 @@ function App() {
   function handleStoreListClick(e) {
     dispatch({
       type: 'setSelectedDish',
-      data: null,
+      data: null
     });
     dispatch({
       type: 'setSelectedTab',
-      data: 'information',
+      data: 'information'
     });
 
     markers.forEach((marker) => {
@@ -211,26 +244,26 @@ function App() {
           method: 'post',
           body: JSON.stringify(product.deliver),
           headers: {
-            'Content-Type': 'application/json',
-          },
+            'Content-Type': 'application/json'
+          }
         }).then(async (res) => {
           await res.json();
         });
 
         getMorereDetail(product, service, setMakerSelected);
 
-        if (product.deliver.uberEatUrl) {
+        if (product.deliver.uberEatUrl || product.deliver.foodPandaUrl) {
           function setData(data) {
             dispatch({
               type: 'setMenuData',
-              data: data,
+              data: data
             });
           }
           getMenuData(product.name, setData);
         } else {
           dispatch({
             type: 'setMenuData',
-            data: null,
+            data: null
           });
         }
 
@@ -245,27 +278,40 @@ function App() {
   function handleBack() {
     dispatch({
       type: 'setSelectedDish',
-      data: null,
+      data: null
     });
 
     dispatch({
       type: 'setCollectData',
-      data: [],
+      data: []
     });
   }
 
   function handleSearchText(e) {
-    console.log(e.target.value);
     setSearchText(e.target.value);
   }
 
   const handleSearch = async (queryText) => {
     try {
-      await searchIndex.search(queryText).then((hits) => {
-        console.log(hits);
+      await searchIndex.search(queryText).then(({ hits }) => {
+        // console.log(hits);
+        // setAlgoliaMenu(hits);
+        dispatch({
+          type: 'setSearchMenu',
+          data: hits
+        });
+
+        let algoliaSearchData = [];
+        hits.forEach((hit) => {
+          const data = getStoreData(hit.storeCollectionID);
+          algoliaSearchData.push(data);
+        });
+        Promise.all(algoliaSearchData).then((res) => {
+          setAlgoliaStore(res);
+        });
       });
     } catch (error) {
-      console.log('error');
+      console.log(error);
     }
   };
 
@@ -354,7 +400,7 @@ function App() {
       ) : selectedDish ? (
         <DishDetail></DishDetail>
       ) : (
-        <div></div>
+        <></>
       )}
 
       {select ? (
@@ -401,20 +447,17 @@ function App() {
             key={key}
             position={{ lat: marker.lat, lng: marker.lng }}
             onClick={() => {
-              console.log(marker);
-              console.log(123);
               setSelect(marker);
               dispatch({
                 type: 'setSelectedTab',
-                data: 'information',
+                data: 'information'
               });
               content.forEach((product) => {
                 if (marker.storename === product.name) {
-                  console.log(product.name);
                   getMorereDetail(product, service, setMakerSelected);
                   dispatch({
                     type: 'setSelectedDish',
-                    data: null,
+                    data: null
                   });
                 }
               });
