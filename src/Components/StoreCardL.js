@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
+import { useSelector } from 'react-redux';
+import SearchMenuCard from './SearchMenuCard';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -35,7 +37,7 @@ const StoreImg = styled.img`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px;
+  margin: 10px 18px 10px 10px;
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
@@ -91,11 +93,26 @@ function StoreCard(props) {
   let typesCheck = props.product.types.includes('food');
   let showType = <div></div>;
   let OpenStatu = <div></div>;
+  const searchMenu = useSelector((state) => state.searchMenu);
+  const [menu, setmenu] = React.useState(null);
+  let menuArray = [];
+
+  useEffect(() => {
+    searchMenu.forEach((data) => {
+      if (data.storeName === props.product.name) {
+        menuArray.push(data);
+      }
+    });
+    setmenu(menuArray);
+  }, []);
 
   renderStar(props.product.rating, starArry);
   // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
   if (typesCheck) {
-    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
+    if (
+      props.product.deliver.uberEatUrl ||
+      props.product.deliver.foodPandaUrl
+    ) {
       showType = (
         <RatingDiv id={props.id}>
           <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
@@ -132,7 +149,9 @@ function StoreCard(props) {
       const timestamp = props.product.peridos[today].close.time.substring(0, 2);
       OpenStatu = <Info id={props.id}>營業至 下午{timestamp}:00</Info>;
     } else if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
+      const timestamp = props.product.opening_hours.weekday_text[today].slice(
+        5
+      );
       OpenStatu = <Info id={props.id}>營業中：{timestamp}</Info>;
     } else {
       OpenStatu = <Info id={props.id}>營業中</Info>;
@@ -142,32 +161,51 @@ function StoreCard(props) {
   }
 
   return (
-    <Store id={props.id}>
-      <StoreInfo id={props.id}>
-        <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
-        <RatingDiv id={props.id}>
-          <Info id={props.id}>{props.product.rating}</Info>
-          <StarBox id={props.id}>{starArry}</StarBox>
-          <Info id={props.id}>({props.product.user_ratings_total})</Info>
-          {props.product.price_level ? (
-            <PriceLevel>
-              <Info>・</Info> {priceLevel}
-            </PriceLevel>
-          ) : (
-            <div></div>
-          )}
-        </RatingDiv>
-        <Info id={props.id}>{props.product.formatted_address}</Info>
-        <Info id={props.id}>{props.product.formatted_phone_number}</Info>
-        {OpenStatu}
-        {showType}
-      </StoreInfo>
-      {props.product.photos && props.product.photos.length !== 0 ? (
-        <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>
+    <div>
+      <Store id={props.id}>
+        <StoreInfo id={props.id}>
+          <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
+          <RatingDiv id={props.id}>
+            <Info id={props.id}>{props.product.rating}</Info>
+            <StarBox id={props.id}>{starArry}</StarBox>
+            <Info id={props.id}>({props.product.user_ratings_total})</Info>
+            {props.product.price_level ? (
+              <PriceLevel>
+                <Info>・</Info> {priceLevel}
+              </PriceLevel>
+            ) : (
+              <div></div>
+            )}
+          </RatingDiv>
+          <Info id={props.id}>{props.product.formatted_address}</Info>
+          <Info id={props.id}>{props.product.formatted_phone_number}</Info>
+          {OpenStatu}
+          {showType}
+        </StoreInfo>
+        {props.product.photos && props.product.photos.length > 0 ? (
+          <StoreImg
+            alt=""
+            src={props.product.photos[0].getUrl()}
+            id={props.id}
+          ></StoreImg>
+        ) : props.product.photo ? (
+          <StoreImg
+            alt=""
+            src={props.product.photo[0]}
+            id={props.id}
+          ></StoreImg>
+        ) : (
+          <WithoutImg></WithoutImg>
+        )}
+      </Store>
+      {menu ? (
+        menu.map((data, key) => (
+          <SearchMenuCard key={key} content={data}></SearchMenuCard>
+        ))
       ) : (
-        <WithoutImg></WithoutImg>
+        <></>
       )}
-    </Store>
+    </div>
   );
 }
 

@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: 'map-780c3.firebaseapp.com',
-  databaseURL: 'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
+  databaseURL:
+    'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'map-780c3',
   storageBucket: 'map-780c3.appspot.com',
   messagingSenderId: '325004892900',
@@ -40,6 +41,16 @@ function getMenuData(selectedStoreName, callback) {
     });
 }
 
+function getStoreData(collectionID) {
+  return db
+    .collection('store')
+    .doc(collectionID)
+    .get()
+    .then((data) => {
+      return data.data();
+    });
+}
+
 const upLoadPhotoToFirebase = (e) => {
   let file = e.target.files[0];
 
@@ -72,7 +83,6 @@ function getMenuReviews(DishData, callback) {
         promises.push(data);
       });
       callback(promises);
-      // promises;
     });
 }
 
@@ -85,7 +95,8 @@ const upLoadReview = async (ReviewData, DishData) => {
       return review.size;
     });
 
-  const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
+  const averageRating =
+    (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
 
   let userReviewData = {
     dishCollectionID: DishData.dishCollectionID,
@@ -94,16 +105,9 @@ const upLoadReview = async (ReviewData, DishData) => {
     storeName: DishData.storeName
   };
 
-  //這是編輯評論的寫法
-  // db.collection('review')
-  //   .doc()
-  //   .set({ ...ReviewData, ...userReviewData }, { merge: true })
-  //   .then(() => {
-  //     console.log('Dish document successfully written!');
-  //   });
   db.collection('review')
     .doc()
-    .set({ ...ReviewData, ...userReviewData })
+    .set({ ...ReviewData, ...userReviewData }, { merge: true })
     .then(() => {
       console.log('Dish document successfully written!');
     });
@@ -128,7 +132,7 @@ const upLoadReview = async (ReviewData, DishData) => {
     });
 };
 
-function addDishToCollectList(usermail, selectedDish, collectList, userData) {
+function addDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
   return db
     .collection('user')
@@ -143,7 +147,6 @@ function addDishToCollectList(usermail, selectedDish, collectList, userData) {
 
 function removeDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
-  console.log(newSelectDish);
   return db
     .collection('user')
     .doc(usermail)
@@ -152,18 +155,13 @@ function removeDishToCollectList(usermail, selectedDish, collectList) {
         collection: firebase.firestore.FieldValue.arrayRemove(newSelectDish)
       },
       { merge: true }
-    )
-    .then(() => {
-      console.log('remove OK!');
-    });
+    );
 }
 
 //1. caollback
 // return => async awiat 接直
 
 function userReviewCheck(userStatus) {
-  // console.log(userStatus);
-  // return new Promise((res, rej) => {
   return db
     .collection('user')
     .doc(userStatus.email)
@@ -171,7 +169,23 @@ function userReviewCheck(userStatus) {
     .then((data) => {
       return data.data();
     });
-  // });
+}
+
+function userReviewEdit(reviewData, newData) {
+  return db
+    .collection('review')
+    .where('email', '==', reviewData.email)
+    .where('dishCollectionID', '==', reviewData.dishCollectionID)
+    .limit(1)
+    .get()
+    .then((data) => {
+      let dataDocument = data.docs[0];
+      dataDocument.ref.update({
+        comment: newData.comment,
+        imageUrl: newData.imageUrl,
+        rating: newData.rating
+      });
+    });
 }
 
 function googleAccountSignIn(e, dispatch) {
@@ -202,20 +216,11 @@ function googleAccountSignIn(e, dispatch) {
 }
 
 function googleAccountStateChanged() {
-  // const dispatch = useDispatch();
   firebase.auth().onAuthStateChanged((firebaseUser) => {
     if (firebaseUser) {
       return true;
-      //   dispatch({
-      //     type: 'setUserState',
-      //     data: firebaseUser
-      // });
     } else {
       return false;
-      //   dispatch({
-      //     type: 'setUserState',
-      //     data: null
-      //   });
     }
   });
 }
@@ -248,6 +253,8 @@ export {
   userReviewCheck,
   getMenuReviews,
   addDishToCollectList,
-  removeDishToCollectList
+  removeDishToCollectList,
+  getStoreData,
+  userReviewEdit
   // GetDishCollection
 };

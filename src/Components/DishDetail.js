@@ -2,38 +2,8 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMenuReviews, userReviewCheck, setUserReviewSet } from '../Utils/firebase';
+import { getMenuReviews, userReviewCheck } from '../Utils/firebase';
 import Collection from './Collection';
-
-const selectedDish = {
-  imageUrl: 'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
-  name: '雙層享受牛肉黑麥堡',
-  price: 250,
-  storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
-  storeName: 'miniB 手作漢堡',
-  rating: 0,
-  user_ratings_total: 0,
-};
-const reviews = [
-  {
-    name: 'TWM Jessy',
-    email: 'jessyleetwm@gmail.com',
-    userPhotoUrl: 'https://lh3.googleusercontent.com/a/AATXAJzgPWIpFFpihhTQ4uCwVfkHbsyfXeVOvRH5YT92=s96-c',
-    rating: '5',
-    comment: '小籠包要快快吃，要不然皮很容易硬/湯汁濃郁 味道中規中矩 對得起價格',
-    time: 1621412072924,
-    imageUrl: '',
-  },
-  {
-    name: 'TWM Jessy',
-    email: 'jessyleetwm@gmail.com',
-    userPhotoUrl: 'https://lh3.googleusercontent.com/a/AATXAJzgPWIpFFpihhTQ4uCwVfkHbsyfXeVOvRH5YT92=s96-c',
-    rating: '5',
-    comment: '小籠包要快快吃，要不然皮很容易硬/湯汁濃郁 味道中規中矩 對得起價格',
-    time: 1621412072924,
-    imageUrl: '',
-  },
-];
 
 const Dish = styled.div`
   position: relative;
@@ -266,52 +236,62 @@ function DishDetail(props) {
   const userStatus = useSelector((state) => state.userStatus);
 
   const collectData = useSelector((state) => state.collectData);
-  const userData = useSelector((state) => state.userData);
+  const userReviewSet = useSelector((state) => state.userReviewSet);
+
   const dispatch = useDispatch();
 
   const [reviewsData, setReviewsData] = React.useState(null);
-  const [userReviewSet, setUserReviewSet] = React.useState(null);
   const [select, selected] = React.useState(false);
-  // const [userData, setUserData] = React.useState(null);
+
   let array = [];
+  let newRating = selectedDish.rating.toFixed(1);
 
   useEffect(() => {
     getMenuReviews(selectedDish, getdata);
 
     function getdata(data) {
       setReviewsData(data);
+      console.log(data);
     }
-    // return getMenuReviews(selectedDish, getdata);
   }, []);
 
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
         let data = await userReviewCheck(userStatus);
-        console.log(data);
 
-        dispatch({
-          type: 'setUserData',
-          data: data,
-        });
-        if (data.reviews.length !== 0) {
-          const target = data.reviews.find(
-            (recoom) =>
-              recoom.storeCollectionID === selectedDish.storeCollectionID && recoom.dishName === selectedDish.name,
+        if (reviewsData) {
+          const target = reviewsData.find(
+            (data) =>
+              data.storeCollectionID === selectedDish.storeCollectionID &&
+              data.dishName === selectedDish.name &&
+              data.email === userStatus.email
           );
-          console.log(target);
-          target ? setUserReviewSet(target) : setUserReviewSet(null);
+
+          target
+            ? dispatch({
+                type: 'setUserReviewSet',
+                data: target
+              })
+            : dispatch({
+                type: 'setUserReviewSet',
+                data: null
+              });
         }
-        if (data.collection.length !== 0) {
+
+        if (data && data.collection && data.collection.length !== 0) {
           let collectionArray = [];
           data.collection.forEach((collect) => {
-            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
+            if (
+              collect.storeCollectionID === selectedDish.storeCollectionID &&
+              collect.name === selectedDish.name
+            ) {
               collectionArray.push(collect);
             }
           });
           dispatch({
             type: 'setCollectData',
-            data: collectionArray,
+            data: collectionArray
           });
         }
       }
@@ -319,10 +299,14 @@ function DishDetail(props) {
     } else {
       dispatch({
         type: 'setCollectData',
-        data: [],
+        data: []
+      });
+      dispatch({
+        type: 'setUserReviewSet',
+        data: null
       });
     }
-  }, [userStatus]);
+  }, [userStatus, reviewsData]);
 
   let reviewsDoms = [];
 
@@ -346,7 +330,11 @@ function DishDetail(props) {
             <P>{review.rating}</P>
           </StarBoxReview>
           <InfoDetail>{review.comment}</InfoDetail>
-          {review.imageUrl !== '' ? <MenuImg src={review.imageUrl}></MenuImg> : <></>}
+          {review.imageUrl !== '' ? (
+            <MenuImg src={review.imageUrl}></MenuImg>
+          ) : (
+            <></>
+          )}
         </ReviewerBox>
       );
 
@@ -358,7 +346,7 @@ function DishDetail(props) {
     if (userStatus) {
       dispatch({
         type: 'setModalShow',
-        data: true,
+        data: true
       });
     } else {
       console.log('Please login first');
@@ -392,8 +380,18 @@ function DishDetail(props) {
             <></>
           )}
           <CollectionBox>
-            <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-            <Info style={{ fontWeight: '600', fontSize: '15px', margin: '0px 18px 0 0' }}>查看清單</Info>
+            <Info style={{ fontSize: '15px' }}>
+              已儲存於「{data.collectName}」
+            </Info>
+            <Info
+              style={{
+                fontWeight: '600',
+                fontSize: '15px',
+                margin: '0px 18px 0 0'
+              }}
+            >
+              查看清單
+            </Info>
           </CollectionBox>
         </RatingDiv>
       );
@@ -416,7 +414,7 @@ function DishDetail(props) {
           <RatingDiv>
             <DishPrice>NT${selectedDish.price}</DishPrice>
             <Icon src="/active_star.png" alt=""></Icon>
-            <Info>{selectedDish.rating}</Info>
+            <Info>{newRating}</Info>
           </RatingDiv>
         </DishBox>
         {collectData.length > 0 ? (
@@ -437,10 +435,20 @@ function DishDetail(props) {
           編輯
         </EditorBtn>
       )}
-      <RatingDiv style={{ padding: '24px 0 0 18px', borderBottom: '1px solid #efefef' }}>
+      <RatingDiv
+        style={{ padding: '24px 0 0 18px', borderBottom: '1px solid #efefef' }}
+      >
         <Info style={{ color: 'black', margin: '10px 0 10px 0' }}>評論</Info>
         {reviewsData ? (
-          <Info style={{ color: 'black', fontWeight: '600', margin: '10px 0px 10px 6px' }}>{reviewsData.length}</Info>
+          <Info
+            style={{
+              color: 'black',
+              fontWeight: '600',
+              margin: '10px 0px 10px 6px'
+            }}
+          >
+            {reviewsData.length}
+          </Info>
         ) : (
           <InfoBold>0</InfoBold>
         )}

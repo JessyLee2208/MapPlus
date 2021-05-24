@@ -187,6 +187,15 @@ const Tab = styled.div`
   text-align: left;
 `;
 
+const WithoutDishImg = styled.div`
+  width: 100%;
+  height: 112px;
+
+  text-align: right;
+  flex-shrink: 1;
+  object-fit: cover;
+`;
+
 function StoreDetail(props) {
   let starArry = [];
 
@@ -194,7 +203,9 @@ function StoreDetail(props) {
   let websitesURL = '';
   let deliverSite = '';
   let deliverSiteTag = <div></div>;
-  let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
+  let typesCheck =
+    props.product.types.includes('food') ||
+    props.product.types.includes('cafe');
   // let showType = <div></div>;
   // const [selectedTab, setSelectedTab] = React.useState('information');
   const dispatch = useDispatch();
@@ -206,7 +217,9 @@ function StoreDetail(props) {
     const today = new Date().getDay();
     //
     if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
+      const timestamp = props.product.opening_hours.weekday_text[today].slice(
+        5
+      );
       OpenStatu = <InfoDetail>營業中：{timestamp}</InfoDetail>;
     } else {
       OpenStatu = <InfoDetail>營業中</InfoDetail>;
@@ -219,13 +232,18 @@ function StoreDetail(props) {
     websitesURL = props.product.website.split('/');
   }
   // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
-  if (props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null) {
+  if (
+    props.product.deliver.foodPandaUrl !== null ||
+    props.product.deliver.uberEatUrl !== null
+  ) {
     if (props.product.deliver.uberEatUrl) {
       deliverSite = props.product.deliver.uberEatUrl.split('/');
       deliverSiteTag = (
         <InfoBox>
           <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.uberEatUrl}>{deliverSite[2]}</InfoLink>
+          <InfoLink href={props.product.deliver.uberEatUrl}>
+            {deliverSite[2]}
+          </InfoLink>
         </InfoBox>
       );
     } else if (props.product.deliver.foodPandaUrl) {
@@ -233,7 +251,9 @@ function StoreDetail(props) {
       deliverSiteTag = (
         <InfoBox>
           <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.foodPandaUrl}>{deliverSite[2]}</InfoLink>
+          <InfoLink href={props.product.deliver.foodPandaUrl}>
+            {deliverSite[2]}
+          </InfoLink>
         </InfoBox>
       );
     }
@@ -291,10 +311,12 @@ function StoreDetail(props) {
 
   return (
     <Store onClick={handleClickEvent}>
-      {props.product.photos.length !== 0 && props.product.photos ? (
+      {props.product.photos && props.product.photos.length !== 0 ? (
         <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>
+      ) : props.product.photo ? (
+        <StoreImg alt="" src={props.product.photo[0]}></StoreImg>
       ) : (
-        <div></div>
+        <WithoutDishImg></WithoutDishImg>
       )}
 
       <StoreTitle>{props.product.name}</StoreTitle>
@@ -303,10 +325,19 @@ function StoreDetail(props) {
         <StarBoxStore>{starArry}</StarBoxStore>
         <Info>{props.product.user_ratings_total} 則評論</Info>
       </RatingDiv>
-      {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+      {props.product.deliver.uberEatUrl ||
+      props.product.deliver.foodPandaUrl ? (
         <TabBox>
-          {tab === 'information' ? <TabActive id="information">資訊</TabActive> : <Tab id="information">資訊</Tab>}
-          {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
+          {tab === 'information' ? (
+            <TabActive id="information">資訊</TabActive>
+          ) : (
+            <Tab id="information">資訊</Tab>
+          )}
+          {tab === 'menu' ? (
+            <TabActive id="menu">菜單</TabActive>
+          ) : (
+            <Tab id="menu">菜單</Tab>
+          )}
         </TabBox>
       ) : (
         <div></div>
@@ -315,7 +346,8 @@ function StoreDetail(props) {
       {tab === 'information' ? (
         <div>
           {typesCheck ? (
-            props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+            props.product.deliver.uberEatUrl ||
+            props.product.deliver.foodPandaUrl ? (
               <InfoBox>
                 <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
                 <Info>．</Info>
@@ -349,7 +381,9 @@ function StoreDetail(props) {
             {props.product.website ? (
               <InfoBox>
                 <Icon src="/earth.png"></Icon>
-                <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
+                <InfoLink href={props.product.website}>
+                  {websitesURL[2]}
+                </InfoLink>
               </InfoBox>
             ) : (
               <div></div>
@@ -373,7 +407,13 @@ function StoreDetail(props) {
           {AllReviews}
         </div>
       ) : props.menu !== undefined && props.menu !== null && tab === 'menu' ? (
-        props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
+        props.menu.map((item) => (
+          <MenuCard
+            data={item}
+            key={item.dishCollectionID}
+            id={item.dishCollectionID}
+          />
+        ))
       ) : (
         <div></div>
       )}

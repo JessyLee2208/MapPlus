@@ -115,7 +115,8 @@ const EditorBtn = styled.button`
 `;
 
 const product = {
-  imageUrl: 'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
+  imageUrl:
+    'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
   name: '雙層享受牛肉黑麥堡',
   price: 250,
   storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
@@ -130,17 +131,19 @@ function MenuCard(props) {
 
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
+  let newRating = props.data.rating.toFixed(1);
 
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
         let data = await userReviewCheck(userStatus);
-        console.log(data);
-        if (data.reviews.length !== 0) {
+        if (data && data.reviews.length !== 0) {
           const target = data.reviews.find(
-            (recoom) => recoom.storeCollectionID === props.data.storeCollectionID && recoom.dishName === props.data.name
+            (recoom) =>
+              recoom.storeCollectionID === props.data.storeCollectionID &&
+              recoom.dishName === props.data.name
           );
-          console.log(target);
+
           target ? setUserReviewSet(target) : setUserReviewSet(null);
         }
       }
@@ -169,7 +172,11 @@ function MenuCard(props) {
   return (
     <Menu id={props.data.name}>
       {props.data.imageUrl !== '' ? (
-        <MenuImg alt="" src={props.data.imageUrl} id={props.data.name}></MenuImg>
+        <MenuImg
+          alt=""
+          src={props.data.imageUrl}
+          id={props.data.name}
+        ></MenuImg>
       ) : (
         <NoImg id={props.data.name}></NoImg>
       )}
@@ -179,7 +186,7 @@ function MenuCard(props) {
         <div id={props.data.name}>
           <MenuTitle id={props.data.name}>{props.data.name}</MenuTitle>
           <RatingDiv id={props.data.name}>
-            <Info id={props.data.name}>{props.data.rating}</Info>
+            <Info id={props.data.name}>{newRating}</Info>
             {starArry}
           </RatingDiv>
         </div>

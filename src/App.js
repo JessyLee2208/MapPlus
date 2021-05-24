@@ -1,5 +1,11 @@
-import React from 'react';
-import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+
+import {
+  GoogleMap,
+  useLoadScript,
+  Marker,
+  StandaloneSearchBox
+} from '@react-google-maps/api';
 import {
   SearchInput,
   InformationBox,
@@ -18,22 +24,30 @@ import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
 import DishDetail from './Components/DishDetail';
 import {
-  postStoreData,
   getMenuData,
   googleAccountSignIn,
-  googleAccountStateChanged,
-  googleAccountLogOut
+  googleAccountLogOut,
+  getStoreData
 } from './Utils/firebase';
 import getMorereDetail from './Utils/getMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
-import ModalControl from './Components/Modal';
-import 'bootstrap/dist/css/bootstrap.min.css';
+
+import algoliasearch from 'algoliasearch';
+import CommentModal from './Components/CommentModal';
 
 const libraries = ['drawing', 'places'];
 const center = {
   lat: 25.020397,
   lng: 121.533053
 };
+
+const searchClient = algoliasearch(
+  process.env.REACT_APP_ALGOLIA_API_ID,
+  process.env.REACT_APP_ALGOLIA_SEARCH_KEY
+);
+
+const searchIndex = searchClient.initIndex('googlemap_search');
+const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -47,25 +61,20 @@ function App() {
   const userStatus = useSelector((state) => state.userStatus);
   const menuData = useSelector((state) => state.menuData);
   const selectedDish = useSelector((state) => state.selectedDish);
-  // googleAccountStateChanged();
-  // if (userStatus) {
-  //   userReviewCheck(userStatus).then((res) => {
-  //     // console.log(res);
-  //   });
-  // }
 
-  const menuList = [];
+  const mapRef = useRef();
+  const searchRef = useRef();
 
-  const mapRef = React.useRef();
-  const searchRef = React.useRef();
+  const [bounds, setBounds] = useState(null);
+  const [markers, setMarkers] = useState([]);
+  const [select, setSelect] = useState(null);
+  const [content, setContent] = useState([]);
+  const [mapStore, setMapStore] = useState([]);
 
-  const [bounds, setBounds] = React.useState(null);
-  const [markers, setMarkers] = React.useState([]);
-  const [select, setSelect] = React.useState(null);
-  const [content, setContent] = React.useState([]);
+  const [algoliaStore, setAlgoliaStore] = useState(null);
+  const [searchText, setSearchText] = useState('');
 
-  // const [menuData, setMenuData] = React.useState([]);
-  const [mapContainerStyle, setMapContainerStyle] = React.useState({
+  const [mapContainerStyle, setMapContainerStyle] = useState({
     width: '100vw',
     height: '100vh',
     position: 'absolute',
@@ -74,27 +83,51 @@ function App() {
     zIndex: -10
   });
 
-  const [makerSelected, setMakerSelected] = React.useState(null);
+  const [makerSelected, setMakerSelected] = useState(null);
 
-  const onMapLoad = React.useCallback((map) => {
+  useEffect(() => {
+    if (mapStore.length > 0 && algoliaStore && mapStore) {
+      console.log(mapStore, algoliaStore);
+      algoliaStore.forEach((store) => {
+        if (store) {
+          const condition = mapStore.find(
+            (storename) => storename.name === store.name
+          );
+          if (!condition) {
+            mapStore.unshift(store);
+            setMarkers((current) => [
+              ...current,
+              {
+                lat: store.geometry.lat,
+                lng: store.geometry.lng,
+                storename: store.name
+              }
+            ]);
+          }
+        }
+      });
+      setContent(mapStore);
+    }
+  }, [mapStore, algoliaStore]);
+
+  const onMapLoad = useCallback((map) => {
     mapRef.current = map;
   }, []);
-  const onSearchLoad = React.useCallback((search) => {
+  const onSearchLoad = useCallback((search) => {
     searchRef.current = search;
   }, []);
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
+
   const service = new window.google.maps.places.PlacesService(mapRef.current);
 
   const onBoundsChanged = () => {
     setBounds(mapRef.current.getBounds());
   };
   const hanldePlacesChanged = () => {
-    const host_name = 'http://localhost:5000';
-
     setMarkers([]);
-    // setSelect(null);
+    setSelect(null);
     dispatch({
       type: 'setSelectedDish',
       data: null
@@ -107,13 +140,16 @@ function App() {
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
-    // const a = googleAccountStateChanged();
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
       setMarkers((current) => [
         ...current,
-        { lat: place.geometry.location.lat(), lng: place.geometry.location.lng(), storename: place.name }
+        {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+          storename: place.name
+        }
       ]);
       if (place.geometry.viewport) {
         bounds.union(place.geometry.viewport);
@@ -121,11 +157,13 @@ function App() {
         bounds.extend(place.geometry.location);
       }
 
-      const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
-        const a = await res.json();
+      const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(
+        async (res) => {
+          const a = await res.json();
 
-        return { ...place, deliver: a };
-      });
+          return { ...place, deliver: a };
+        }
+      );
       placePromises.push(placePromise);
     });
 
@@ -148,7 +186,7 @@ function App() {
     };
 
     Promise.all(placePromises).then((res) => {
-      setContent(res);
+      setMapStore(res);
       if (res.length === 1) {
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
@@ -179,8 +217,7 @@ function App() {
     });
     content.forEach((product) => {
       if (e.target.id === product.name) {
-        const host_name = 'http://localhost:5000';
-        const placePromise = fetch(`${host_name}/getStoreProducts`, {
+        fetch(`${host_name}/getStoreProducts`, {
           method: 'post',
           body: JSON.stringify(product.deliver),
           headers: {
@@ -192,7 +229,7 @@ function App() {
 
         getMorereDetail(product, service, setMakerSelected);
 
-        if (product.deliver.uberEatUrl) {
+        if (product.deliver.uberEatUrl || product.deliver.foodPandaUrl) {
           function setData(data) {
             dispatch({
               type: 'setMenuData',
@@ -227,21 +264,68 @@ function App() {
     });
   }
 
+  function handleSearchText(e) {
+    setSearchText(e.target.value);
+  }
+
+  const handleSearch = async (queryText) => {
+    try {
+      await searchIndex.search(queryText).then(({ hits }) => {
+        dispatch({
+          type: 'setSearchMenu',
+          data: hits
+        });
+
+        let algoliaSearchData = [];
+        hits.forEach((hit) => {
+          const data = getStoreData(hit.storeCollectionID);
+          algoliaSearchData.push(data);
+        });
+        Promise.all(algoliaSearchData).then((res) => {
+          setAlgoliaStore(res);
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Frame>
-      {show ? <ModalControl show={show} key="ModalControl"></ModalControl> : <div></div>}
+      {show ? <CommentModal show={show}></CommentModal> : <div></div>}
 
       {!selectedDish ? (
-        <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+        <StandaloneSearchBox
+          onLoad={onSearchLoad}
+          onPlacesChanged={hanldePlacesChanged}
+          bounds={bounds}
+        >
           <SearchBox>
-            <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+            <SearchInput
+              type="text"
+              placeholder="搜尋 Google 地圖"
+              onChange={handleSearchText}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch(searchText);
+                }
+              }}
+              // value={searchText}
+            ></SearchInput>
           </SearchBox>
         </StandaloneSearchBox>
       ) : (
         <>
-          <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+          <StandaloneSearchBox
+            onLoad={onSearchLoad}
+            onPlacesChanged={hanldePlacesChanged}
+            bounds={bounds}
+          >
             <SearchBoxNoShadow>
-              <SearchInput type="text" placeholder="搜尋 Google 地圖"></SearchInput>
+              <SearchInput
+                type="text"
+                placeholder="搜尋 Google 地圖"
+              ></SearchInput>
             </SearchBoxNoShadow>
           </StandaloneSearchBox>
           <Back>
@@ -255,28 +339,40 @@ function App() {
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
-              <StoreCardL key={product.place_id} product={product} id={product.name} />
+              <StoreCardL
+                key={product.place_id}
+                product={product}
+                id={product.name}
+              />
             ))}
           </InformationBox>
         </InformationBg>
       ) : content && content.length === 1 && selectedDish === null ? (
         content.map((product, index) => (
-          <StoreDetail key={product.place_id + 'detail'} product={product} menu={menuData}></StoreDetail>
+          <StoreDetail
+            key={index}
+            product={product}
+            menu={menuData}
+          ></StoreDetail>
         ))
-      ) : makerSelected !== null && menuData !== null && selectedDish === null ? (
-        <StoreDetail key={makerSelected.place_id + 'detail'} product={makerSelected} menu={menuData}></StoreDetail>
+      ) : makerSelected !== null &&
+        menuData !== null &&
+        selectedDish === null ? (
+        <StoreDetail product={makerSelected} menu={menuData}></StoreDetail>
       ) : makerSelected !== null && selectedDish === null ? (
-        <StoreDetail key={makerSelected.place_id + 'detail'} product={makerSelected}></StoreDetail>
+        <StoreDetail product={makerSelected}></StoreDetail>
       ) : selectedDish ? (
         <DishDetail></DishDetail>
       ) : (
-        <div></div>
+        <></>
       )}
 
       {select ? (
         <InformationBoxS onClick={handleStoreListClick}>
           {content.length > 1 ? (
-            content.map((product, key) => <StoreCardS key={key + 's'} product={product} id={product.name} />)
+            content.map((product, key) => (
+              <StoreCardS key={key} product={product} id={product.name} />
+            ))
           ) : (
             <div></div>
           )}
@@ -287,7 +383,7 @@ function App() {
       {!userStatus ? (
         <SingInBtn
           onClick={(e) => {
-            const signin = googleAccountSignIn(e, dispatch);
+            googleAccountSignIn(e, dispatch);
           }}
         >
           登入
@@ -295,7 +391,7 @@ function App() {
       ) : (
         <SingInBtn
           onClick={(e) => {
-            const logOut = googleAccountLogOut(e, dispatch);
+            googleAccountLogOut(e, dispatch);
           }}
         >
           登出
@@ -315,8 +411,6 @@ function App() {
             key={key}
             position={{ lat: marker.lat, lng: marker.lng }}
             onClick={() => {
-              console.log(marker);
-              console.log(123);
               setSelect(marker);
               dispatch({
                 type: 'setSelectedTab',
@@ -324,7 +418,6 @@ function App() {
               });
               content.forEach((product) => {
                 if (marker.storename === product.name) {
-                  console.log(product.name);
                   getMorereDetail(product, service, setMakerSelected);
                   dispatch({
                     type: 'setSelectedDish',

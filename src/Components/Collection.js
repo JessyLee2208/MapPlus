@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { addDishToCollectList, removeDishToCollectList, userReviewCheck } from '../Utils/firebase';
+import {
+  addDishToCollectList,
+  removeDishToCollectList,
+  userReviewCheck
+} from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 let CollectBox = styled.div`
@@ -81,7 +85,7 @@ function Collection() {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
   const collectData = useSelector((state) => state.collectData);
-  const userData = useSelector((state) => state.userData);
+
   let want = false;
   let like = false;
   let stare = false;
@@ -115,19 +119,22 @@ function Collection() {
 
   function handleCollectListClick(e) {
     const selectedCollect = e.target.innerHTML;
-    console.log(e.target.innerHTML);
-    // e.target.innerHTML === '想去的地點' ?
 
     if (e.target.id === 'collect') {
-      addDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
+      addDishToCollectList(
+        userStatus.email,
+        selectedDish,
+        selectedCollect
+      ).then(async () => {
         let data = await userReviewCheck(userStatus);
-        console.log(data);
 
-        console.log('upload OK!');
         if (data.collection.length !== 0) {
           let collectionArray = [];
           data.collection.forEach((collect) => {
-            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
+            if (
+              collect.storeCollectionID === selectedDish.storeCollectionID &&
+              collect.name === selectedDish.name
+            ) {
               collectionArray.push(collect);
             }
           });
@@ -146,26 +153,35 @@ function Collection() {
       });
     }
     if (e.target.id === 'removeCollection') {
-      removeDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
+      removeDishToCollectList(
+        userStatus.email,
+        selectedDish,
+        selectedCollect
+      ).then(async () => {
         let data = await userReviewCheck(userStatus);
+
         if (data.collection.length !== 0) {
           let collectionArray = [];
           data.collection.forEach((collect) => {
-            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
+            if (
+              collect.storeCollectionID === selectedDish.storeCollectionID &&
+              collect.name === selectedDish.name
+            ) {
               collectionArray.push(collect);
             }
           });
+
           if (collectionArray.length !== 0) {
             dispatch({
               type: 'setCollectData',
               data: collectionArray
             });
+          } else {
+            dispatch({
+              type: 'setCollectData',
+              data: []
+            });
           }
-        } else {
-          dispatch({
-            type: 'setCollectData',
-            data: []
-          });
         }
       });
     }
@@ -186,7 +202,10 @@ function Collection() {
 
   return (
     <CollectBox onClick={handleCollectListClick} id="collect">
-      <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }} id="collect">
+      <InfoBold
+        style={{ color: 'black', padding: '10px 0 10px 0px' }}
+        id="collect"
+      >
         儲存至清單中
       </InfoBold>
       {want ? (
@@ -201,9 +220,9 @@ function Collection() {
         </CollectListBox>
       )}
       {like ? (
-        <CollectListBoxSelect id="collect">
+        <CollectListBoxSelect id="removeCollection">
           <Icon src="/heart_select.png"></Icon>
-          <CollectTitle id="collect">喜愛的地點</CollectTitle>
+          <CollectTitle id="removeCollection">喜愛的地點</CollectTitle>
         </CollectListBoxSelect>
       ) : (
         <CollectListBox id="collect">
@@ -212,9 +231,9 @@ function Collection() {
         </CollectListBox>
       )}
       {stare ? (
-        <CollectListBoxSelect id="collect">
+        <CollectListBoxSelect id="removeCollection">
           <Icon src="/star_select.png"></Icon>
-          <CollectTitle id="collect" value="已加星號的地點">
+          <CollectTitle id="removeCollection" value="已加星號的地點">
             已加星號的地點
           </CollectTitle>
         </CollectListBoxSelect>
