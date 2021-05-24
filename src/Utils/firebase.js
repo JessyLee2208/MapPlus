@@ -28,7 +28,6 @@ const postStoreData = (storeData) => {
 };
 
 function getMenuData(selectedStoreName, callback) {
-  console.log(selectedStoreName);
   db.collection('menu')
     .where('storeName', '==', selectedStoreName)
     .onSnapshot((querySnapshot) => {
@@ -84,8 +83,6 @@ function getMenuReviews(DishData, callback) {
         promises.push(data);
       });
       callback(promises);
-
-      // promises;
     });
 }
 
@@ -108,13 +105,6 @@ const upLoadReview = async (ReviewData, DishData) => {
     storeName: DishData.storeName
   };
 
-  //這是編輯評論的寫法
-  // db.collection('review')
-  //   .doc()
-  //   .set({ ...ReviewData, ...userReviewData }, { merge: true })
-  //   .then(() => {
-  //     console.log('Dish document successfully written!');
-  //   });
   db.collection('review')
     .doc()
     .set({ ...ReviewData, ...userReviewData }, { merge: true })
@@ -142,7 +132,7 @@ const upLoadReview = async (ReviewData, DishData) => {
     });
 };
 
-function addDishToCollectList(usermail, selectedDish, collectList, userData) {
+function addDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
   return db
     .collection('user')
@@ -157,7 +147,6 @@ function addDishToCollectList(usermail, selectedDish, collectList, userData) {
 
 function removeDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
-  console.log(newSelectDish);
   return db
     .collection('user')
     .doc(usermail)
@@ -166,18 +155,13 @@ function removeDishToCollectList(usermail, selectedDish, collectList) {
         collection: firebase.firestore.FieldValue.arrayRemove(newSelectDish)
       },
       { merge: true }
-    )
-    .then(() => {
-      console.log('remove OK!');
-    });
+    );
 }
 
 //1. caollback
 // return => async awiat 接直
 
 function userReviewCheck(userStatus) {
-  // console.log(userStatus);
-  // return new Promise((res, rej) => {
   return db
     .collection('user')
     .doc(userStatus.email)
@@ -185,7 +169,6 @@ function userReviewCheck(userStatus) {
     .then((data) => {
       return data.data();
     });
-  // });
 }
 
 function userReviewEdit(reviewData, newData) {
@@ -233,20 +216,11 @@ function googleAccountSignIn(e, dispatch) {
 }
 
 function googleAccountStateChanged() {
-  // const dispatch = useDispatch();
   firebase.auth().onAuthStateChanged((firebaseUser) => {
     if (firebaseUser) {
       return true;
-      //   dispatch({
-      //     type: 'setUserState',
-      //     data: firebaseUser
-      // });
     } else {
       return false;
-      //   dispatch({
-      //     type: 'setUserState',
-      //     data: null
-      //   });
     }
   });
 }

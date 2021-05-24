@@ -14,10 +14,8 @@ function getMorereDetail(product, service, setMakerSelected) {
       'website'
     ]
   };
-  console.log(product);
 
   service.getDetails(request, (place, status) => {
-    console.log(request, '234');
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
       const moreDetail = {
         name: place.name,

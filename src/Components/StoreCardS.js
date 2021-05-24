@@ -19,6 +19,9 @@ const StoreTitle = styled.div`
   color: black;
   padding-top: 8px;
   padding-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 const Store = styled.div`
   width: 160px;
@@ -127,8 +130,8 @@ const Border = styled.p`
 const WithoutImg = styled.div`
   width: 160px;
   height: 100px;
-  border-radius: 8px;
-  margin: 10px 10px 10px 10px;
+  border-radius: 8px 8px 0 0;
+
   text-align: right;
   flex-shrink: 1;
   background: #f0f0f0;

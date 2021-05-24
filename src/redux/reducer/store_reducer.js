@@ -6,7 +6,6 @@ const initState = {
   menuData: null,
   collect: false,
   collectData: [],
-  userData: null,
   searchMenu: null,
   userReviewSet: null
 };
@@ -73,13 +72,6 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         collectData: data
-      };
-    }
-
-    case 'setUserData': {
-      return {
-        ...preState,
-        userData: data
       };
     }
 

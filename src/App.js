@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+
 import {
   GoogleMap,
   useLoadScript,
@@ -23,19 +24,16 @@ import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './Components/StoreDetail';
 import DishDetail from './Components/DishDetail';
 import {
-  postStoreData,
   getMenuData,
   googleAccountSignIn,
-  googleAccountStateChanged,
   googleAccountLogOut,
   getStoreData
 } from './Utils/firebase';
 import getMorereDetail from './Utils/getMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
-import ModalControl from './Components/Modal';
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import algoliasearch from 'algoliasearch';
-// import algoliasearch from 'algoliasearch/lite';
+import CommentModal from './Components/CommentModal';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -49,13 +47,7 @@ const searchClient = algoliasearch(
 );
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-// searchIndex
-//   .setSettings({
-//     attributesForFaceting: ['name'],
-//   })
-//   .then(() => {
-//     // done
-//   });
+const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -70,29 +62,19 @@ function App() {
   const menuData = useSelector((state) => state.menuData);
   const selectedDish = useSelector((state) => state.selectedDish);
 
-  // googleAccountStateChanged();
-  // if (userStatus) {
-  //   userReviewCheck(userStatus).then((res) => {
-  //     // console.log(res);
-  //   });
-  // }
+  const mapRef = useRef();
+  const searchRef = useRef();
 
-  const menuList = [];
+  const [bounds, setBounds] = useState(null);
+  const [markers, setMarkers] = useState([]);
+  const [select, setSelect] = useState(null);
+  const [content, setContent] = useState([]);
+  const [mapStore, setMapStore] = useState([]);
 
-  const mapRef = React.useRef();
-  const searchRef = React.useRef();
+  const [algoliaStore, setAlgoliaStore] = useState(null);
+  const [searchText, setSearchText] = useState('');
 
-  const [bounds, setBounds] = React.useState(null);
-  const [markers, setMarkers] = React.useState([]);
-  const [select, setSelect] = React.useState(null);
-  const [content, setContent] = React.useState([]);
-  const [mapStore, setMapStore] = React.useState([]);
-  // const [algoliaMenu, setAlgoliaMenu] = React.useState(null);
-  const [algoliaStore, setAlgoliaStore] = React.useState(null);
-  const [searchText, setSearchText] = React.useState('');
-
-  // const [menuData, setMenuData] = React.useState([]);
-  const [mapContainerStyle, setMapContainerStyle] = React.useState({
+  const [mapContainerStyle, setMapContainerStyle] = useState({
     width: '100vw',
     height: '100vh',
     position: 'absolute',
@@ -101,25 +83,18 @@ function App() {
     zIndex: -10
   });
 
-  const [makerSelected, setMakerSelected] = React.useState(null);
-
-  const onMapLoad = React.useCallback((map) => {
-    mapRef.current = map;
-  }, []);
-  const onSearchLoad = React.useCallback((search) => {
-    searchRef.current = search;
-  }, []);
+  const [makerSelected, setMakerSelected] = useState(null);
 
   useEffect(() => {
     if (mapStore.length > 0 && algoliaStore && mapStore) {
       console.log(mapStore, algoliaStore);
       algoliaStore.forEach((store) => {
         if (store) {
-          const mach = mapStore.find(
+          const condition = mapStore.find(
             (storename) => storename.name === store.name
           );
-          if (!mach) {
-            mapStore.push(store);
+          if (!condition) {
+            mapStore.unshift(store);
             setMarkers((current) => [
               ...current,
               {
@@ -135,16 +110,22 @@ function App() {
     }
   }, [mapStore, algoliaStore]);
 
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+  }, []);
+  const onSearchLoad = useCallback((search) => {
+    searchRef.current = search;
+  }, []);
+
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
+
   const service = new window.google.maps.places.PlacesService(mapRef.current);
 
   const onBoundsChanged = () => {
     setBounds(mapRef.current.getBounds());
   };
   const hanldePlacesChanged = () => {
-    const host_name = 'http://localhost:5000';
-
     setMarkers([]);
     setSelect(null);
     dispatch({
@@ -159,11 +140,9 @@ function App() {
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
-    // const a = googleAccountStateChanged();
 
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
-      console.log(markers);
       setMarkers((current) => [
         ...current,
         {
@@ -207,7 +186,6 @@ function App() {
     };
 
     Promise.all(placePromises).then((res) => {
-      // setContent(res);
       setMapStore(res);
       if (res.length === 1) {
         if (res[0].deliver.uberEatUrl) {
@@ -239,8 +217,7 @@ function App() {
     });
     content.forEach((product) => {
       if (e.target.id === product.name) {
-        const host_name = 'http://localhost:5000';
-        const placePromise = fetch(`${host_name}/getStoreProducts`, {
+        fetch(`${host_name}/getStoreProducts`, {
           method: 'post',
           body: JSON.stringify(product.deliver),
           headers: {
@@ -294,8 +271,6 @@ function App() {
   const handleSearch = async (queryText) => {
     try {
       await searchIndex.search(queryText).then(({ hits }) => {
-        // console.log(hits);
-        // setAlgoliaMenu(hits);
         dispatch({
           type: 'setSearchMenu',
           data: hits
@@ -317,11 +292,7 @@ function App() {
 
   return (
     <Frame>
-      {show ? (
-        <ModalControl show={show} key="ModalControl"></ModalControl>
-      ) : (
-        <div></div>
-      )}
+      {show ? <CommentModal show={show}></CommentModal> : <div></div>}
 
       {!selectedDish ? (
         <StandaloneSearchBox
@@ -379,7 +350,7 @@ function App() {
       ) : content && content.length === 1 && selectedDish === null ? (
         content.map((product, index) => (
           <StoreDetail
-            key={product.place_id + 'detail'}
+            key={index}
             product={product}
             menu={menuData}
           ></StoreDetail>
@@ -387,16 +358,9 @@ function App() {
       ) : makerSelected !== null &&
         menuData !== null &&
         selectedDish === null ? (
-        <StoreDetail
-          key={makerSelected.place_id + 'detail'}
-          product={makerSelected}
-          menu={menuData}
-        ></StoreDetail>
+        <StoreDetail product={makerSelected} menu={menuData}></StoreDetail>
       ) : makerSelected !== null && selectedDish === null ? (
-        <StoreDetail
-          key={makerSelected.place_id + 'detail'}
-          product={makerSelected}
-        ></StoreDetail>
+        <StoreDetail product={makerSelected}></StoreDetail>
       ) : selectedDish ? (
         <DishDetail></DishDetail>
       ) : (
@@ -407,7 +371,7 @@ function App() {
         <InformationBoxS onClick={handleStoreListClick}>
           {content.length > 1 ? (
             content.map((product, key) => (
-              <StoreCardS key={key + 's'} product={product} id={product.name} />
+              <StoreCardS key={key} product={product} id={product.name} />
             ))
           ) : (
             <div></div>
@@ -419,7 +383,7 @@ function App() {
       {!userStatus ? (
         <SingInBtn
           onClick={(e) => {
-            const signin = googleAccountSignIn(e, dispatch);
+            googleAccountSignIn(e, dispatch);
           }}
         >
           登入
@@ -427,7 +391,7 @@ function App() {
       ) : (
         <SingInBtn
           onClick={(e) => {
-            const logOut = googleAccountLogOut(e, dispatch);
+            googleAccountLogOut(e, dispatch);
           }}
         >
           登出

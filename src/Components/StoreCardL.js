@@ -101,7 +101,6 @@ function StoreCard(props) {
     searchMenu.forEach((data) => {
       if (data.storeName === props.product.name) {
         menuArray.push(data);
-        console.log(data.name);
       }
     });
     setmenu(menuArray);

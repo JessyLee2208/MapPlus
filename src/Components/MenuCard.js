@@ -137,7 +137,6 @@ function MenuCard(props) {
     if (userStatus) {
       async function reviewData() {
         let data = await userReviewCheck(userStatus);
-        // console.log(data);
         if (data && data.reviews.length !== 0) {
           const target = data.reviews.find(
             (recoom) =>

@@ -37,6 +37,20 @@ const MenuTitle = styled.div`
   letter-spacing: normal;
   text-align: left;
   color: black;
+  width: 228px;
+  padding-bottom: 4px;
+`;
+
+const RatingTitle = styled.div`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: black;
 
   padding-bottom: 4px;
 `;
@@ -107,10 +121,10 @@ function SearchMenuCard(props) {
       </Box>
       <MenuInfo style={{ paddingRight: '10px' }}>
         <Box style={{ justifyContent: 'center' }}>
-          <MenuTitle style={{ textAlign: 'center' }}>
+          <RatingTitle style={{ textAlign: 'center' }}>
             {props.content.rating}
-          </MenuTitle>
-          <MenuTitle style={{ color: '#868686' }}>/5</MenuTitle>
+          </RatingTitle>
+          <RatingTitle style={{ color: '#868686' }}>/5</RatingTitle>
         </Box>
         <RatingDiv>{starArry}</RatingDiv>
       </MenuInfo>
