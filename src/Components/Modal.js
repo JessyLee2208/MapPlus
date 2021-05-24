@@ -21,12 +21,12 @@ const Overlay = styled.div`
 const ModalContent = styled.article`
   position: fixed;
   top: 50%;
-  left: 10%;
+  left: 15%;
   background-color: white;
   border-radius: 8px;
-  width: 80%;
+  width: 70%;
   max-height: 80%;
-  padding: 25px;
+  // padding: 25px;
   box-sizing: border-box;
   overflow: auto;
 `;
@@ -49,9 +49,7 @@ const reverseAnimationSettings = {
   ...animationSettings,
   direction: 'reverse'
 };
-/**
- * 弹窗组件
- */
+
 function Modal(props) {
   const [visible, setVisible] = useState(props.visible || false);
   const overlayRef = useRef(null);
@@ -73,7 +71,6 @@ function Modal(props) {
     setVisible(false);
   }, [contentAnimation, overlayAnimation, reverseAnimationSettings]);
 
-  // 关闭弹窗
   const onCancel = () => {
     props.onCancel && props.onCancel();
   };

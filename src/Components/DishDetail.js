@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMenuReviews, userReviewCheck } from '../Utils/firebase';
+import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from './Collection';
 
 const Dish = styled.div`
@@ -240,28 +240,29 @@ function DishDetail(props) {
 
   const dispatch = useDispatch();
 
-  const [reviewsData, setReviewsData] = React.useState(null);
+  const [allDishReviews, setAllDishReviews] = React.useState(null);
   const [select, selected] = React.useState(false);
 
   let array = [];
   let newRating = selectedDish.rating.toFixed(1);
 
-  useEffect(() => {
-    getMenuReviews(selectedDish, getdata);
+  console.log(allDishReviews);
 
-    function getdata(data) {
-      setReviewsData(data);
-      console.log(data);
+  useEffect(() => {
+    getAllDishReviews(selectedDish, callback);
+
+    function callback(data) {
+      setAllDishReviews(data);
     }
   }, []);
 
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
-        let data = await userReviewCheck(userStatus);
+        let data = await userDatasCheck(userStatus);
 
-        if (reviewsData) {
-          const target = reviewsData.find(
+        if (allDishReviews) {
+          const target = allDishReviews.find(
             (data) =>
               data.storeCollectionID === selectedDish.storeCollectionID &&
               data.dishName === selectedDish.name &&
@@ -306,12 +307,12 @@ function DishDetail(props) {
         data: null
       });
     }
-  }, [userStatus, reviewsData]);
+  }, [userStatus, allDishReviews]);
 
   let reviewsDoms = [];
 
-  if (reviewsData) {
-    reviewsData.forEach((review, key) => {
+  if (allDishReviews) {
+    allDishReviews.forEach((review, key) => {
       let reviewRatingArray = [];
       let time = new Date(review.time).toISOString().split('T')[0];
 
@@ -343,14 +344,10 @@ function DishDetail(props) {
   }
 
   function callModal(e) {
-    if (userStatus) {
-      dispatch({
-        type: 'setModalShow',
-        data: true
-      });
-    } else {
-      console.log('Please login first');
-    }
+    dispatch({
+      type: 'setModalShow',
+      data: true
+    });
   }
 
   function handleCollectIconClick(e) {
@@ -362,7 +359,10 @@ function DishDetail(props) {
         selected(false);
       }
     } else {
-      console.log('Please login first');
+      dispatch({
+        type: 'setModalShow',
+        data: true
+      });
     }
   }
 
@@ -439,7 +439,7 @@ function DishDetail(props) {
         style={{ padding: '24px 0 0 18px', borderBottom: '1px solid #efefef' }}
       >
         <Info style={{ color: 'black', margin: '10px 0 10px 0' }}>評論</Info>
-        {reviewsData ? (
+        {allDishReviews ? (
           <Info
             style={{
               color: 'black',
@@ -447,13 +447,13 @@ function DishDetail(props) {
               margin: '10px 0px 10px 6px'
             }}
           >
-            {reviewsData.length}
+            {allDishReviews.length}
           </Info>
         ) : (
           <InfoBold>0</InfoBold>
         )}
       </RatingDiv>
-      {reviewsData ? reviewsDoms : <NoComment>目前沒有任何評論</NoComment>}
+      {allDishReviews ? reviewsDoms : <NoComment>目前沒有任何評論</NoComment>}
     </Dish>
   );
 }

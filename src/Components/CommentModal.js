@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import renderStar from '../Utils/renderStar';
-import Modal from './NewModal';
+import Modal from './Modal';
 
 import {
   upLoadPhotoToFirebase,
@@ -39,9 +39,11 @@ const SubTitle = styled.div`
 `;
 
 const Textarea = styled.textarea`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 16px;
   resize: none;
   border: ' 1px solid #efefef';
-  width: 100%;
+  width: 97.2%;
   height: 140px;
   outline: none;
   padding: 8px;
@@ -73,6 +75,7 @@ const Button = styled.button`
   border: 0;
   margin: 0 0px 0px 16px;
   font-size: 16px;
+  cursor: pointer;
 `;
 
 const Footer = styled.div`
@@ -88,6 +91,10 @@ const Img = styled.img`
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
+`;
+
+const ModalContent = styled.div`
+  padding: 25px;
 `;
 
 function CommentMidal({ show }) {
@@ -164,48 +171,51 @@ function CommentMidal({ show }) {
   function handleInputClick() {
     ref.current.click();
   }
+  console.log(DishData);
 
   return (
     <>
       <Modal visible={modalShow} onCancel={handleClose}>
-        <ModalTitle>
-          {DishData.name}
-          <Discription>店家： 北大行小籠包</Discription>
-        </ModalTitle>
-        <div>{userStatus.displayName}</div>
-        <div onClick={handleStarRating}>{starArry}</div>
+        <ModalContent>
+          <ModalTitle>
+            {DishData.name}
+            <Discription>店家：{DishData.storeName}</Discription>
+          </ModalTitle>
+          <div>{userStatus.displayName}</div>
+          <div onClick={handleStarRating}>{starArry}</div>
 
-        <SubTitle>我要留言</SubTitle>
-        {!userReviewSet ? (
-          <Textarea
-            rows={3}
-            placeholder="分享你的心得或感想"
-            onChange={handleInputChange}
-          ></Textarea>
-        ) : (
-          <Textarea rows={3} onChange={handleInputChange}>
-            {userReviewSet.comment}
-          </Textarea>
-        )}
+          <SubTitle>我要留言</SubTitle>
+          {!userReviewSet ? (
+            <Textarea
+              rows={3}
+              placeholder="分享你的心得或感想"
+              onChange={handleInputChange}
+            ></Textarea>
+          ) : (
+            <Textarea rows={3} onChange={handleInputChange}>
+              {userReviewSet.comment}
+            </Textarea>
+          )}
 
-        <input
-          type="file"
-          accept="image/gif,image/jpeg, image/png"
-          onChange={bindUploadPhotoBtn}
-          ref={ref}
-          style={{ display: 'none' }}
-        ></input>
-        <img
-          src="/uploadbtn.png"
-          alt=""
-          style={{ border: ' 1px solid #D0D0D0', borderRadius: '6px' }}
-          onClick={handleInputClick}
-        ></img>
-        {imgUrl ? <Img src={imgUrl}></Img> : <></>}
-        <Footer>
-          <Button onClick={handleClose}>取消</Button>
-          <Button onClick={bindupLoadReview}>評論</Button>
-        </Footer>
+          <input
+            type="file"
+            accept="image/gif,image/jpeg, image/png"
+            onChange={bindUploadPhotoBtn}
+            ref={ref}
+            style={{ display: 'none' }}
+          ></input>
+          <img
+            src="/uploadbtn.png"
+            alt=""
+            style={{ border: ' 1px solid #D0D0D0', borderRadius: '6px' }}
+            onClick={handleInputClick}
+          ></img>
+          {imgUrl ? <Img src={imgUrl}></Img> : <></>}
+          <Footer>
+            <Button onClick={handleClose}>取消</Button>
+            <Button onClick={bindupLoadReview}>評論</Button>
+          </Footer>
+        </ModalContent>
       </Modal>
     </>
   );

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
-import { userReviewCheck } from '../Utils/firebase';
+import { userReviewGet } from '../Utils/firebase';
 
 const Menu = styled.div`
   background: #ffffff;
@@ -127,25 +127,29 @@ const product = {
 
 function MenuCard(props) {
   let starArry = [];
-  const [userReviewSet, setUserReviewSet] = React.useState(null);
+  const [userDatasCheck, setuserDatasCheck] = React.useState(null);
 
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
+
   let newRating = props.data.rating.toFixed(1);
 
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
-        let data = await userReviewCheck(userStatus);
-        if (data && data.reviews.length !== 0) {
-          const target = data.reviews.find(
-            (recoom) =>
-              recoom.storeCollectionID === props.data.storeCollectionID &&
-              recoom.dishName === props.data.name
+        let userdata = await userReviewGet(props.data.storeName, userStatus);
+
+        if (userdata) {
+          const target = userdata.find(
+            (data) =>
+              data.storeCollectionID === props.data.storeCollectionID &&
+              data.dishName === props.data.name
           );
 
-          target ? setUserReviewSet(target) : setUserReviewSet(null);
+          target ? setuserDatasCheck(target) : setuserDatasCheck(null);
         }
+
+        // }
       }
       reviewData();
     }
@@ -154,19 +158,28 @@ function MenuCard(props) {
   renderStar(props.data.rating, starArry);
 
   function callModal(e) {
-    if (userStatus) {
+    if (userDatasCheck) {
+      console.log(userDatasCheck);
       dispatch({
-        type: 'setModalShow',
-        data: true
-      });
-
-      dispatch({
-        type: 'setSelectedDish',
-        data: props.data
+        type: 'setUserReviewSet',
+        data: userDatasCheck
       });
     } else {
-      console.log('Please login first');
+      dispatch({
+        type: 'setUserReviewSet',
+        data: null
+      });
     }
+
+    dispatch({
+      type: 'setModalShow',
+      data: true
+    });
+
+    dispatch({
+      type: 'setSelectedDish',
+      data: props.data
+    });
   }
 
   return (
@@ -192,7 +205,7 @@ function MenuCard(props) {
         </div>
         <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
-      {!userReviewSet ? (
+      {!userDatasCheck ? (
         <CommentBtn type="button" onClick={callModal}>
           評論
         </CommentBtn>

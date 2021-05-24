@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {
   addDishToCollectList,
   removeDishToCollectList,
-  userReviewCheck
+  userDatasCheck
 } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -126,7 +126,7 @@ function Collection() {
         selectedDish,
         selectedCollect
       ).then(async () => {
-        let data = await userReviewCheck(userStatus);
+        let data = await userDatasCheck(userStatus);
 
         if (data.collection.length !== 0) {
           let collectionArray = [];
@@ -158,7 +158,7 @@ function Collection() {
         selectedDish,
         selectedCollect
       ).then(async () => {
-        let data = await userReviewCheck(userStatus);
+        let data = await userDatasCheck(userStatus);
 
         if (data.collection.length !== 0) {
           let collectionArray = [];

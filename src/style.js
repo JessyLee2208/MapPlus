@@ -14,7 +14,7 @@ const SearchBox = styled.div`
   background: #ffffff;
   border: 1px solid transparent;
   border-radius: 8px;
-  width: 392px;
+  width: 376px;
   height: 48px;
   padding: 0 12px;
 
@@ -23,7 +23,7 @@ const SearchBox = styled.div`
   outline: none;
   textoverflow: ellipses;
   position: absolute;
-  left: 10px;
+  left: 8px;
   top: 20px;
   margin-left: 8px;
   transition-property: background, box-shadow;
@@ -37,7 +37,7 @@ const SearchBoxNoShadow = styled.div`
   background: #ffffff;
   // border: 1px solid transparent;
   border-radius: 8px 8px 0 0;
-  width: 392px;
+  width: 376px;
   height: 48px;
   padding: 0 12px;
 
@@ -111,7 +111,7 @@ const Back = styled.div`
   background: #ffffff;
   border: 1px solid transparent;
   border-radius: 8px;
-  width: 392px;
+  width: 376px;
   height: 86px;
   padding: 0 12px;
 
@@ -142,11 +142,15 @@ const BackTitle = styled.p`
   color: #185ee6;
   position: relative;
   left: 0px;
-  bottom: -56px;
+  bottom: -43px;
 `;
 
 const SearchBg = styled.div`
-  background-image: linear-gradient(to bottom, rgb(19 19 19 / 50%), transparent 70%);
+  background-image: linear-gradient(
+    to bottom,
+    rgb(19 19 19 / 50%),
+    transparent 70%
+  );
   // border: 1px solid transparent;
   border-radius: 0px;
   width: 435px;

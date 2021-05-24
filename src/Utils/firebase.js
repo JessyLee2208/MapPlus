@@ -1,5 +1,4 @@
 import firebase from 'firebase';
-import { useSelector } from 'react-redux';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -72,7 +71,7 @@ const upLoadPhotoToFirebase = (e) => {
   });
 };
 
-function getMenuReviews(DishData, callback) {
+function getAllDishReviews(DishData, callback) {
   db.collection('review')
     .where('dishCollectionID', '==', DishData.dishCollectionID)
 
@@ -161,7 +160,7 @@ function removeDishToCollectList(usermail, selectedDish, collectList) {
 //1. caollback
 // return => async awiat 接直
 
-function userReviewCheck(userStatus) {
+function userDatasCheck(userStatus) {
   return db
     .collection('user')
     .doc(userStatus.email)
@@ -185,6 +184,21 @@ function userReviewEdit(reviewData, newData) {
         imageUrl: newData.imageUrl,
         rating: newData.rating
       });
+    });
+}
+
+function userReviewGet(storeName, newData) {
+  return db
+    .collection('review')
+    .where('email', '==', newData.email)
+    .where('storeName', '==', storeName)
+    .get()
+    .then((data) => {
+      let newArray = [];
+      data.forEach((d) => {
+        newArray.push(d.data());
+      });
+      return newArray;
     });
 }
 
@@ -250,11 +264,12 @@ export {
   googleAccountSignIn,
   googleAccountStateChanged,
   googleAccountLogOut,
-  userReviewCheck,
-  getMenuReviews,
+  userDatasCheck,
+  getAllDishReviews,
   addDishToCollectList,
   removeDishToCollectList,
   getStoreData,
-  userReviewEdit
+  userReviewEdit,
+  userReviewGet
   // GetDishCollection
 };

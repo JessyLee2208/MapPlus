@@ -34,6 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import algoliasearch from 'algoliasearch';
 import CommentModal from './Components/CommentModal';
+import ReminderModal from './Components/ReminderModal';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -292,7 +293,16 @@ function App() {
 
   return (
     <Frame>
-      {show ? <CommentModal show={show}></CommentModal> : <div></div>}
+      {show && userStatus ? (
+        <CommentModal show={show}></CommentModal>
+      ) : (
+        <div></div>
+      )}
+      {show && !userStatus ? (
+        <ReminderModal show={show}></ReminderModal>
+      ) : (
+        <div></div>
+      )}
 
       {!selectedDish ? (
         <StandaloneSearchBox
