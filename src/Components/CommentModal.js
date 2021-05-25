@@ -97,7 +97,7 @@ const ModalContent = styled.div`
   padding: 25px;
 `;
 
-function CommentMidal({ show }) {
+function CommentModal({ show }) {
   const dispatch = useDispatch();
   let starArry = [];
   const userStatus = useSelector((state) => state.userStatus);
@@ -221,4 +221,4 @@ function CommentMidal({ show }) {
   );
 }
 
-export default CommentMidal;
+export default CommentModal;

@@ -3,6 +3,8 @@ const initState = {
   modalShow: false,
   selectedDish: null,
   userStatus: null,
+  collectionMarks: [],
+  collectionList: false,
   menuData: null,
   collect: false,
   collectData: [],
@@ -88,6 +90,55 @@ export default function storeReducer(preState = initState, action) {
         userReviewSet: data
       };
     }
+
+    case 'setCollectionMarks': {
+      return {
+        ...preState,
+        collectionMarks: data
+      };
+    }
+
+    case 'setCollectionList': {
+      return {
+        ...preState,
+        collectionList: data
+      };
+    }
+
+    // case 'setMapMarkers': {
+    //   return {
+    //     ...preState,
+    //     mapMarkers: [
+    //       ...preState.mapMarkers,
+    //       {
+    //         lat: data.geometry.location.lat(),
+    //         lng: data.geometry.location.lng(),
+    //         storename: data.name
+    //       }
+    //     ]
+    //   };
+    // }
+
+    // case 'updateMapMarkers': {
+    //   return {
+    //     ...preState,
+    //     mapMarkers: [
+    //       ...preState.mapMarkers,
+    //       {
+    //         lat: data.geometry.lat,
+    //         lng: data.geometry.lng,
+    //         storename: data.name
+    //       }
+    //     ]
+    //   };
+    // }
+
+    // case 'initMapMarkers': {
+    //   return {
+    //     ...preState,
+    //     mapMarkers: []
+    //   };
+    // }
 
     default:
       return preState;

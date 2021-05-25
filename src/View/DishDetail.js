@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
-import Collection from './Collection';
+import Collection from '../Components/Collection';
+import CollectionList from '../View/CollectionList';
 
 const Dish = styled.div`
   position: relative;
@@ -234,6 +235,7 @@ const CollectionBox = styled.div`
 function DishDetail(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
+  const collectionList = useSelector((state) => state.collectionList);
 
   const collectData = useSelector((state) => state.collectData);
   const userReviewSet = useSelector((state) => state.userReviewSet);
@@ -245,8 +247,6 @@ function DishDetail(props) {
 
   let array = [];
   let newRating = selectedDish.rating.toFixed(1);
-
-  console.log(allDishReviews);
 
   useEffect(() => {
     getAllDishReviews(selectedDish, callback);
@@ -366,33 +366,81 @@ function DishDetail(props) {
     }
   }
 
+  function handleCollectionList(e) {
+    console.log(e.target.id);
+    dispatch({
+      type: 'setCollectionList',
+      data: e.target.id
+    });
+  }
+
   if (collectData.length > 0) {
     collectData.forEach((data, key) => {
       let collect = (
         <RatingDiv key={key}>
           {data.collectName === '想去的地點' ? (
-            <Icon src="/falg_select.png"></Icon>
+            <>
+              <Icon src="/falg_select.png"></Icon>
+              <CollectionBox>
+                <Info style={{ fontSize: '15px' }}>
+                  已儲存於「{data.collectName}」
+                </Info>
+                <Info
+                  style={{
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    margin: '0px 18px 0 0'
+                  }}
+                  onClick={handleCollectionList}
+                  id="想去的地點"
+                >
+                  查看清單
+                </Info>
+              </CollectionBox>
+            </>
           ) : data.collectName === '喜愛的地點' ? (
-            <Icon src="/heart_select.png"></Icon>
+            <>
+              <Icon src="/heart_select.png"></Icon>
+              <CollectionBox>
+                <Info style={{ fontSize: '15px' }}>
+                  已儲存於「{data.collectName}」
+                </Info>
+                <Info
+                  style={{
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    margin: '0px 18px 0 0'
+                  }}
+                  onClick={handleCollectionList}
+                  id="喜愛的地點"
+                >
+                  查看清單
+                </Info>
+              </CollectionBox>
+            </>
           ) : data.collectName === '已加星號的地點' ? (
-            <Icon src="/star_select.png"></Icon>
+            <>
+              <Icon src="/star_select.png"></Icon>
+              <CollectionBox>
+                <Info style={{ fontSize: '15px' }}>
+                  已儲存於「{data.collectName}」
+                </Info>
+                <Info
+                  style={{
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    margin: '0px 18px 0 0'
+                  }}
+                  onClick={handleCollectionList}
+                  id="已加星號的地點"
+                >
+                  查看清單
+                </Info>
+              </CollectionBox>
+            </>
           ) : (
             <></>
           )}
-          <CollectionBox>
-            <Info style={{ fontSize: '15px' }}>
-              已儲存於「{data.collectName}」
-            </Info>
-            <Info
-              style={{
-                fontWeight: '600',
-                fontSize: '15px',
-                margin: '0px 18px 0 0'
-              }}
-            >
-              查看清單
-            </Info>
-          </CollectionBox>
         </RatingDiv>
       );
       array.push(collect);

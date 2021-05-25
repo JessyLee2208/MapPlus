@@ -21,8 +21,8 @@ import {
 } from './style';
 import StoreCardL from './Components/StoreCardL';
 import StoreCardS from './Components/StoreCardS';
-import StoreDetail from './Components/StoreDetail';
-import DishDetail from './Components/DishDetail';
+import StoreDetail from './View/StoreDetail';
+import DishDetail from './View/DishDetail';
 import {
   getMenuData,
   googleAccountSignIn,
@@ -35,6 +35,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import algoliasearch from 'algoliasearch';
 import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
+
+import CollectionList from './View/CollectionList';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -62,6 +64,8 @@ function App() {
   const userStatus = useSelector((state) => state.userStatus);
   const menuData = useSelector((state) => state.menuData);
   const selectedDish = useSelector((state) => state.selectedDish);
+  const collectionMarks = useSelector((state) => state.collectionMarks);
+  const collectionCheck = useSelector((state) => state.collectionList);
 
   const mapRef = useRef();
   const searchRef = useRef();
@@ -87,15 +91,20 @@ function App() {
   const [makerSelected, setMakerSelected] = useState(null);
 
   useEffect(() => {
-    if (mapStore.length > 0 && algoliaStore && mapStore) {
+    if (mapStore.length > 1 && algoliaStore && mapStore) {
       console.log(mapStore, algoliaStore);
       algoliaStore.forEach((store) => {
         if (store) {
           const condition = mapStore.find(
             (storename) => storename.name === store.name
           );
+          // console.log(markers);
           if (!condition) {
             mapStore.unshift(store);
+            // dispatch({
+            //   type: 'setSelectedDish',
+            //   data: null
+            // });
             setMarkers((current) => [
               ...current,
               {
@@ -111,6 +120,38 @@ function App() {
     }
   }, [mapStore, algoliaStore]);
 
+  useEffect(() => {
+    let newPlaceArray = [];
+    if (collectionMarks.length > 0) {
+      collectionMarks.forEach((placeMarkers) => {
+        const request = {
+          placeId: placeMarkers.place_id,
+          fields: ['geometry']
+        };
+
+        const c = new Promise((res, rej) => {
+          service.getDetails(request, (place, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+              const geometry = place.geometry;
+              res({ ...placeMarkers, geometry: geometry });
+            }
+          });
+        });
+        newPlaceArray.push(c);
+      });
+      Promise.all(newPlaceArray).then((res) => {
+        res.forEach((view) => {
+          if (view.geometry.viewport) {
+            bounds.union(view.geometry.viewport);
+          } else {
+            bounds.extend(view.geometry.location);
+          }
+        });
+        mapRef.current.fitBounds(bounds);
+      });
+    }
+  }, [collectionMarks]);
+
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
   }, []);
@@ -120,13 +161,16 @@ function App() {
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
-
   const service = new window.google.maps.places.PlacesService(mapRef.current);
 
   const onBoundsChanged = () => {
     setBounds(mapRef.current.getBounds());
   };
   const hanldePlacesChanged = () => {
+    dispatch({
+      type: 'setCollectionMarks',
+      data: []
+    });
     setMarkers([]);
     setSelect(null);
     dispatch({
@@ -142,8 +186,11 @@ function App() {
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
 
+    console.log(places);
+
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
+      // console.log(markers);
       setMarkers((current) => [
         ...current,
         {
@@ -152,6 +199,11 @@ function App() {
           storename: place.name
         }
       ]);
+      // dispatch({
+      //   type: 'setMapMarkers',
+      //   data: place
+      // });
+
       if (place.geometry.viewport) {
         bounds.union(place.geometry.viewport);
       } else {
@@ -189,6 +241,7 @@ function App() {
     Promise.all(placePromises).then((res) => {
       setMapStore(res);
       if (res.length === 1) {
+        setContent(res);
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
         } else {
@@ -345,7 +398,10 @@ function App() {
         </>
       )}
 
-      {content.length > 1 && select === null && selectedDish === null ? (
+      {content.length > 1 &&
+      select === null &&
+      selectedDish === null &&
+      !collectionCheck ? (
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
             {content.map((product, key) => (
@@ -357,7 +413,10 @@ function App() {
             ))}
           </InformationBox>
         </InformationBg>
-      ) : content && content.length === 1 && selectedDish === null ? (
+      ) : content &&
+        content.length === 1 &&
+        selectedDish === null &&
+        !collectionCheck ? (
         content.map((product, index) => (
           <StoreDetail
             key={index}
@@ -367,12 +426,17 @@ function App() {
         ))
       ) : makerSelected !== null &&
         menuData !== null &&
-        selectedDish === null ? (
+        selectedDish === null &&
+        !collectionCheck ? (
         <StoreDetail product={makerSelected} menu={menuData}></StoreDetail>
-      ) : makerSelected !== null && selectedDish === null ? (
+      ) : makerSelected !== null &&
+        selectedDish === null &&
+        !collectionCheck ? (
         <StoreDetail product={makerSelected}></StoreDetail>
-      ) : selectedDish ? (
+      ) : selectedDish && !collectionCheck ? (
         <DishDetail></DishDetail>
+      ) : collectionCheck ? (
+        <CollectionList></CollectionList>
       ) : (
         <></>
       )}
@@ -416,28 +480,51 @@ function App() {
         onBoundsChanged={onBoundsChanged}
         style={{ padding: 0 }}
       >
-        {markers.map((marker, key) => (
-          <Marker
-            key={key}
-            position={{ lat: marker.lat, lng: marker.lng }}
-            onClick={() => {
-              setSelect(marker);
-              dispatch({
-                type: 'setSelectedTab',
-                data: 'information'
-              });
-              content.forEach((product) => {
-                if (marker.storename === product.name) {
-                  getMorereDetail(product, service, setMakerSelected);
+        {collectionMarks.length === 0
+          ? markers.map((marker, key) => (
+              <Marker
+                key={key}
+                position={{ lat: marker.lat, lng: marker.lng }}
+                onClick={() => {
+                  setSelect(marker);
                   dispatch({
-                    type: 'setSelectedDish',
-                    data: null
+                    type: 'setSelectedTab',
+                    data: 'information'
                   });
-                }
-              });
-            }}
-          />
-        ))}
+                  content.forEach((product) => {
+                    if (marker.storename === product.name) {
+                      getMorereDetail(product, service, setMakerSelected);
+                      dispatch({
+                        type: 'setSelectedDish',
+                        data: null
+                      });
+                    }
+                  });
+                }}
+              />
+            ))
+          : collectionMarks.map((marker, key) => (
+              <Marker
+                key={key}
+                position={{ lat: marker.lat, lng: marker.lng }}
+                onClick={() => {
+                  setSelect(marker);
+                  dispatch({
+                    type: 'setSelectedTab',
+                    data: 'information'
+                  });
+                  // content.forEach((product) => {
+                  //   if (marker.storename === product.name) {
+                  //     getMorereDetail(product, service, setMakerSelected);
+                  //     dispatch({
+                  //       type: 'setSelectedDish',
+                  //       data: null
+                  //     });
+                  //   }
+                  // });
+                }}
+              />
+            ))}
       </GoogleMap>
     </Frame>
   );

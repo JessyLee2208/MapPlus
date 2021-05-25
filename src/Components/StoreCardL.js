@@ -98,12 +98,14 @@ function StoreCard(props) {
   let menuArray = [];
 
   useEffect(() => {
-    searchMenu.forEach((data) => {
-      if (data.storeName === props.product.name) {
-        menuArray.push(data);
-      }
-    });
-    setmenu(menuArray);
+    if (searchMenu) {
+      searchMenu.forEach((data) => {
+        if (data.storeName === props.product.name) {
+          menuArray.push(data);
+        }
+      });
+      setmenu(menuArray);
+    }
   }, []);
 
   renderStar(props.product.rating, starArry);

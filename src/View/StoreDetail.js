@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
-import MenuCard from './MenuCard';
+import MenuCard from '../Components/MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Store = styled.div`
