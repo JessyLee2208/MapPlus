@@ -27,7 +27,8 @@ const postStoreData = (storeData) => {
 };
 
 function getMenuData(selectedStoreName, callback) {
-  db.collection('menu')
+  return db
+    .collection('menu')
     .where('storeName', '==', selectedStoreName)
     .onSnapshot((querySnapshot) => {
       const promises = [];
@@ -72,7 +73,8 @@ const upLoadPhotoToFirebase = (e) => {
 };
 
 function getAllDishReviews(DishData, callback) {
-  db.collection('review')
+  return db
+    .collection('review')
     .where('dishCollectionID', '==', DishData.dishCollectionID)
 
     .onSnapshot((querySnapshot) => {

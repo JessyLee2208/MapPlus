@@ -249,11 +249,15 @@ function DishDetail(props) {
   let newRating = selectedDish.rating.toFixed(1);
 
   useEffect(() => {
-    getAllDishReviews(selectedDish, callback);
+    const unsubscribe = getAllDishReviews(selectedDish, callback);
 
     function callback(data) {
       setAllDishReviews(data);
     }
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -369,7 +373,7 @@ function DishDetail(props) {
   function handleCollectionList(e) {
     console.log(e.target.id);
     dispatch({
-      type: 'setCollectionList',
+      type: 'setCollectionTitle',
       data: e.target.id
     });
   }

@@ -1,10 +1,13 @@
 const initState = {
   selectedTab: 'information',
   modalShow: false,
+  mapMarkers: [],
+  selectedStore: null,
   selectedDish: null,
   userStatus: null,
   collectionMarks: [],
-  collectionList: false,
+  collectionTitle: false,
+  collectionList: [],
   menuData: null,
   collect: false,
   collectData: [],
@@ -15,6 +18,12 @@ export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
 
   switch (type) {
+    case 'setSelectedStore':
+      return {
+        ...preState,
+        selectedStore: data
+      };
+
     case 'setSelectedTab':
       return {
         ...preState,
@@ -98,6 +107,13 @@ export default function storeReducer(preState = initState, action) {
       };
     }
 
+    case 'setCollectionTitle': {
+      return {
+        ...preState,
+        collectionTitle: data
+      };
+    }
+
     case 'setCollectionList': {
       return {
         ...preState,
@@ -105,40 +121,40 @@ export default function storeReducer(preState = initState, action) {
       };
     }
 
-    // case 'setMapMarkers': {
-    //   return {
-    //     ...preState,
-    //     mapMarkers: [
-    //       ...preState.mapMarkers,
-    //       {
-    //         lat: data.geometry.location.lat(),
-    //         lng: data.geometry.location.lng(),
-    //         storename: data.name
-    //       }
-    //     ]
-    //   };
-    // }
+    case 'setMapMarkers': {
+      return {
+        ...preState,
+        mapMarkers: [
+          ...preState.mapMarkers,
+          {
+            lat: data.geometry.location.lat(),
+            lng: data.geometry.location.lng(),
+            storename: data.name
+          }
+        ]
+      };
+    }
 
-    // case 'updateMapMarkers': {
-    //   return {
-    //     ...preState,
-    //     mapMarkers: [
-    //       ...preState.mapMarkers,
-    //       {
-    //         lat: data.geometry.lat,
-    //         lng: data.geometry.lng,
-    //         storename: data.name
-    //       }
-    //     ]
-    //   };
-    // }
+    case 'updateMapMarkers': {
+      return {
+        ...preState,
+        mapMarkers: [
+          ...preState.mapMarkers,
+          {
+            lat: data.geometry.lat,
+            lng: data.geometry.lng,
+            storename: data.name
+          }
+        ]
+      };
+    }
 
-    // case 'initMapMarkers': {
-    //   return {
-    //     ...preState,
-    //     mapMarkers: []
-    //   };
-    // }
+    case 'initMapMarkers': {
+      return {
+        ...preState,
+        mapMarkers: data
+      };
+    }
 
     default:
       return preState;

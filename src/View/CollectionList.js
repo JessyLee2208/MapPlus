@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getAllDishReviews,
-  userDatasCheck,
-  getStoreData
-} from '../Utils/firebase';
+import { userDatasCheck, getStoreData, getMenuData } from '../Utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
 
 const Collection = styled.div`
@@ -67,14 +63,19 @@ const Data = {
   storeName: 'miniB 手作漢堡',
   user_ratings_total: 0
 };
+let unsubscribe;
 
-function CollectionList() {
+function CollectionList(props) {
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
-  const collectionCheck = useSelector((state) => state.collectionList);
+  const selectedStore = useSelector((state) => state.selectedStore);
+  const collectionMarks = useSelector((state) => state.collectionMarks);
+  const collectionCheck = useSelector((state) => state.collectionTitle);
+  const collectionList = useSelector((state) => state.collectionList);
 
   const [collectionArray, setCollectionArray] = useState(null);
   const [storeArray, setStoreArray] = useState(null);
+  const [select, setSelect] = useState(null);
 
   useEffect(() => {
     if (userStatus) {
@@ -98,10 +99,10 @@ function CollectionList() {
             );
             setStoreArray(result);
             console.log(result);
-            // dispatch({
-            //   type: 'updateMapMarkers',
-            //   data: result
-            // });
+            dispatch({
+              type: 'setCollectionList',
+              data: result
+            });
             let collectionMarks = [];
             result.forEach((a) => {
               let marks = {
@@ -129,9 +130,75 @@ function CollectionList() {
     }
   }, [userStatus]);
 
+  function handleStoreListClick(e) {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
+    });
+
+    collectionMarks.forEach((marker) => {
+      if (e.target.id === marker.storename) {
+        console.log(e.target.id);
+        // setSelect(marker);
+      }
+    });
+    collectionList.forEach((product) => {
+      if (e.target.id === product.name) {
+        // getMorereDetail(product, service)
+        const newMarker = {
+          lat: product.geometry.lat,
+          lng: product.geometry.lng,
+          storename: product.name
+        };
+        console.log(product);
+        dispatch({
+          type: 'setSelectedStore',
+          data: product
+        });
+        dispatch({
+          type: 'setCollectionTitle',
+          data: false
+        });
+
+        dispatch({
+          type: 'initMapMarkers',
+          data: [newMarker]
+        });
+
+        dispatch({
+          type: 'setCollectionMarks',
+          data: []
+        });
+
+        if (product.deliver.uberEatUrl || product.deliver.foodPandaUrl) {
+          function setData(data) {
+            dispatch({
+              type: 'setMenuData',
+              data: data
+            });
+          }
+          unsubscribe = getMenuData(product.name, setData);
+        } else {
+          dispatch({
+            type: 'setMenuData',
+            data: null
+          });
+        }
+        dispatch({
+          type: 'setCollectionTitle',
+          data: false
+        });
+      }
+    });
+  }
+
   function handleBack() {
     dispatch({
-      type: 'setCollectionList',
+      type: 'setCollectionTitle',
       data: false
     });
     dispatch({
@@ -139,6 +206,12 @@ function CollectionList() {
       data: []
     });
   }
+
+  // useEffect(() => {
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // }, []);
 
   return (
     <Collection>
@@ -149,7 +222,7 @@ function CollectionList() {
             <Info>{collectionCheck}</Info>
           </BackBtn>
           <Collection>
-            <InformationBox>
+            <InformationBox onClick={handleStoreListClick}>
               {storeArray.map((product, key) => (
                 <StoreCardL
                   key={product.place_id}
