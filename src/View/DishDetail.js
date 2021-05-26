@@ -202,7 +202,6 @@ function DishDetail(props) {
 
   let array = [];
   let newRating = selectedDish.rating.toFixed(1);
-  console.log(newRating);
 
   useEffect(() => {
     const unsubscribe = getAllDishReviews(selectedDish, callback);
@@ -280,7 +279,6 @@ function DishDetail(props) {
     if (userStatus) {
       if (e.target.id === 'collectIcon' || e.target.id === 'collect') {
         selected(true);
-        console.log(e.target.id);
       } else {
         selected(false);
       }
@@ -293,7 +291,6 @@ function DishDetail(props) {
   }
 
   function handleCollectionList(e) {
-    console.log(e.target.id);
     dispatch({
       type: 'setCollectionTitle',
       data: e.target.id

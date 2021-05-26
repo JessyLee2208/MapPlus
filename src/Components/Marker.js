@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
@@ -8,6 +8,7 @@ function CollectionMarker(porps) {
   const dispatch = useDispatch();
   const collectionList = useSelector((state) => state.collectionList);
   const collectionMarks = useSelector((state) => state.collectionMarks);
+  const markerRef = useRef();
 
   let url = '';
 
@@ -70,11 +71,28 @@ function CollectionMarker(porps) {
     });
   };
 
+  //   const markerTimer = useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+  //     }, 1000);
+  //     return () => clearTimeout(timer);
+  //   }, []);
+
+  const timer = () => {
+    setTimeout(() => {
+      markerRef.current.setAnimation(null);
+    }, 470);
+  };
+
   const handleMapMarker = (marker) => {
+    markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+    timer();
+
     dispatch({
       type: 'setSelectedTab',
       data: 'information'
     });
+
     porps.content.forEach((product) => {
       if (marker.storename === product.name) {
         getMorereDetail(product, porps.service).then((res) => {
@@ -98,6 +116,10 @@ function CollectionMarker(porps) {
   } else if (porps.tag === '已加星號的地點') {
     url = '/star_marker.png';
   }
+  const MarkeronLoad = useCallback((marker) => {
+    markerRef.current = marker;
+    // marker.setAnimation(window.google.maps.Animation.BOUNCE);
+  }, []);
 
   return collectionMarks.length !== 0 ? (
     <Marker
@@ -109,6 +131,7 @@ function CollectionMarker(porps) {
       onClick={() => {
         handleCollectionMarker(porps.marker);
       }}
+      onLoad={MarkeronLoad}
     />
   ) : (
     <Marker
@@ -116,6 +139,7 @@ function CollectionMarker(porps) {
       onClick={() => {
         handleMapMarker(porps.marker);
       }}
+      onLoad={MarkeronLoad}
     />
   );
 }
