@@ -1,6 +1,7 @@
 const initState = {
   selectedTab: 'information',
   modalShow: false,
+  storeData: [],
   mapMarkers: [],
   selectedStore: null,
   selectedDish: null,
@@ -50,6 +51,7 @@ export default function storeReducer(preState = initState, action) {
         ...preState,
         menuData: data
       };
+
     case 'upDateMenuData': {
       const index = preState.menuData.findIndex(
         (data) => data.name === preState.selectedDish.name
@@ -118,6 +120,13 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         collectionList: data
+      };
+    }
+
+    case 'setStoreData': {
+      return {
+        ...preState,
+        storeData: data
       };
     }
 

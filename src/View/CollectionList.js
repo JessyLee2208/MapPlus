@@ -68,14 +68,11 @@ let unsubscribe;
 function CollectionList(props) {
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
-  const selectedStore = useSelector((state) => state.selectedStore);
-  const collectionMarks = useSelector((state) => state.collectionMarks);
+
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const collectionList = useSelector((state) => state.collectionList);
 
-  const [collectionArray, setCollectionArray] = useState(null);
   const [storeArray, setStoreArray] = useState(null);
-  const [select, setSelect] = useState(null);
 
   useEffect(() => {
     if (userStatus) {
@@ -119,7 +116,6 @@ function CollectionList(props) {
             });
           });
 
-          setCollectionArray(collection);
           dispatch({
             type: 'setSearchMenu',
             data: collection
@@ -139,22 +135,18 @@ function CollectionList(props) {
       type: 'setSelectedTab',
       data: 'information'
     });
-
-    collectionMarks.forEach((marker) => {
-      if (e.target.id === marker.storename) {
-        console.log(e.target.id);
-        // setSelect(marker);
-      }
+    dispatch({
+      type: 'setSelectedStore',
+      data: null
     });
+
     collectionList.forEach((product) => {
       if (e.target.id === product.name) {
-        // getMorereDetail(product, service)
         const newMarker = {
           lat: product.geometry.lat,
           lng: product.geometry.lng,
           storename: product.name
         };
-        console.log(product);
         dispatch({
           type: 'setSelectedStore',
           data: product

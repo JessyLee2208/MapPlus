@@ -67,19 +67,6 @@ const CollectTitle = styled.p`
   margin: 0px 0 0 10px;
 `;
 
-const InfoRugular = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #black;
-  margin: 0px 0 0 10px;
-`;
-
 function Collection() {
   const dispatch = useDispatch();
   const selectedDish = useSelector((state) => state.selectedDish);

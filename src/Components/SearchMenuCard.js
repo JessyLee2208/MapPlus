@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
+import { getDishData } from '../Utils/firebase';
+import { useDispatch } from 'react-redux';
 
 const menu = {
   imageUrl:
@@ -101,12 +103,27 @@ const WithoutImg = styled.div`
 `;
 
 function SearchMenuCard(props) {
+  const dispatch = useDispatch();
   let starArry = [];
 
   renderStar(props.content.rating, starArry);
 
+  function click(e) {
+    getDishData(props.content.name).then((res) => {
+      console.log(res);
+      dispatch({
+        type: 'setSelectedDish',
+        data: res
+      });
+      dispatch({
+        type: 'setCollectionTitle',
+        data: false
+      });
+    });
+  }
+
   return (
-    <Menu>
+    <Menu onClick={click}>
       <Box>
         {props.content.imageUrl !== '' ? (
           <MenuImg src={props.content.imageUrl}></MenuImg>

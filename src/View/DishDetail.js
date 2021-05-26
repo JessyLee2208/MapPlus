@@ -4,7 +4,7 @@ import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from '../Components/Collection';
-import CollectionList from '../View/CollectionList';
+import ReviewCard from '../Components/reviewCard';
 
 const Dish = styled.div`
   position: relative;
@@ -19,7 +19,7 @@ const Dish = styled.div`
 
 const DishImg = styled.img`
   width: 100%;
-  height: 260px;
+  height: 310px;
 
   text-align: right;
   flex-shrink: 1;
@@ -72,6 +72,13 @@ const RatingDiv = styled.div`
   padding-bottom: 10px;
 `;
 
+const CommentDiv = styled.div`
+  display: flex;
+  margin: 0;
+  padding: 0 0 0 18px;
+  flex-direction: column;
+`;
+
 const Info = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 18px;
@@ -85,17 +92,19 @@ const Info = styled.p`
   margin: 1px;
 `;
 
-const P = styled.p`
+const CommentTitle = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
   font-stretch: normal;
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
-  color: #797979;
-  margin: 0px 0 0 8px;
+  color: 'black';
+  margin: 10px 0;
+  border-bottom: 1px solid #efefef;
+  padding-bottom: 10px;
 `;
 
 const Icon = styled.img`
@@ -105,7 +114,6 @@ const Icon = styled.img`
 `;
 
 const CommentBtn = styled.button`
-  border: 1px solid #185ee6;
   background: #fff;
   color: #185ee6;
 
@@ -113,6 +121,8 @@ const CommentBtn = styled.button`
   padding: 0.4em 2em;
   font-size: 15px;
   margin: 0px 18px 0px 18px;
+  padding: '0px 0 0 18px';
+  border: 1px solid #185ee6;
 `;
 
 const EditorBtn = styled.button`
@@ -137,50 +147,6 @@ const DishBox = styled.div`
   // align-items: center;
   width: 380px;
   flex-direction: column;
-`;
-
-const ReviewerBox = styled.div`
-  padding: 8px 16px 18px 18px;
-  align-items: center;
-  flex-irection: 'column';
-  border-bottom: 1px solid #efefef;
-`;
-
-const AuthorBox = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0px 0 14px 0;
-`;
-
-const Authortitle = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const AuthorImg = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-right: 12px;
-`;
-
-const StarBoxReview = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const InfoDetail = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #1e1e1e;
-  margin: 1px;
-  letter-spacing: 0.5px;　
 `;
 
 const NoComment = styled.p`
@@ -216,16 +182,6 @@ const InfoBold = styled.p`
   margin: 0px 0 0 10px;
 `;
 
-const MenuImg = styled.img`
-  width: 90px;
-  height: 90px;
-  border-radius: 8px;
-  margin: 10px 10px 10px 0px;
-  text-align: right;
-  flex-shrink: 1;
-  object-fit: cover;
-`;
-
 const CollectionBox = styled.div`
   display: flex;
   justify-content: space-between;
@@ -235,7 +191,6 @@ const CollectionBox = styled.div`
 function DishDetail(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
-  const collectionList = useSelector((state) => state.collectionList);
 
   const collectData = useSelector((state) => state.collectData);
   const userReviewSet = useSelector((state) => state.userReviewSet);
@@ -247,6 +202,7 @@ function DishDetail(props) {
 
   let array = [];
   let newRating = selectedDish.rating.toFixed(1);
+  console.log(newRating);
 
   useEffect(() => {
     const unsubscribe = getAllDishReviews(selectedDish, callback);
@@ -312,40 +268,6 @@ function DishDetail(props) {
       });
     }
   }, [userStatus, allDishReviews]);
-
-  let reviewsDoms = [];
-
-  if (allDishReviews) {
-    allDishReviews.forEach((review, key) => {
-      let reviewRatingArray = [];
-      let time = new Date(review.time).toISOString().split('T')[0];
-
-      let reviewsDom = (
-        <ReviewerBox key={key}>
-          <AuthorBox>
-            <AuthorImg src={review.userPhotoUrl}></AuthorImg>
-            <Authortitle>
-              <div>{review.name}</div>
-              <P style={{ margin: '4px 0 0 0px' }}>{time}</P>
-            </Authortitle>
-          </AuthorBox>
-          {renderStar(Number(review.rating), reviewRatingArray)}
-          <StarBoxReview>
-            {reviewRatingArray}
-            <P>{review.rating}</P>
-          </StarBoxReview>
-          <InfoDetail>{review.comment}</InfoDetail>
-          {review.imageUrl !== '' ? (
-            <MenuImg src={review.imageUrl}></MenuImg>
-          ) : (
-            <></>
-          )}
-        </ReviewerBox>
-      );
-
-      reviewsDoms.push(reviewsDom);
-    });
-  }
 
   function callModal(e) {
     dispatch({
@@ -478,15 +400,29 @@ function DishDetail(props) {
 
       {collectData.length > 0 ? array : <></>}
 
+      {userReviewSet ? (
+        <div>
+          <CommentDiv>
+            <CommentTitle style={{ color: 'black', margin: '10px 0 10px 0' }}>
+              你的評論
+            </CommentTitle>
+          </CommentDiv>
+          <ReviewCard review={userReviewSet}></ReviewCard>
+        </div>
+      ) : (
+        <></>
+      )}
+
       {!userReviewSet ? (
         <CommentBtn type="button" onClick={callModal}>
           評論
         </CommentBtn>
       ) : (
         <EditorBtn type="button" onClick={callModal}>
-          編輯
+          編輯你的評論
         </EditorBtn>
       )}
+
       <RatingDiv
         style={{ padding: '24px 0 0 18px', borderBottom: '1px solid #efefef' }}
       >
@@ -505,7 +441,13 @@ function DishDetail(props) {
           <InfoBold>0</InfoBold>
         )}
       </RatingDiv>
-      {allDishReviews ? reviewsDoms : <NoComment>目前沒有任何評論</NoComment>}
+      {allDishReviews ? (
+        allDishReviews.map((review, key) => (
+          <ReviewCard review={review} key={key}></ReviewCard>
+        ))
+      ) : (
+        <NoComment>目前沒有任何評論</NoComment>
+      )}
     </Dish>
   );
 }

@@ -92,7 +92,6 @@ const CommentBtn = styled.button`
   border: 1px solid #185ee6;
   background: #fff;
   color: #185ee6;
-  //   width: 64px;
   height: 2em;
   border-radius: 25px;
   padding: 0.1em 1em;
@@ -113,17 +112,6 @@ const EditorBtn = styled.button`
 
   margin-right: 20px;
 `;
-
-const product = {
-  imageUrl:
-    'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
-  name: '雙層享受牛肉黑麥堡',
-  price: 250,
-  storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
-  storeName: 'miniB 手作漢堡',
-  rating: 0,
-  user_ratings_total: 0
-};
 
 function MenuCard(props) {
   let starArry = [];
@@ -159,7 +147,6 @@ function MenuCard(props) {
 
   function callModal(e) {
     if (userDatasCheck) {
-      console.log(userDatasCheck);
       dispatch({
         type: 'setUserReviewSet',
         data: userDatasCheck

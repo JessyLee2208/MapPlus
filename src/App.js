@@ -3,7 +3,6 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   GoogleMap,
   useLoadScript,
-  Marker,
   StandaloneSearchBox
 } from '@react-google-maps/api';
 import {
@@ -37,6 +36,7 @@ import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
 
 import CollectionList from './View/CollectionList';
+import CollectionMarker from './Components/Marker';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -57,26 +57,23 @@ function App() {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KRY,
     libraries
   });
-  // googleAccountStateChanged();
 
   const dispatch = useDispatch();
   const show = useSelector((state) => state.modalShow);
   const userStatus = useSelector((state) => state.userStatus);
   const menuData = useSelector((state) => state.menuData);
 
+  const storeData = useSelector((state) => state.storeData);
   const mapMarkers = useSelector((state) => state.mapMarkers);
   const selectedStore = useSelector((state) => state.selectedStore);
   const selectedDish = useSelector((state) => state.selectedDish);
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const collectionCheck = useSelector((state) => state.collectionTitle);
-  const collectionList = useSelector((state) => state.collectionList);
 
   const mapRef = useRef();
   const searchRef = useRef();
 
   const [bounds, setBounds] = useState(null);
-  const [select, setSelect] = useState(null);
-  const [content, setContent] = useState([]);
   const [mapStore, setMapStore] = useState([]);
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
@@ -103,10 +100,7 @@ function App() {
 
           if (!condition) {
             mapStore.unshift(store);
-            // dispatch({
-            //   type: 'setSelectedDish',
-            //   data: null
-            // });
+
             dispatch({
               type: 'updateMapMarkers',
               data: store
@@ -114,8 +108,10 @@ function App() {
           }
         }
       });
-
-      setContent(mapStore);
+      dispatch({
+        type: 'setStoreData',
+        data: mapStore
+      });
     }
   }, [mapStore, algoliaStore]);
 
@@ -180,7 +176,6 @@ function App() {
       data: null
     });
 
-    setSelect(null);
     dispatch({
       type: 'setSelectedDish',
       data: null
@@ -238,7 +233,11 @@ function App() {
     Promise.all(placePromises).then((res) => {
       setMapStore(res);
       if (res.length === 1) {
-        setContent(res);
+        dispatch({
+          type: 'setStoreData',
+          data: res
+        });
+
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
         } else {
@@ -261,14 +260,14 @@ function App() {
       data: 'information'
     });
 
-    console.log(mapMarkers);
+    if (e.target.name === 'menu') {
+      dispatch({
+        type: 'setSelectedTab',
+        data: 'menu'
+      });
+    }
 
-    mapMarkers.forEach((marker) => {
-      if (e.target.id === marker.storename) {
-        setSelect(marker);
-      }
-    });
-    content.forEach((product) => {
+    storeData.forEach((product) => {
       if (e.target.id === product.name) {
         fetch(`${host_name}/getStoreProducts`, {
           method: 'post',
@@ -343,46 +342,6 @@ function App() {
     }
   };
 
-  const handleMarkerClick = (marker) => {
-    dispatch({
-      type: 'setSelectedTab',
-      data: 'information'
-    });
-
-    collectionList.forEach((product) => {
-      if (marker.storename === product.name) {
-        const newMarker = {
-          lat: product.geometry.lat,
-          lng: product.geometry.lng,
-          storename: product.name
-        };
-
-        dispatch({
-          type: 'setSelectedStore',
-          data: product
-        });
-        dispatch({
-          type: 'initMapMarkers',
-          data: [newMarker]
-        });
-
-        dispatch({
-          type: 'setCollectionMarks',
-          data: []
-        });
-
-        dispatch({
-          type: 'setCollectionTitle',
-          data: false
-        });
-        dispatch({
-          type: 'setSelectedDish',
-          data: null
-        });
-      }
-    });
-  };
-
   return (
     <Frame>
       {show && userStatus ? (
@@ -412,7 +371,6 @@ function App() {
                   handleSearch(searchText);
                 }
               }}
-              // value={searchText}
             ></SearchInput>
           </SearchBox>
         </StandaloneSearchBox>
@@ -437,13 +395,13 @@ function App() {
         </>
       )}
 
-      {content.length > 1 &&
-      select === null &&
+      {storeData.length > 1 &&
+      selectedStore === null &&
       selectedDish === null &&
       !collectionCheck ? (
         <InformationBg>
           <InformationBox onClick={handleStoreListClick}>
-            {content.map((product, key) => (
+            {storeData.map((product, key) => (
               <StoreCardL
                 key={product.place_id}
                 product={product}
@@ -452,12 +410,12 @@ function App() {
             ))}
           </InformationBox>
         </InformationBg>
-      ) : content &&
-        content.length === 1 &&
+      ) : storeData &&
+        storeData.length === 1 &&
         selectedStore === null &&
         selectedDish === null &&
         !collectionCheck ? (
-        content.map((product, index) => (
+        storeData.map((product, index) => (
           <StoreDetail
             key={index}
             product={product}
@@ -481,10 +439,10 @@ function App() {
         <></>
       )}
 
-      {select ? (
+      {selectedStore && !collectionCheck ? (
         <InformationBoxS onClick={handleStoreListClick}>
-          {content.length > 1 ? (
-            content.map((product, key) => (
+          {storeData.length > 1 ? (
+            storeData.map((product, key) => (
               <StoreCardS key={key} product={product} id={product.name} />
             ))
           ) : (
@@ -522,74 +480,21 @@ function App() {
       >
         {collectionMarks.length === 0 ? (
           mapMarkers.map((marker, key) => (
-            <Marker
+            <CollectionMarker
+              service={service}
+              marker={marker}
+              content={storeData}
               key={key}
-              position={{ lat: marker.lat, lng: marker.lng }}
-              onClick={() => {
-                setSelect(marker);
-                dispatch({
-                  type: 'setSelectedTab',
-                  data: 'information'
-                });
-                content.forEach((product) => {
-                  if (marker.storename === product.name) {
-                    getMorereDetail(product, service).then((res) => {
-                      dispatch({
-                        type: 'setSelectedStore',
-                        data: res
-                      });
-                    });
-                    dispatch({
-                      type: 'setSelectedDish',
-                      data: null
-                    });
-                  }
-                });
-              }}
-            />
+            ></CollectionMarker>
           ))
         ) : collectionCheck ? (
-          collectionMarks.map((marker, key) =>
-            collectionCheck === '想去的地點' ? (
-              <Marker
-                key={key}
-                position={{ lat: marker.lat, lng: marker.lng }}
-                icon={{
-                  url: '/falg_marker.png',
-                  scaledSize: new window.google.maps.Size(20, 30)
-                }}
-                onClick={() => {
-                  handleMarkerClick(marker);
-                }}
-              />
-            ) : collectionCheck === '喜愛的地點' ? (
-              <Marker
-                key={key}
-                position={{ lat: marker.lat, lng: marker.lng }}
-                icon={{
-                  url: '/heart_marker.png',
-                  scaledSize: new window.google.maps.Size(20, 30)
-                }}
-                onClick={() => {
-                  handleMarkerClick(marker);
-                }}
-              />
-            ) : collectionCheck === '已加星號的地點' ? (
-              <Marker
-                key={key}
-                position={{ lat: marker.lat, lng: marker.lng }}
-                icon={{
-                  url: '/star_marker.png',
-                  scaledSize: new window.google.maps.Size(20, 30)
-                }}
-                onClick={() => {
-                  handleMarkerClick(marker);
-                }}
-              />
-            ) : (
-              <></>
-            )
-          )
+          collectionMarks.map((marker, key) => (
+            <CollectionMarker
+              tag={collectionCheck}
+              marker={marker}
+              key={key}
+            ></CollectionMarker>
+          ))
         ) : (
           <></>
         )}

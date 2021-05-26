@@ -1,4 +1,7 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/storage';
+import 'firebase/firestore';
+import 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -38,6 +41,37 @@ function getMenuData(selectedStoreName, callback) {
         promises.push(data);
       });
       callback(promises);
+    });
+}
+
+// function userReviewEdit(reviewData, newData) {
+//   return db
+//     .collection('review')
+//     .where('email', '==', reviewData.email)
+//     .where('dishCollectionID', '==', reviewData.dishCollectionID)
+//     .limit(1)
+//     .get()
+//     .then((data) => {
+//       let dataDocument = data.docs[0];
+//       dataDocument.ref.update({
+//         comment: newData.comment,
+//         imageUrl: newData.imageUrl,
+//         rating: newData.rating
+//       });
+//     });
+// }
+
+function getDishData(dishName) {
+  return db
+    .collection('menu')
+    .where('name', '==', dishName)
+    .limit(1)
+    .get()
+    .then((data) => {
+      const dishCollectionID = data.docs[0].id;
+      let dataDocument = data.docs[0].data();
+      const dishData = { ...dataDocument, dishCollectionID: dishCollectionID };
+      return dishData;
     });
 }
 
@@ -272,6 +306,7 @@ export {
   removeDishToCollectList,
   getStoreData,
   userReviewEdit,
-  userReviewGet
+  userReviewGet,
+  getDishData
   // GetDishCollection
 };

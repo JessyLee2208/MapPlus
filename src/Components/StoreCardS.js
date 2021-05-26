@@ -97,7 +97,7 @@ const InfoLink = styled.a`
   text-decoration:none;
   flex-grow:1;
 `;
-const InfoMenu = styled.p`
+const InfoMenu = styled.a`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 15px;
   font-weight: 400;
@@ -191,9 +191,13 @@ function StoreCardS(props, key) {
             ''
           )}
           {props.product.deliver.foodPandaUrl ? (
-            <InfoMenu id={props.id}>菜單</InfoMenu>
+            <InfoMenu id={props.id} name="menu">
+              菜單
+            </InfoMenu>
           ) : props.product.deliver.uberEatUrl ? (
-            <InfoMenu id={props.id}>菜單</InfoMenu>
+            <InfoMenu id={props.id} name="menu">
+              菜單
+            </InfoMenu>
           ) : (
             ''
           )}
