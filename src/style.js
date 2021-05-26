@@ -91,22 +91,6 @@ const Frame = styled.div`
   left:0
 `;
 
-const SingInBtn = styled.button`
-  position: fixed;
-  right: 62px;
-  top: 13px;
-
-  background: #4285f4;
-  color: #fff;
-  outline: none;
-  font-weight: bold;
-  display: inline-block;
-  line-height: 36px;
-  padding: 0 16px;
-  border-radius: 2px;
-  border: 0;
-`;
-
 const Back = styled.div`
   background: #ffffff;
   border: 1px solid transparent;
@@ -174,7 +158,6 @@ export {
   InformationBg,
   Frame,
   InformationBoxS,
-  SingInBtn,
   Back,
   BackTitle,
   SearchBoxNoShadow,

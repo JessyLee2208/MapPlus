@@ -3,22 +3,27 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { userReviewGet } from '../Utils/firebase';
+import {
+  ButtonPrimaryRound,
+  ButtonGhostRound
+} from '../Components/button/Button';
 
 const Menu = styled.div`
   background: #ffffff;
-  width: 100%;
-
   display: flex;
-  margin: 10px 0;
   align-items: center;
-  //
+  padding: 12px 20px;
+
+  &:hover {
+    background: ##f5f5f5;
+  }
 `;
 
 const MenuImg = styled.img`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px 10px 10px 18px;
+  // margin: 10px 10px 10px 18px;
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
@@ -28,7 +33,7 @@ const NoImg = styled.div`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px 10px 10px 18px;
+  // margin: 10px 10px 10px 18px;
   text-align: right;
   flex-shrink: 1;
 
@@ -47,7 +52,7 @@ const MenuTitle = styled.p`
   color: #1e1e1e;
   margin: 0;
   padding-bottom: 6px;
-  width: 224px;
+  width: 220px;
 `;
 const MenuPrice = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
@@ -73,7 +78,7 @@ const RatingDiv = styled.div`
   display: flex;
   margin: 0;
   align-items: center;
-  padding-bottom: 18px;
+  padding-bottom: 12px;
 `;
 const Info = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
@@ -86,31 +91,6 @@ const Info = styled.p`
   text-align: left;
   color: #5d6267;
   margin: 1px 4px 0 0;
-`;
-
-const CommentBtn = styled.button`
-  border: 1px solid #185ee6;
-  background: #fff;
-  color: #185ee6;
-  height: 2em;
-  border-radius: 25px;
-  padding: 0.1em 1em;
-  font-size: 15px;
-
-  margin-right: 20px;
-`;
-
-const EditorBtn = styled.button`
-  border: 1px solid #4285f4;
-  background: #4285f4;
-  color: #fff;
-  //   width: 64px;
-  height: 2em;
-  border-radius: 25px;
-  padding: 0.1em 1em;
-  font-size: 15px;
-
-  margin-right: 20px;
 `;
 
 function MenuCard(props) {
@@ -193,13 +173,13 @@ function MenuCard(props) {
         <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
       </InfoBox>
       {!userDatasCheck ? (
-        <CommentBtn type="button" onClick={callModal}>
+        <ButtonGhostRound type="button" onClick={callModal}>
           評論
-        </CommentBtn>
+        </ButtonGhostRound>
       ) : (
-        <EditorBtn type="button" onClick={callModal}>
+        <ButtonPrimaryRound type="button" onClick={callModal}>
           編輯
-        </EditorBtn>
+        </ButtonPrimaryRound>
       )}
     </Menu>
   );

@@ -5,6 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
+import {
+  ButtonPrimaryRound,
+  ButtonGhostRound
+} from '../Components/button/Button';
 
 const Dish = styled.div`
   position: relative;
@@ -111,29 +115,6 @@ const Icon = styled.img`
   width: 22px;
   height: 22px;
   margin-right: 4px;
-`;
-
-const CommentBtn = styled.button`
-  background: #fff;
-  color: #185ee6;
-
-  border-radius: 25px;
-  padding: 0.4em 2em;
-  font-size: 15px;
-  margin: 0px 18px 0px 18px;
-  padding: '0px 0 0 18px';
-  border: 1px solid #185ee6;
-`;
-
-const EditorBtn = styled.button`
-  border: 1px solid #4285f4;
-  background: #4285f4;
-  color: #fff;
-
-  border-radius: 25px;
-  padding: 0.4em 2em;
-  font-size: 15px;
-  margin: 0px 18px 0px 18px;
 `;
 
 const TopDiv = styled.div`
@@ -411,13 +392,13 @@ function DishDetail(props) {
       )}
 
       {!userReviewSet ? (
-        <CommentBtn type="button" onClick={callModal}>
+        <ButtonGhostRound onClick={callModal} style={{ margin: '0px 18px' }}>
           評論
-        </CommentBtn>
+        </ButtonGhostRound>
       ) : (
-        <EditorBtn type="button" onClick={callModal}>
+        <ButtonPrimaryRound onClick={callModal} style={{ margin: '0px 18px' }}>
           編輯你的評論
-        </EditorBtn>
+        </ButtonPrimaryRound>
       )}
 
       <RatingDiv

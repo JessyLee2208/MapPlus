@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 
+import { ButtonPrimaryFlat } from './Components/button/Button';
+
 import {
   GoogleMap,
   useLoadScript,
@@ -12,7 +14,6 @@ import {
   InformationBg,
   Frame,
   InformationBoxS,
-  SingInBtn,
   Back,
   BackTitle,
   SearchBoxNoShadow,
@@ -453,21 +454,23 @@ function App() {
         <div></div>
       )}
       {!userStatus ? (
-        <SingInBtn
+        <ButtonPrimaryFlat
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
           }}
+          style={{ position: 'fixed', right: '62px', top: '11px' }}
         >
           登入
-        </SingInBtn>
+        </ButtonPrimaryFlat>
       ) : (
-        <SingInBtn
+        <ButtonPrimaryFlat
           onClick={(e) => {
             googleAccountLogOut(e, dispatch);
           }}
+          style={{ position: 'fixed', right: '62px', top: '11px' }}
         >
           登出
-        </SingInBtn>
+        </ButtonPrimaryFlat>
       )}
 
       <GoogleMap

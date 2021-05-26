@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import renderStar from '../Utils/renderStar';
 import Modal from './Modal';
+import { ButtonPrimaryFlat } from '../Components/button/Button';
 
 import {
   upLoadPhotoToFirebase,
@@ -61,21 +62,6 @@ const Discription = styled.div`
   text-align: left;
   color: #757575;
   padding: 8px 0 0px 0px;
-`;
-
-const Button = styled.button`
-  background: #4285f4;
-  color: #fff;
-  outline: none;
-  font-weight: bold;
-  display: inline-block;
-  line-height: 36px;
-  padding: 2px 20px;
-  border-radius: 4px;
-  border: 0;
-  margin: 0 0px 0px 16px;
-  font-size: 16px;
-  cursor: pointer;
 `;
 
 const Footer = styled.div`
@@ -212,8 +198,13 @@ function CommentModal({ show }) {
           ></img>
           {imgUrl ? <Img src={imgUrl}></Img> : <></>}
           <Footer>
-            <Button onClick={handleClose}>取消</Button>
-            <Button onClick={bindupLoadReview}>評論</Button>
+            <ButtonPrimaryFlat onClick={handleClose}>取消</ButtonPrimaryFlat>
+            <ButtonPrimaryFlat
+              onClick={bindupLoadReview}
+              style={{ marginLeft: '16px' }}
+            >
+              評論
+            </ButtonPrimaryFlat>
           </Footer>
         </ModalContent>
       </Modal>

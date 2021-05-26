@@ -3,6 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Modal from './Modal';
 import { googleAccountSignIn } from '../Utils/firebase';
+import {
+  ButtonPrimaryFlat,
+  ButtonSecondaryFlat
+} from '../Components/button/Button';
 
 const TopBackground = styled.div`
   position: relative;
@@ -37,36 +41,6 @@ const Title = styled.div`
   text-align: center;
 `;
 
-const Button = styled.button`
-  background: #4285f4;
-  color: #fff;
-  outline: none;
-  font-weight: bold;
-  display: inline-block;
-  line-height: 36px;
-  padding: 2px 20px;
-  border-radius: 4px;
-  border: 0;
-  margin: 16px 16px 16px 16px;
-  font-size: 16px;
-  cursor: pointer;
-`;
-
-const NormalButton = styled.button`
-  background: #ffffff;
-  color: #4285f4;
-  outline: none;
-  font-weight: bold;
-  display: inline-block;
-  line-height: 36px;
-  padding: 2px 20px;
-  border-radius: 4px;
-  border: 0;
-  margin: 16px 0px 16px 16px;
-  font-size: 16px;
-  cursor: pointer;
-`;
-
 const Img = styled.img`
   width: 120px;
   height: 120px;
@@ -95,15 +69,18 @@ function ReminderModal() {
         <Title>登入GOOGLE帳戶即可發表評論</Title>
       </TopBackground>
       <ContentBackground>
-        <NormalButton onClick={handleClose}>取消</NormalButton>
-        <Button
+        <ButtonSecondaryFlat onClick={handleClose} style={{ margin: '16px 0' }}>
+          取消
+        </ButtonSecondaryFlat>
+        <ButtonPrimaryFlat
+          style={{ margin: '16px' }}
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
             handleClose();
           }}
         >
           登入
-        </Button>
+        </ButtonPrimaryFlat>
       </ContentBackground>
     </Modal>
   );
