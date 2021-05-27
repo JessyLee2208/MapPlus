@@ -19,6 +19,7 @@ function CollectionMarker(porps) {
     });
 
     collectionList.forEach((product) => {
+      console.log(product);
       if (marker.storename === product.name) {
         const newMarker = {
           lat: product.geometry.lat,
@@ -71,13 +72,6 @@ function CollectionMarker(porps) {
     });
   };
 
-  //   const markerTimer = useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
-  //     }, 1000);
-  //     return () => clearTimeout(timer);
-  //   }, []);
-
   const timer = () => {
     setTimeout(() => {
       markerRef.current.setAnimation(null);
@@ -116,7 +110,7 @@ function CollectionMarker(porps) {
   } else if (porps.tag === '已加星號的地點') {
     url = '/star_marker.png';
   }
-  const MarkeronLoad = useCallback((marker) => {
+  const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;
     // marker.setAnimation(window.google.maps.Animation.BOUNCE);
   }, []);
@@ -131,15 +125,19 @@ function CollectionMarker(porps) {
       onClick={() => {
         handleCollectionMarker(porps.marker);
       }}
-      onLoad={MarkeronLoad}
+      onLoad={(marker) => {
+        porps.onLoad(marker, porps.marker.storename);
+        markeronLoad(marker);
+      }}
     />
   ) : (
     <Marker
       position={{ lat: porps.marker.lat, lng: porps.marker.lng }}
-      onClick={() => {
-        handleMapMarker(porps.marker);
+      onClick={handleMapMarker}
+      onLoad={(marker) => {
+        porps.onLoad(marker, porps.marker.storename);
+        markeronLoad(marker);
       }}
-      onLoad={MarkeronLoad}
     />
   );
 }

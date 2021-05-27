@@ -29,7 +29,6 @@ import {
   googleAccountLogOut,
   getStoreData
 } from './Utils/firebase';
-import getMorereDetail from './Utils/getMoreDetail';
 import { useDispatch, useSelector } from 'react-redux';
 
 import algoliasearch from 'algoliasearch';
@@ -38,6 +37,8 @@ import ReminderModal from './Components/ReminderModal';
 
 import CollectionList from './View/CollectionList';
 import CollectionMarker from './Components/Marker';
+
+import { getStoreUrl } from './Utils/fetch';
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -73,9 +74,11 @@ function App() {
 
   const mapRef = useRef();
   const searchRef = useRef();
+  // const markerRef = useRef();
 
   const [bounds, setBounds] = useState(null);
   const [mapStore, setMapStore] = useState([]);
+  const [markerLoad, setMarkerLoad] = useState([]);
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
@@ -154,6 +157,9 @@ function App() {
   const onSearchLoad = useCallback((search) => {
     searchRef.current = search;
   }, []);
+  const markeronLoad = useCallback((marker, storename) => {
+    setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
+  }, []);
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
@@ -202,7 +208,8 @@ function App() {
       } else {
         bounds.extend(place.geometry.location);
       }
-
+      // const placePromise = getStoreUrl(placeName, place);
+      // console.log(placePromise);
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(
         async (res) => {
           const a = await res.json();
@@ -210,6 +217,7 @@ function App() {
           return { ...place, deliver: a };
         }
       );
+
       placePromises.push(placePromise);
     });
 
@@ -252,55 +260,20 @@ function App() {
   };
 
   function handleStoreListClick(e) {
-    dispatch({
-      type: 'setSelectedDish',
-      data: null
-    });
-    dispatch({
-      type: 'setSelectedTab',
-      data: 'information'
-    });
-
-    if (e.target.name === 'menu') {
-      dispatch({
-        type: 'setSelectedTab',
-        data: 'menu'
-      });
-    }
-
     storeData.forEach((product) => {
       if (e.target.id === product.name) {
-        fetch(`${host_name}/getStoreProducts`, {
-          method: 'post',
-          body: JSON.stringify(product.deliver),
-          headers: {
-            'Content-Type': 'application/json'
+        let a = mapMarkers.find((marker) => e.target.id === marker.storename);
+        markerLoad.forEach((marker) => {
+          const timer = () => {
+            setTimeout(() => {
+              marker.mrker.setAnimation(null);
+            }, 400);
+          };
+          if (e.target.id === marker.storename) {
+            marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
+            timer();
           }
-        }).then(async (res) => {
-          await res.json();
         });
-
-        getMorereDetail(product, service).then((res) => {
-          dispatch({
-            type: 'setSelectedStore',
-            data: res
-          });
-        });
-
-        if (product.deliver.uberEatUrl || product.deliver.foodPandaUrl) {
-          function setData(data) {
-            dispatch({
-              type: 'setMenuData',
-              data: data
-            });
-          }
-          getMenuData(product.name, setData);
-        } else {
-          dispatch({
-            type: 'setMenuData',
-            data: null
-          });
-        }
       }
     });
   }
@@ -407,6 +380,7 @@ function App() {
                 key={product.place_id}
                 product={product}
                 id={product.name}
+                service={service}
               />
             ))}
           </InformationBox>
@@ -444,7 +418,12 @@ function App() {
         <InformationBoxS onClick={handleStoreListClick}>
           {storeData.length > 1 ? (
             storeData.map((product, key) => (
-              <StoreCardS key={key} product={product} id={product.name} />
+              <StoreCardS
+                key={key}
+                product={product}
+                id={product.name}
+                service={service}
+              />
             ))
           ) : (
             <div></div>
@@ -488,6 +467,7 @@ function App() {
               marker={marker}
               content={storeData}
               key={key}
+              onLoad={markeronLoad}
             ></CollectionMarker>
           ))
         ) : collectionCheck ? (
@@ -496,6 +476,7 @@ function App() {
               tag={collectionCheck}
               marker={marker}
               key={key}
+              onLoad={markeronLoad}
             ></CollectionMarker>
           ))
         ) : (

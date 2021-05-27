@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import SearchMenuCard from './SearchMenuCard';
+import { getStoreMenu } from '../Utils/fetch';
+import getMorereDetail from '../Utils/getMoreDetail';
+import { getMenuData } from '../Utils/firebase';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -96,6 +99,7 @@ function StoreCard(props) {
   const searchMenu = useSelector((state) => state.searchMenu);
   const [menu, setmenu] = React.useState(null);
   let menuArray = [];
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (searchMenu) {
@@ -162,8 +166,50 @@ function StoreCard(props) {
     OpenStatu = <Info></Info>;
   }
 
+  function handleStoreListClick(e) {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
+    });
+
+    if (e.target.name === 'menu') {
+      dispatch({
+        type: 'setSelectedTab',
+        data: 'menu'
+      });
+    }
+    getStoreMenu(props.product.deliver);
+    getMorereDetail(props.product, props.service).then((res) => {
+      dispatch({
+        type: 'setSelectedStore',
+        data: res
+      });
+    });
+    if (
+      props.product.deliver.uberEatUrl ||
+      props.product.deliver.foodPandaUrl
+    ) {
+      function setData(data) {
+        dispatch({
+          type: 'setMenuData',
+          data: data
+        });
+      }
+      getMenuData(props.product.name, setData);
+    } else {
+      dispatch({
+        type: 'setMenuData',
+        data: null
+      });
+    }
+  }
+
   return (
-    <div>
+    <div onClick={handleStoreListClick}>
       <Store id={props.id}>
         <StoreInfo id={props.id}>
           <StoreTitle id={props.id}>{props.product.name}</StoreTitle>

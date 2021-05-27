@@ -1,4 +1,9 @@
+import React from 'react';
 import styled from 'styled-components';
+import { getStoreMenu } from '../Utils/fetch';
+import getMorereDetail from '../Utils/getMoreDetail';
+import { getMenuData } from '../Utils/firebase';
+import { useDispatch } from 'react-redux';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -139,6 +144,7 @@ const WithoutImg = styled.div`
 
 function StoreCardS(props, key) {
   let priceLevel = [];
+  const dispatch = useDispatch();
 
   if (props.product.price_level !== undefined) {
     for (let i = 0; i < props.product.price_level; i++) {
@@ -147,8 +153,50 @@ function StoreCardS(props, key) {
     }
   }
 
+  function handleStoreListClick(e) {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
+    });
+
+    if (e.target.name === 'menu') {
+      dispatch({
+        type: 'setSelectedTab',
+        data: 'menu'
+      });
+    }
+    getStoreMenu(props.product.deliver);
+    getMorereDetail(props.product, props.service).then((res) => {
+      dispatch({
+        type: 'setSelectedStore',
+        data: res
+      });
+    });
+    if (
+      props.product.deliver.uberEatUrl ||
+      props.product.deliver.foodPandaUrl
+    ) {
+      function setData(data) {
+        dispatch({
+          type: 'setMenuData',
+          data: data
+        });
+      }
+      getMenuData(props.product.name, setData);
+    } else {
+      dispatch({
+        type: 'setMenuData',
+        data: null
+      });
+    }
+  }
+
   return (
-    <Store id={props.id}>
+    <Store id={props.id} onClick={handleStoreListClick}>
       {props.product.photos && props.product.photos.length > 0 ? (
         <StoreImg
           id={props.id}
