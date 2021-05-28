@@ -8,7 +8,7 @@ const ButtonprimaryRound = styled.button`
   background: #4285f4;
   color: #fff;
 
-  padding: 0.4em 1.3em;
+  padding: 0.3em 1.2em;
   font-size: 15px;
   border-radius: 25px;
 
@@ -82,7 +82,7 @@ const ButtonghostRound = styled.button`
   background: #fff;
   color: #185ee6;
 
-  padding: 0.4em 1.3em;
+  padding: 0.3em 1.2em;
   font-size: 15px;
   border-radius: 25px;
 

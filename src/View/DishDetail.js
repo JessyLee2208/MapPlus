@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from '../Components/Collection';
@@ -8,7 +7,18 @@ import ReviewCard from '../Components/reviewCard';
 import {
   ButtonPrimaryRound,
   ButtonGhostRound
-} from '../Components/button/Button';
+} from '../Components/UIComponents/Button';
+import {
+  PageTitle,
+  Description,
+  SubTitle
+} from '../Components/UIComponents/Typography';
+
+const Separator = styled.div`
+  width: auto;
+  min-height: 1px;
+  background: #efefef;
+`;
 
 const Dish = styled.div`
   position: relative;
@@ -23,7 +33,7 @@ const Dish = styled.div`
 
 const DishImg = styled.img`
   width: 100%;
-  height: 310px;
+  height: 260px;
 
   text-align: right;
   flex-shrink: 1;
@@ -74,6 +84,13 @@ const RatingDiv = styled.div`
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 10px;
+`;
+
+const Box = styled.div`
+  display: flex;
+
+  align-items: center;
+  padding: 18px 20px;
 `;
 
 const CommentDiv = styled.div`
@@ -194,7 +211,7 @@ function DishDetail(props) {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [selectedDish]);
 
   useEffect(() => {
     if (userStatus) {
@@ -352,7 +369,7 @@ function DishDetail(props) {
   }
 
   return (
-    <Dish onClick={handleCollectIconClick}>
+    <Dish>
       {select ? <Collection></Collection> : <></>}
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
@@ -361,7 +378,9 @@ function DishDetail(props) {
       )}
       <TopDiv>
         <DishBox>
-          <DishTitle>{selectedDish.name}</DishTitle>
+          <PageTitle padding={'10px 0 10px 20px'}>
+            {selectedDish.name}
+          </PageTitle>
 
           <RatingDiv>
             <DishPrice>NT${selectedDish.price}</DishPrice>
@@ -370,9 +389,17 @@ function DishDetail(props) {
           </RatingDiv>
         </DishBox>
         {collectData.length > 0 ? (
-          <CollectIcon src="/collected.png" id="collectIcon"></CollectIcon>
+          <CollectIcon
+            src="/collected.png"
+            id="collectIcon"
+            onClick={handleCollectIconClick}
+          ></CollectIcon>
         ) : (
-          <CollectIcon src="/collect.png" id="collectIcon"></CollectIcon>
+          <CollectIcon
+            src="/collect.png"
+            id="collectIcon"
+            onClick={handleCollectIconClick}
+          ></CollectIcon>
         )}
       </TopDiv>
 
@@ -401,24 +428,15 @@ function DishDetail(props) {
         </ButtonPrimaryRound>
       )}
 
-      <RatingDiv
-        style={{ padding: '24px 0 0 18px', borderBottom: '1px solid #efefef' }}
-      >
-        <Info style={{ color: 'black', margin: '10px 0 10px 0' }}>評論</Info>
+      <Box>
+        <SubTitle padding={'0'}>評論</SubTitle>
         {allDishReviews ? (
-          <Info
-            style={{
-              color: 'black',
-              fontWeight: '600',
-              margin: '10px 0px 10px 6px'
-            }}
-          >
-            {allDishReviews.length}
-          </Info>
+          <SubTitle padding={'0 0 0 8px'}>{allDishReviews.length}</SubTitle>
         ) : (
           <InfoBold>0</InfoBold>
         )}
-      </RatingDiv>
+      </Box>
+      <Separator></Separator>
       {allDishReviews ? (
         allDishReviews.map((review, key) => (
           <ReviewCard review={review} key={key}></ReviewCard>

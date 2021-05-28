@@ -3,10 +3,8 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
 import { userReviewGet } from '../Utils/firebase';
-import {
-  ButtonPrimaryRound,
-  ButtonGhostRound
-} from '../Components/button/Button';
+import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
+import { ItemTitle, Description } from './UIComponents/Typography';
 
 const Menu = styled.div`
   background: #ffffff;
@@ -15,7 +13,7 @@ const Menu = styled.div`
   padding: 12px 20px;
 
   &:hover {
-    background: ##f5f5f5;
+    background: #f7f7f7;
   }
 `;
 
@@ -40,20 +38,6 @@ const NoImg = styled.div`
   background: #f0f0f0;
 `;
 
-const MenuTitle = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #1e1e1e;
-  margin: 0;
-  padding-bottom: 6px;
-  width: 220px;
-`;
 const MenuPrice = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 16px;
@@ -68,7 +52,7 @@ const MenuPrice = styled.p`
 `;
 const InfoBox = styled.div`
   display: block;
-  padding: 0px 0 0px 8px;
+  padding: 0px 8px 0 14px;
   flex-direction: column;
 
   flex-grow: 2;
@@ -164,9 +148,13 @@ function MenuCard(props) {
 
       <InfoBox id={props.data.name}>
         <div id={props.data.name}>
-          <MenuTitle id={props.data.name}>{props.data.name}</MenuTitle>
+          <ItemTitle id={props.data.name} padding={'0 0 6px 0'}>
+            {props.data.name}
+          </ItemTitle>
           <RatingDiv id={props.data.name}>
-            <Info id={props.data.name}>{newRating}</Info>
+            <Description padding={'0 6px 0 0'} id={props.data.name}>
+              {newRating}
+            </Description>
             {starArry}
           </RatingDiv>
         </div>

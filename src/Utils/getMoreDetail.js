@@ -1,6 +1,7 @@
 import { postStoreData } from './firebase';
 
 function getMorereDetail(product, service) {
+  console.log(service);
   const request = {
     placeId: product.place_id,
     fields: [

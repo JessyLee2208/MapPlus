@@ -85,25 +85,30 @@ function getStoreData(collectionID) {
     });
 }
 
-const upLoadPhotoToFirebase = (e) => {
-  let file = e.target.files[0];
+const upLoadPhotoToFirebase = (e, newPhotoArray) => {
+  let files = e.target.files;
 
-  let storageRef = firebase.storage().ref('img/' + file.name);
+  let filesArr = Object.values(files);
+  let promises = [];
+  filesArr.forEach((file) => {
+    let storageRef = firebase.storage().ref('img/' + file.name);
+    let task = storageRef.put(file);
 
-  let task = storageRef.put(file);
-  return new Promise((res, rej) => {
-    task.on(
-      firebase.storage.TaskEvent.STATE_CHANGED,
-      (snapshot) => {},
-      (error) => {
-        console.log('error');
-      },
-      () => {
-        let URL = task.snapshot.ref.getDownloadURL();
-        res(URL);
-      }
-    );
+    const photoRes = new Promise((res, rej) => {
+      task.on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        (snapshot) => {},
+        (error) => {
+          console.log('error');
+        },
+        () => {
+          res(task.snapshot.ref.getDownloadURL());
+        }
+      );
+    });
+    promises.push(photoRes);
   });
+  return promises;
 };
 
 function getAllDishReviews(DishData, callback) {

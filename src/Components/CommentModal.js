@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import renderStar from '../Utils/renderStar';
 import Modal from './Modal';
-import { ButtonPrimaryFlat } from '../Components/button/Button';
+import { ButtonPrimaryFlat } from './UIComponents/Button';
 
 import {
   upLoadPhotoToFirebase,
@@ -93,7 +93,7 @@ function CommentModal({ show }) {
 
   const [starRating, setStarRating] = React.useState(0);
   const [commentValue, setCommentValue] = React.useState('');
-  const [imgUrl, setImgUrl] = React.useState('');
+  const [imgUrl, setImgUrl] = React.useState([]);
 
   function handleClose() {
     dispatch({
@@ -104,6 +104,7 @@ function CommentModal({ show }) {
   useEffect(() => {
     if (userReviewSet) {
       setStarRating(userReviewSet.rating);
+      setCommentValue(userReviewSet.comment);
       setImgUrl(userReviewSet.imageUrl);
     }
   }, [userReviewSet]);
@@ -115,8 +116,11 @@ function CommentModal({ show }) {
   }
 
   const bindUploadPhotoBtn = async (e) => {
-    const url = await upLoadPhotoToFirebase(e);
-    setImgUrl(url);
+    const url = upLoadPhotoToFirebase(e);
+    Promise.all(url).then((res) => {
+      console.log(res);
+      setImgUrl(res);
+    });
   };
 
   function bindupLoadReview() {
@@ -189,6 +193,7 @@ function CommentModal({ show }) {
             onChange={bindUploadPhotoBtn}
             ref={ref}
             style={{ display: 'none' }}
+            multiple
           ></input>
           <img
             src="/uploadbtn.png"
@@ -196,7 +201,7 @@ function CommentModal({ show }) {
             style={{ border: ' 1px solid #D0D0D0', borderRadius: '6px' }}
             onClick={handleInputClick}
           ></img>
-          {imgUrl ? <Img src={imgUrl}></Img> : <></>}
+          {imgUrl ? imgUrl.map((url) => <Img src={url}></Img>) : <></>}
           <Footer>
             <ButtonPrimaryFlat onClick={handleClose}>取消</ButtonPrimaryFlat>
             <ButtonPrimaryFlat

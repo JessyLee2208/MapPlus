@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 
-import { ButtonPrimaryFlat } from './Components/button/Button';
+import { ButtonPrimaryFlat } from './Components/UIComponents/Button';
 
 import {
   GoogleMap,
   useLoadScript,
-  StandaloneSearchBox
+  StandaloneSearchBox,
+  Marker
 } from '@react-google-maps/api';
 import {
   SearchInput,
@@ -52,6 +53,7 @@ const searchClient = algoliasearch(
 );
 
 const searchIndex = searchClient.initIndex('googlemap_search');
+// const host_name = 'https://hsiaohan.cf';
 const host_name = 'http://localhost:5000';
 
 function App() {
@@ -79,6 +81,7 @@ function App() {
   const [bounds, setBounds] = useState(null);
   const [mapStore, setMapStore] = useState([]);
   const [markerLoad, setMarkerLoad] = useState([]);
+  const [currentLoction, setcurrentLoction] = useState(null);
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
@@ -161,6 +164,10 @@ function App() {
     setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
   }, []);
 
+  const panTo = useCallback(({ lat, lng }) => {
+    mapRef.current.panTo({ lat, lng });
+  }, []);
+
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
   const service = new window.google.maps.places.PlacesService(mapRef.current);
@@ -191,11 +198,15 @@ function App() {
       type: 'setSelectedTab',
       data: 'information'
     });
+    dispatch({
+      type: 'setStoreData',
+      data: []
+    });
 
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
-
+    console.log(places);
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
       dispatch({
@@ -316,6 +327,23 @@ function App() {
     }
   };
 
+  function getCurrentLoction() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        setcurrentLoction(pos);
+        console.log(pos);
+        panTo({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      });
+    }
+  }
+
   return (
     <Frame>
       {show && userStatus ? (
@@ -407,7 +435,7 @@ function App() {
         !collectionCheck ? (
         <StoreDetail product={selectedStore}></StoreDetail>
       ) : selectedDish && !collectionCheck ? (
-        <DishDetail></DishDetail>
+        <DishDetail dishdata={selectedDish}></DishDetail>
       ) : collectionCheck ? (
         <CollectionList></CollectionList>
       ) : (
@@ -452,6 +480,15 @@ function App() {
         </ButtonPrimaryFlat>
       )}
 
+      <ButtonPrimaryFlat
+        style={{ position: 'fixed', right: '62px', bottom: '24px' }}
+        onClick={getCurrentLoction}
+        panTo={panTo}
+      >
+        check position
+      </ButtonPrimaryFlat>
+
+
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={16}
@@ -479,6 +516,17 @@ function App() {
               onLoad={markeronLoad}
             ></CollectionMarker>
           ))
+        ) : (
+          <></>
+        )}
+        {currentLoction ? (
+          <Marker
+            position={{ lat: currentLoction.lat, lng: currentLoction.lng }}
+            icon={{
+              url: '/loction.png',
+              scaledSize: new window.google.maps.Size(44, 44)
+            }}
+          ></Marker>
         ) : (
           <></>
         )}
