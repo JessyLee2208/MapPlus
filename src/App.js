@@ -3,17 +3,7 @@ import useMediaQuery from './Utils/useMediaQuery';
 import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
 import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
-import {
-  SearchInput,
-  SearchBox,
-  Frame,
-  InformationBoxS,
-  Back,
-  BackTitle,
-  Separator,
-  SearchBoxShow,
-  SearchBg
-} from './style';
+import { SearchInput, SearchBox, Frame, InformationBoxS, SearchBoxShow } from './style';
 
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './View/StoreDetail';
@@ -93,15 +83,27 @@ function App() {
     zIndex: -10
   };
 
-  // const [mapContainerStyle, setMapContainerStyle] = useState({
-  //   width: '100vw',
-  //   height: '100vh',
-  //   position: 'absolute',
-  //   top: 0,
-  //   left: 0,
-  //   zIndex: -10
-  // });
+  const mapContainerStyleWithStore = {
+    width: 'calc(100vw - 435px)',
+    height: 'calc(100vh - 242px)',
+    position: 'absolute',
+    top: 0,
+    left: '435px',
+    zIndex: -10
+  };
 
+  const style = {
+    position: 'fixed',
+    right: '62px',
+    top: '11px'
+  };
+
+  const mobileStyle = {
+    position: 'fixed',
+    right: '20px',
+    top: '18px',
+    zIndex: '4'
+  };
   const storeListExist =
     storeData && storeData.length > 1 && selectedStore === null && selectedDish === null && !collectionCheck;
   const storeDetailOnlyOneExist =
@@ -247,15 +249,6 @@ function App() {
       placePromises.push(placePromise);
     });
 
-    // setMapContainerStyle({
-    //   width: 'calc(100vw - 435px)',
-    //   height: '100vh',
-    //   position: 'absolute',
-    //   top: 0,
-    //   left: '435px',
-    //   zIndex: -10
-    // });
-
     mapRef.current.fitBounds(bounds);
 
     const callback = (data) => {
@@ -303,18 +296,6 @@ function App() {
   //     }
   //   });
   // }
-
-  function handleBack() {
-    dispatch({
-      type: 'setSelectedDish',
-      data: null
-    });
-
-    dispatch({
-      type: 'setCollectData',
-      data: []
-    });
-  }
 
   function handleSearchText(e) {
     setSearchText(e.target.value);
@@ -375,6 +356,27 @@ function App() {
 
   return (
     <Frame>
+      {isMobile && !informationWindow ? (
+        <ButtonPrimaryRound
+          style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+          onClick={closeInformation}
+          zIndex={4}
+        >
+          關閉map
+        </ButtonPrimaryRound>
+      ) : (
+        isMobile &&
+        informationWindow && (
+          <ButtonPrimaryRound
+            style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+            onClick={closeInformation}
+            zIndex={6}
+          >
+            開啟map
+          </ButtonPrimaryRound>
+        )
+      )}
+
       {show && userStatus && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
 
@@ -392,20 +394,7 @@ function App() {
           ></SearchInput>
         </SearchBox>
       </StandaloneSearchBox>
-
-      {!selectedDish ? (
-        <>
-          <SearchBoxShow></SearchBoxShow>
-        </>
-      ) : (
-        <>
-          <Separator></Separator>
-          <Back>
-            <BackTitle onClick={handleBack}>回到 {selectedDish.storeName}</BackTitle>
-          </Back>
-          <SearchBg></SearchBg>
-        </>
-      )}
+      <SearchBoxShow></SearchBoxShow>
 
       {storeListExist ? (
         <SearchList markerLoad={markerLoad} service={service}></SearchList>
@@ -439,7 +428,7 @@ function App() {
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
           }}
-          style={{ position: 'fixed', right: '62px', top: '11px' }}
+          style={!isMobile ? style : mobileStyle}
         >
           登入
         </ButtonPrimaryFlat>
@@ -448,7 +437,7 @@ function App() {
           onClick={(e) => {
             googleAccountLogOut(e, dispatch);
           }}
-          style={{ position: 'fixed', right: '62px', top: '11px' }}
+          style={!isMobile ? style : mobileStyle}
         >
           登出
         </ButtonPrimaryFlat>
@@ -464,30 +453,14 @@ function App() {
         </ButtonPrimaryFlat>
       )}
 
-      {isMobile && !informationWindow ? (
-        <ButtonPrimaryRound
-          style={{ position: 'fixed', right: '40%', bottom: '24px' }}
-          onClick={closeInformation}
-          zIndex={4}
-        >
-          開啟map
-        </ButtonPrimaryRound>
-      ) : (
-        isMobile &&
-        informationWindow &&
-        storeListExist && (
-          <ButtonPrimaryRound style={{ position: 'fixed', right: '40%', bottom: '24px' }} onClick={closeInformation}>
-            關閉map
-          </ButtonPrimaryRound>
-        )
-      )}
-
       <GoogleMap
         mapContainerStyle={
           storeListExist && !isMobile
             ? mapContainerStyleWithSearch
             : storeListExist && isMobile
             ? mapContainerStyle
+            : smileStoreExist && !isMobile
+            ? mapContainerStyleWithStore
             : mapContainerStyle
         }
         zoom={16}

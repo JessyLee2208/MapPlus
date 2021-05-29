@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import MenuCard from '../Components/MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
-import { PageTitle, Description, SubTitle } from '../Components/UIComponents/Typography';
+import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
+import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 
 const Store = styled.div`
   position: relative;
@@ -168,6 +169,7 @@ const WithoutDishImg = styled.div`
 `;
 
 function StoreDetail(props) {
+  const storeData = useSelector((state) => state.storeData);
   let starArry = [];
 
   let OpenStatu = <div></div>;
@@ -271,8 +273,27 @@ function StoreDetail(props) {
     }
   }
 
+  function handleBack() {
+    dispatch({
+      type: 'setSelectedStore',
+      data: null
+    });
+  }
+
   return (
     <Store onClick={handleClickEvent}>
+      {storeData.length > 1 && (
+        <>
+          <SearchSeparator></SearchSeparator>
+          <Back>
+            <SubItemTitle onClick={handleBack} color={'185ee6'} style={{ position: 'relative', bottom: '-56px' }}>
+              回到收尋列表
+            </SubItemTitle>
+          </Back>
+          <SearchBg></SearchBg>
+        </>
+      )}
+
       {props.product.photos && props.product.photos.length !== 0 ? (
         <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>
       ) : props.product.photo ? (

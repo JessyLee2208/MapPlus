@@ -1,10 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  addDishToCollectList,
-  removeDishToCollectList,
-  userDatasCheck
-} from '../Utils/firebase';
+import { addDishToCollectList, removeDishToCollectList, userDatasCheck } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 let CollectBox = styled.div`
@@ -67,7 +63,7 @@ const CollectTitle = styled.p`
   margin: 0px 0 0 10px;
 `;
 
-function Collection() {
+function Collection(props) {
   const dispatch = useDispatch();
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
@@ -81,7 +77,7 @@ function Collection() {
     CollectBox = styled.div`
       width: auto;
       height: auto;
-      // padding-right: 18px;
+
       position: absolute;
       background: #fff;
       top: 154px;
@@ -94,7 +90,7 @@ function Collection() {
     CollectBox = styled.div`
       width: auto;
       height: auto;
-      // padding-right: 18px;
+
       position: absolute;
       background: #fff;
       top: 316px;
@@ -108,20 +104,13 @@ function Collection() {
     const selectedCollect = e.target.innerHTML;
 
     if (e.target.id === 'collect') {
-      addDishToCollectList(
-        userStatus.email,
-        selectedDish,
-        selectedCollect
-      ).then(async () => {
+      addDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
         let data = await userDatasCheck(userStatus);
 
         if (data.collection.length !== 0) {
           let collectionArray = [];
           data.collection.forEach((collect) => {
-            if (
-              collect.storeCollectionID === selectedDish.storeCollectionID &&
-              collect.name === selectedDish.name
-            ) {
+            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
               collectionArray.push(collect);
             }
           });
@@ -137,23 +126,17 @@ function Collection() {
             data: []
           });
         }
+        props.select(false);
       });
     }
     if (e.target.id === 'removeCollection') {
-      removeDishToCollectList(
-        userStatus.email,
-        selectedDish,
-        selectedCollect
-      ).then(async () => {
+      removeDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
         let data = await userDatasCheck(userStatus);
 
         if (data.collection.length !== 0) {
           let collectionArray = [];
           data.collection.forEach((collect) => {
-            if (
-              collect.storeCollectionID === selectedDish.storeCollectionID &&
-              collect.name === selectedDish.name
-            ) {
+            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
               collectionArray.push(collect);
             }
           });
@@ -170,6 +153,7 @@ function Collection() {
             });
           }
         }
+        props.select(false);
       });
     }
   }
@@ -189,10 +173,7 @@ function Collection() {
 
   return (
     <CollectBox onClick={handleCollectListClick} id="collect">
-      <InfoBold
-        style={{ color: 'black', padding: '10px 0 10px 0px' }}
-        id="collect"
-      >
+      <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }} id="collect">
         儲存至清單中
       </InfoBold>
       {want ? (

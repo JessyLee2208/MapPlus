@@ -48,6 +48,24 @@ const Itemtitle = styled.div`
   }
 `;
 
+const SubItemtitle = styled.div`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: ${({ color }) => (color ? '#' + color : '#000000')};
+  margin: 0;
+  padding: ${({ padding }) => (padding ? padding : '0')};
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 14px;
+  }
+`;
+
 const DescriptionContent = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 14px;
@@ -111,8 +129,17 @@ function ItemTitle(props) {
     </Itemtitle>
   );
 }
+
+function SubItemTitle(props) {
+  const { padding, color, id } = props;
+  return (
+    <SubItemtitle color={color} padding={padding} id={id} style={props.style} onClick={props.onClick}>
+      {props.children}
+    </SubItemtitle>
+  );
+}
 function Content(props) {
   const { padding } = props;
   return <Contentbody padding={padding}>{props.children}</Contentbody>;
 }
-export { PageTitle, Description, SubTitle, ItemTitle, Content };
+export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle };

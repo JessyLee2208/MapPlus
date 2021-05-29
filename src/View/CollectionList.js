@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { userDatasCheck, getStoreData, getMenuData } from '../Utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
+import { deviceSize } from '../responsive/responsive';
 
 const Collection = styled.div`
   position: relative;
@@ -13,17 +14,21 @@ const Collection = styled.div`
   flex-direction: column;
   overflow: auto;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
-  z-index: 10;
+  z-index: 6;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+  }
 `;
 const InformationBox = styled.div`
-  width: 435px;
+  width: auto;
 `;
 
 const BackBtn = styled.div`
   position: flex;
   display: flex;
   top: 0;
-  width: 435px;
+  width: auto;
   height: 80px;
   background: #4285f4;
   align-items: center;

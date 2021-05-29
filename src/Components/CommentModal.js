@@ -6,6 +6,8 @@ import Modal from './Modal';
 import { ButtonPrimaryFlat } from './UIComponents/Button';
 import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typography';
 import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
+import useMediaQuery from '../Utils/useMediaQuery';
+import { deviceSize } from '../responsive/responsive';
 
 const Separator = styled.div`
   width: auto;
@@ -19,7 +21,7 @@ const Textarea = styled.textarea`
   font-size: 16px;
   resize: none;
   border: ' 1px solid #efefef';
-  width: 97.2%;
+  width: calc(100% - 20px);
   height: 120px;
   outline: none;
   padding: 8px;
@@ -36,6 +38,12 @@ const RatingDiv = styled.div`
 const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    justify-content: center;
+    display: flex;
+    padding-top: 40px;
+  }
 `;
 
 const UpLoadImg = styled.div`
@@ -77,6 +85,8 @@ const ModalContent = styled.div`
 `;
 
 function CommentModal({ show }) {
+  const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
+
   const dispatch = useDispatch();
   let starArry = [];
   const userStatus = useSelector((state) => state.userStatus);
@@ -191,9 +201,15 @@ function CommentModal({ show }) {
             </UpLoadImg>
             {imgUrl ? imgUrl.map((url) => <Img src={url} alt=""></Img>) : <></>}
           </RatingDiv>
+
           <Footer>
-            <ButtonPrimaryFlat onClick={handleClose}>取消</ButtonPrimaryFlat>
-            <ButtonPrimaryFlat onClick={bindupLoadReview} style={{ marginLeft: '16px' }}>
+            <ButtonPrimaryFlat onClick={handleClose} style={{ width: isMobile ? '100%' : 'auto' }}>
+              取消
+            </ButtonPrimaryFlat>
+            <ButtonPrimaryFlat
+              onClick={bindupLoadReview}
+              style={{ marginLeft: '16px', width: isMobile ? '100%' : 'auto' }}
+            >
               評論
             </ButtonPrimaryFlat>
           </Footer>

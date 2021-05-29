@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { getDishData } from '../Utils/firebase';
 import { useDispatch } from 'react-redux';
+import { ItemTitle, SubItemTitle } from './UIComponents/Typography';
+import { deviceSize } from '../responsive/responsive';
 
 const menu = {
-  imageUrl:
-    'https://d1ralsognjng37.cloudfront.net/9fd74208-c3ad-4c23-b086-d60f4cdf7704',
+  imageUrl: 'https://d1ralsognjng37.cloudfront.net/9fd74208-c3ad-4c23-b086-d60f4cdf7704',
   name: '羊肉漢堡 Lamb Feta Burger',
   objectID: 'q6IotJzmP5wYK1jOwkXS',
   price: 300,
@@ -17,30 +18,26 @@ const menu = {
 };
 
 const Menu = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 80px 228px 90px;
   margin: 10px 15px 12px 18px;
   border: 1px solid #efefef;
   border-radius: 4px;
   align-items: center;
-  justify-content: space-between;
+  // justify-content: space-between;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    display: flax;
+  }
 `;
 
 const MenuInfo = styled.div`
+  display: block;
+  padding: 0px 4px 0 2px;
   flex-direction: column;
-`;
 
-const MenuTitle = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: black;
-  width: 228px;
-  padding-bottom: 4px;
+  flex-grow: 2;
+  align-items: center;
 `;
 
 const RatingTitle = styled.div`
@@ -89,17 +86,32 @@ const MenuImg = styled.img`
   margin: 10px;
   text-align: right;
   flex-shrink: 1;
-  object-fit: cover;
+  background: #f0f0f0;
+  border: 0;
+
+  flex-grow: 1;
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
-const WithoutImg = styled.div`
+const NoImg = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 8px;
-  margin: 10px 10px 10px 10px;
+  margin: 10px;
   text-align: right;
   flex-shrink: 1;
   background: #f0f0f0;
+
+  flex-grow: 1;
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 function SearchMenuCard(props) {
@@ -124,27 +136,25 @@ function SearchMenuCard(props) {
 
   return (
     <Menu onClick={click}>
-      <Box>
-        {props.content.imageUrl !== '' ? (
-          <MenuImg src={props.content.imageUrl}></MenuImg>
-        ) : (
-          <WithoutImg></WithoutImg>
-        )}
+      {/* <Box> */}
+      {props.content.imageUrl !== '' ? (
+        <MenuImg src={props.content.imageUrl} alt=""></MenuImg>
+      ) : (
+        <MenuImg src="/onphoto.png" alt=""></MenuImg>
+      )}
 
-        <MenuInfo>
-          <MenuTitle>{props.content.name}</MenuTitle>
-          <SubTitle>NT.{props.content.price}</SubTitle>
-        </MenuInfo>
-      </Box>
-      <MenuInfo style={{ paddingRight: '10px' }}>
+      <MenuInfo>
+        <SubItemTitle>{props.content.name}</SubItemTitle>
+        <SubTitle>NT.{props.content.price}</SubTitle>
+      </MenuInfo>
+      {/* </Box> */}
+      <Box style={{ flexDirection: 'column', paddingRight: '20px' }}>
         <Box style={{ justifyContent: 'center' }}>
-          <RatingTitle style={{ textAlign: 'center' }}>
-            {props.content.rating}
-          </RatingTitle>
+          <RatingTitle style={{ textAlign: 'center' }}>{props.content.rating}</RatingTitle>
           <RatingTitle style={{ color: '#868686' }}>/5</RatingTitle>
         </Box>
         <RatingDiv>{starArry}</RatingDiv>
-      </MenuInfo>
+      </Box>
     </Menu>
   );
 }

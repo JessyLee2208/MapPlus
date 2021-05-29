@@ -5,8 +5,9 @@ import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
 import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents/Button';
-import { PageTitle, Description, SubTitle } from '../Components/UIComponents/Typography';
+import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
+import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 
 const Separator = styled.div`
   width: auto;
@@ -26,6 +27,7 @@ const Dish = styled.div`
 
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: 100vw;
+    height: 100vh;
   }
 `;
 
@@ -45,19 +47,6 @@ const WithoutDishImg = styled.div`
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
-`;
-
-const DishTitle = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: black;
-  padding: 12px 0 12px 18px;
 `;
 
 const DishPrice = styled.p`
@@ -283,6 +272,12 @@ function DishDetail(props) {
     }
   }
 
+  function handleStatusCheck() {
+    if (select) {
+      selected(false);
+    }
+  }
+
   function handleCollectionList(e) {
     dispatch({
       type: 'setCollectionTitle',
@@ -357,9 +352,28 @@ function DishDetail(props) {
     });
   }
 
+  function handleBack() {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+
+    dispatch({
+      type: 'setCollectData',
+      data: []
+    });
+  }
+
   return (
-    <Dish>
-      {select ? <Collection></Collection> : <></>}
+    <Dish onClick={handleStatusCheck}>
+      <SearchSeparator></SearchSeparator>
+      <Back>
+        <SubItemTitle onClick={handleBack} color={'185ee6'} style={{ position: 'relative', bottom: '-56px' }}>
+          回到 {selectedDish.storeName}
+        </SubItemTitle>
+      </Back>
+      <SearchBg></SearchBg>
+      {select && <Collection select={selected}></Collection>}
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
       ) : (

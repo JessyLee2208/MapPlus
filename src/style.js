@@ -18,7 +18,7 @@ const SearchBox = styled.div`
   width: 376px;
   height: 48px;
   padding: 0 12px;
-  position: absolute;
+  position: fixed;
 
   fontsize: 14px;
   textoverflow: ellipses;
@@ -33,7 +33,7 @@ const SearchBox = styled.div`
   z-index: 5;
 
   @media screen and (max-width: ${deviceSize.mobile}px) {
-    width: calc(100vw - 60px);
+    width: calc(100vw - 140px);
     margin: 0px 8px;
   }
 `;
@@ -50,7 +50,7 @@ const SearchBoxShow = styled.div`
   fontsize: 14px;
   outline: none;
   textoverflow: ellipses;
-  position: absolute;
+  position: fixed;
   left: 8px;
   top: 12px;
   margin-left: 8px;
@@ -61,7 +61,7 @@ const SearchBoxShow = styled.div`
   z-index: 4;
 
   @media screen and (max-width: ${deviceSize.mobile}px) {
-    width: calc(100vw - 60px);
+    width: calc(100vw - 140px);
     margin: 0px 8px;
   }
 `;
@@ -99,6 +99,11 @@ const SearchBoxNoShadow = styled.div`
 
   border-bottom: 1px solid #efefef;
   z-index: 5;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 60px);
+    margin: 0px 8px;
+  }
 `;
 
 const InformationBox = styled.div`
@@ -137,25 +142,24 @@ const Frame = styled.div`
 
 const Back = styled.div`
   background: #ffffff;
-  border: 1px solid transparent;
+
   border-radius: 8px;
   width: 376px;
   height: 86px;
   padding: 0 12px;
 
-  boxshadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  fontsize: 14px;
-  outline: none;
-  textoverflow: ellipses;
   position: absolute;
   left: 8px;
-  top: 20px;
+  top: 12px;
   margin-left: 8px;
-  transition-property: background, box-shadow;
 
-  transition-duration: 0.3s;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0px rgb(0 0 0 / 2%);
   z-index: 4;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 60px);
+    margin: 0px 8px;
+  }
 `;
 
 const BackTitle = styled.p`
@@ -189,6 +193,10 @@ const SearchBg = styled.div`
   transition-duration: 0.3s;
 
   z-index: 2;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+  }
 `;
 
 export {

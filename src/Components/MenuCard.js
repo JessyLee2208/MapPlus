@@ -10,7 +10,7 @@ import { deviceSize } from '../responsive/responsive';
 const Menu = styled.div`
   background: #ffffff;
   display: grid;
-  grid-template-columns: 90px 226px 68px;
+  grid-template-columns: 90px 235px 68px;
 
   align-items: center;
   padding: 12px 20px;

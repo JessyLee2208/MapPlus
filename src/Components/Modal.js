@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { deviceSize } from '../responsive/responsive';
 
 const ModalContainer = styled.div`
   position: absolute;
@@ -29,6 +30,15 @@ const ModalContent = styled.article`
   // padding: 25px;
   box-sizing: border-box;
   overflow: auto;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    left: 0;
+    top: 50%;
+    border-radius: 0;
+  }
 `;
 
 const CloseButton = styled.span`
@@ -63,10 +73,8 @@ function Modal(props) {
 
   const animateOut = useCallback(async () => {
     await Promise.all([
-      contentRef.current.animate(contentAnimation, reverseAnimationSettings)
-        .finished,
-      overlayRef.current.animate(overlayAnimation, reverseAnimationSettings)
-        .finished
+      contentRef.current.animate(contentAnimation, reverseAnimationSettings).finished,
+      overlayRef.current.animate(overlayAnimation, reverseAnimationSettings).finished
     ]);
     setVisible(false);
   }, [contentAnimation, overlayAnimation, reverseAnimationSettings]);

@@ -6,8 +6,7 @@ import 'firebase/auth';
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: 'map-780c3.firebaseapp.com',
-  databaseURL:
-    'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
+  databaseURL: 'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'map-780c3',
   storageBucket: 'map-780c3.appspot.com',
   messagingSenderId: '325004892900',
@@ -135,8 +134,7 @@ const upLoadReview = async (ReviewData, DishData) => {
       return review.size;
     });
 
-  const averageRating =
-    (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
+  const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
 
   let userReviewData = {
     dishCollectionID: DishData.dishCollectionID,
