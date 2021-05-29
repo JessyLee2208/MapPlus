@@ -5,15 +5,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userReviewGet } from '../Utils/firebase';
 import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
 import { ItemTitle, Description } from './UIComponents/Typography';
+import { deviceSize } from '../responsive/responsive';
 
 const Menu = styled.div`
   background: #ffffff;
-  display: flex;
+  display: grid;
+  grid-template-columns: 90px 226px 68px;
+
   align-items: center;
   padding: 12px 20px;
 
   &:hover {
     background: #f7f7f7;
+  }
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    display: flax;
+    padding: 12px 16px;
   }
 `;
 
@@ -25,6 +32,11 @@ const MenuImg = styled.img`
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
 const NoImg = styled.div`
@@ -36,6 +48,11 @@ const NoImg = styled.div`
   flex-shrink: 1;
 
   background: #f0f0f0;
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
 const MenuPrice = styled.p`
@@ -64,18 +81,6 @@ const RatingDiv = styled.div`
   align-items: center;
   padding-bottom: 12px;
 `;
-const Info = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #5d6267;
-  margin: 1px 4px 0 0;
-`;
 
 function MenuCard(props) {
   let starArry = [];
@@ -93,9 +98,7 @@ function MenuCard(props) {
 
         if (userdata) {
           const target = userdata.find(
-            (data) =>
-              data.storeCollectionID === props.data.storeCollectionID &&
-              data.dishName === props.data.name
+            (data) => data.storeCollectionID === props.data.storeCollectionID && data.dishName === props.data.name
           );
 
           target ? setuserDatasCheck(target) : setuserDatasCheck(null);
@@ -136,11 +139,7 @@ function MenuCard(props) {
   return (
     <Menu id={props.data.name}>
       {props.data.imageUrl !== '' ? (
-        <MenuImg
-          alt=""
-          src={props.data.imageUrl}
-          id={props.data.name}
-        ></MenuImg>
+        <MenuImg alt="" src={props.data.imageUrl} id={props.data.name}></MenuImg>
       ) : (
         <NoImg id={props.data.name}></NoImg>
       )}
@@ -158,7 +157,9 @@ function MenuCard(props) {
             {starArry}
           </RatingDiv>
         </div>
-        <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
+        <ItemTitle id={props.data.name} color={'185ee6'}>
+          NT$ {props.data.price}
+        </ItemTitle>
       </InfoBox>
       {!userDatasCheck ? (
         <ButtonGhostRound type="button" onClick={callModal}>

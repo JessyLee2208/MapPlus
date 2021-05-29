@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { deviceSize } from '../../responsive/responsive';
 
 const ButtonprimaryRound = styled.button`
   border: none;
@@ -21,6 +22,13 @@ const ButtonprimaryRound = styled.button`
 
   &:focus {
     outline: none;
+  }
+
+  z-index: ${({ zIndex }) => (zIndex ? zIndex : 1)};
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 13px;
+    padding: 0.3em 1em;
   }
 `;
 
@@ -98,11 +106,16 @@ const ButtonghostRound = styled.button`
   &:focus {
     outline: none;
   }
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 13px;
+    padding: 0.3em 1em;
+  }
 `;
 
 function ButtonPrimaryRound(props) {
+  const { zIndex } = props;
   return (
-    <ButtonprimaryRound onClick={props.onClick} style={props.style}>
+    <ButtonprimaryRound onClick={props.onClick} style={props.style} zIndex={zIndex}>
       {props.children}
     </ButtonprimaryRound>
   );
@@ -131,9 +144,4 @@ function ButtonSecondaryFlat(props) {
   );
 }
 
-export {
-  ButtonPrimaryRound,
-  ButtonGhostRound,
-  ButtonPrimaryFlat,
-  ButtonSecondaryFlat
-};
+export { ButtonPrimaryRound, ButtonGhostRound, ButtonPrimaryFlat, ButtonSecondaryFlat };

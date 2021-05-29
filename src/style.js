@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { deviceSize } from './responsive/responsive';
 
 const SearchInput = styled.input`
   brackground: none;
@@ -12,7 +13,34 @@ const SearchInput = styled.input`
 
 const SearchBox = styled.div`
   background: #ffffff;
-  border: 1px solid transparent;
+
+  border-radius: 8px;
+  width: 376px;
+  height: 48px;
+  padding: 0 12px;
+  position: absolute;
+
+  fontsize: 14px;
+  textoverflow: ellipses;
+
+  left: 8px;
+  top: 12px;
+  margin-left: 8px;
+
+  transition-duration: 0.3s;
+  outline: none;
+
+  z-index: 5;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 60px);
+    margin: 0px 8px;
+  }
+`;
+
+const SearchBoxShow = styled.div`
+  background: #ffffff;
+
   border-radius: 8px;
   width: 376px;
   height: 48px;
@@ -24,12 +52,28 @@ const SearchBox = styled.div`
   textoverflow: ellipses;
   position: absolute;
   left: 8px;
-  top: 20px;
+  top: 12px;
   margin-left: 8px;
   transition-property: background, box-shadow;
 
   transition-duration: 0.3s;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0px rgb(0 0 0 / 2%);
+  z-index: 4;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 60px);
+    margin: 0px 8px;
+  }
+`;
+
+const Separator = styled.div`
+  min-height: 1px;
+  background: #efefef;
+  z-index: 5;
+  position: relative;
+  top: 58px;
+  left: 16px;
+  width: 402px;
   z-index: 5;
 `;
 
@@ -47,7 +91,7 @@ const SearchBoxNoShadow = styled.div`
   textoverflow: ellipses;
   position: absolute;
   left: 10px;
-  top: 20px;
+  top: 12px;
   margin-left: 8px;
   transition-property: background, box-shadow;
 
@@ -104,7 +148,7 @@ const Back = styled.div`
   outline: none;
   textoverflow: ellipses;
   position: absolute;
-  left: 10px;
+  left: 8px;
   top: 20px;
   margin-left: 8px;
   transition-property: background, box-shadow;
@@ -130,11 +174,7 @@ const BackTitle = styled.p`
 `;
 
 const SearchBg = styled.div`
-  background-image: linear-gradient(
-    to bottom,
-    rgb(19 19 19 / 50%),
-    transparent 70%
-  );
+  background-image: linear-gradient(to bottom, rgb(19 19 19 / 50%), transparent 70%);
   // border: 1px solid transparent;
   border-radius: 0px;
   width: 435px;
@@ -161,5 +201,7 @@ export {
   Back,
   BackTitle,
   SearchBoxNoShadow,
+  SearchBoxShow,
+  Separator,
   SearchBg
 };

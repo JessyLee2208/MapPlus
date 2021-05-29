@@ -1,35 +1,24 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-
-import { ButtonPrimaryFlat } from './Components/UIComponents/Button';
-
-import {
-  GoogleMap,
-  useLoadScript,
-  StandaloneSearchBox,
-  Marker
-} from '@react-google-maps/api';
+import useMediaQuery from './Utils/useMediaQuery';
+import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
+import { deviceSize } from './responsive/responsive';
+import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
 import {
   SearchInput,
-  InformationBox,
   SearchBox,
-  InformationBg,
   Frame,
   InformationBoxS,
   Back,
   BackTitle,
-  SearchBoxNoShadow,
+  Separator,
+  SearchBoxShow,
   SearchBg
 } from './style';
-import StoreCardL from './Components/StoreCardL';
+
 import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
-import {
-  getMenuData,
-  googleAccountSignIn,
-  googleAccountLogOut,
-  getStoreData
-} from './Utils/firebase';
+import { getMenuData, googleAccountSignIn, googleAccountLogOut, getStoreData } from './Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 import algoliasearch from 'algoliasearch';
@@ -39,6 +28,8 @@ import ReminderModal from './Components/ReminderModal';
 import CollectionList from './View/CollectionList';
 import CollectionMarker from './Components/Marker';
 
+import SearchList from './View/SearchList';
+
 import { getStoreUrl } from './Utils/fetch';
 
 const libraries = ['drawing', 'places'];
@@ -47,10 +38,7 @@ const center = {
   lng: 121.533053
 };
 
-const searchClient = algoliasearch(
-  process.env.REACT_APP_ALGOLIA_API_ID,
-  process.env.REACT_APP_ALGOLIA_SEARCH_KEY
-);
+const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
 // const host_name = 'https://hsiaohan.cf';
@@ -73,6 +61,7 @@ function App() {
   const selectedDish = useSelector((state) => state.selectedDish);
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const collectionCheck = useSelector((state) => state.collectionTitle);
+  const informationWindow = useSelector((state) => state.informationWindow);
 
   const mapRef = useRef();
   const searchRef = useRef();
@@ -86,24 +75,50 @@ function App() {
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
 
-  const [mapContainerStyle, setMapContainerStyle] = useState({
+  const mapContainerStyle = {
     width: '100vw',
     height: '100vh',
     position: 'absolute',
     top: 0,
     left: 0,
+    zIndex: informationWindow ? -10 : 3
+  };
+
+  const mapContainerStyleWithSearch = {
+    width: 'calc(100vw - 435px)',
+    height: '100vh',
+    position: 'absolute',
+    top: 0,
+    left: '435px',
     zIndex: -10
-  });
+  };
+
+  // const [mapContainerStyle, setMapContainerStyle] = useState({
+  //   width: '100vw',
+  //   height: '100vh',
+  //   position: 'absolute',
+  //   top: 0,
+  //   left: 0,
+  //   zIndex: -10
+  // });
+
+  const storeListExist =
+    storeData && storeData.length > 1 && selectedStore === null && selectedDish === null && !collectionCheck;
+  const storeDetailOnlyOneExist =
+    storeData && storeData.length === 1 && selectedStore === null && selectedDish === null && !collectionCheck;
+  const storeDetailAndMenuExist =
+    selectedStore !== null && menuData !== null && selectedDish === null && !collectionCheck;
+  const storeDetailExist = selectedStore !== null && selectedDish === null && !collectionCheck;
+  const dishDetailExist = selectedDish && !collectionCheck;
+  const smileStoreExist = selectedStore && !collectionCheck;
 
   useEffect(() => {
     if (mapStore.length > 1 && algoliaStore && mapStore) {
-      console.log(mapStore, algoliaStore);
+      // console.log(mapStore, algoliaStore);
 
       algoliaStore.forEach((store) => {
         if (store) {
-          const condition = mapStore.find(
-            (storename) => storename.name === store.name
-          );
+          const condition = mapStore.find((storename) => storename.name === store.name);
 
           if (!condition) {
             mapStore.unshift(store);
@@ -168,6 +183,8 @@ function App() {
     mapRef.current.panTo({ lat, lng });
   }, []);
 
+  const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
+
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
   const service = new window.google.maps.places.PlacesService(mapRef.current);
@@ -206,7 +223,7 @@ function App() {
     const places = searchRef.current.getPlaces();
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
-    console.log(places);
+
     places.forEach(async (place) => {
       let placeName = place.name.replaceAll('/', ' ');
       dispatch({
@@ -221,25 +238,23 @@ function App() {
       }
       // const placePromise = getStoreUrl(placeName, place);
       // console.log(placePromise);
-      const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(
-        async (res) => {
-          const a = await res.json();
+      const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
+        const a = await res.json();
 
-          return { ...place, deliver: a };
-        }
-      );
+        return { ...place, deliver: a };
+      });
 
       placePromises.push(placePromise);
     });
 
-    setMapContainerStyle({
-      width: 'calc(100vw - 435px)',
-      height: '100vh',
-      position: 'absolute',
-      top: 0,
-      left: '435px',
-      zIndex: -10
-    });
+    // setMapContainerStyle({
+    //   width: 'calc(100vw - 435px)',
+    //   height: '100vh',
+    //   position: 'absolute',
+    //   top: 0,
+    //   left: '435px',
+    //   zIndex: -10
+    // });
 
     mapRef.current.fitBounds(bounds);
 
@@ -270,24 +285,24 @@ function App() {
     });
   };
 
-  function handleStoreListClick(e) {
-    storeData.forEach((product) => {
-      if (e.target.id === product.name) {
-        let a = mapMarkers.find((marker) => e.target.id === marker.storename);
-        markerLoad.forEach((marker) => {
-          const timer = () => {
-            setTimeout(() => {
-              marker.mrker.setAnimation(null);
-            }, 400);
-          };
-          if (e.target.id === marker.storename) {
-            marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
-            timer();
-          }
-        });
-      }
-    });
-  }
+  // function handleStoreListClick(e) {
+  //   storeData.forEach((product) => {
+  //     if (e.target.id === product.name) {
+  //       let a = mapMarkers.find((marker) => e.target.id === marker.storename);
+  //       markerLoad.forEach((marker) => {
+  //         const timer = () => {
+  //           setTimeout(() => {
+  //             marker.mrker.setAnimation(null);
+  //           }, 400);
+  //         };
+  //         if (e.target.id === marker.storename) {
+  //           marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
+  //           timer();
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
 
   function handleBack() {
     dispatch({
@@ -335,7 +350,7 @@ function App() {
           lng: position.coords.longitude
         };
         setcurrentLoction(pos);
-        console.log(pos);
+        // console.log(pos);
         panTo({
           lat: position.coords.latitude,
           lng: position.coords.longitude
@@ -344,121 +359,80 @@ function App() {
     }
   }
 
+  function closeInformation() {
+    if (informationWindow) {
+      dispatch({
+        type: 'setInformationWindow',
+        data: false
+      });
+    } else {
+      dispatch({
+        type: 'setInformationWindow',
+        data: true
+      });
+    }
+  }
+
   return (
     <Frame>
-      {show && userStatus ? (
-        <CommentModal show={show}></CommentModal>
-      ) : (
-        <div></div>
-      )}
-      {show && !userStatus ? (
-        <ReminderModal show={show}></ReminderModal>
-      ) : (
-        <div></div>
-      )}
+      {show && userStatus && <CommentModal show={show}></CommentModal>}
+      {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
+
+      <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+        <SearchBox>
+          <SearchInput
+            type="text"
+            placeholder="搜尋 Google 地圖"
+            onChange={handleSearchText}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch(searchText);
+              }
+            }}
+          ></SearchInput>
+        </SearchBox>
+      </StandaloneSearchBox>
 
       {!selectedDish ? (
-        <StandaloneSearchBox
-          onLoad={onSearchLoad}
-          onPlacesChanged={hanldePlacesChanged}
-          bounds={bounds}
-        >
-          <SearchBox>
-            <SearchInput
-              type="text"
-              placeholder="搜尋 Google 地圖"
-              onChange={handleSearchText}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSearch(searchText);
-                }
-              }}
-            ></SearchInput>
-          </SearchBox>
-        </StandaloneSearchBox>
+        <>
+          <SearchBoxShow></SearchBoxShow>
+        </>
       ) : (
         <>
-          <StandaloneSearchBox
-            onLoad={onSearchLoad}
-            onPlacesChanged={hanldePlacesChanged}
-            bounds={bounds}
-          >
-            <SearchBoxNoShadow>
-              <SearchInput
-                type="text"
-                placeholder="搜尋 Google 地圖"
-              ></SearchInput>
-            </SearchBoxNoShadow>
-          </StandaloneSearchBox>
+          <Separator></Separator>
           <Back>
-            <BackTitle onClick={handleBack}>返回上一頁</BackTitle>
+            <BackTitle onClick={handleBack}>回到 {selectedDish.storeName}</BackTitle>
           </Back>
           <SearchBg></SearchBg>
         </>
       )}
 
-      {storeData.length > 1 &&
-      selectedStore === null &&
-      selectedDish === null &&
-      !collectionCheck ? (
-        <InformationBg>
-          <InformationBox onClick={handleStoreListClick}>
-            {storeData.map((product, key) => (
-              <StoreCardL
-                key={product.place_id}
-                product={product}
-                id={product.name}
-                service={service}
-              />
-            ))}
-          </InformationBox>
-        </InformationBg>
-      ) : storeData &&
-        storeData.length === 1 &&
-        selectedStore === null &&
-        selectedDish === null &&
-        !collectionCheck ? (
+      {storeListExist ? (
+        <SearchList markerLoad={markerLoad} service={service}></SearchList>
+      ) : storeDetailOnlyOneExist ? (
         storeData.map((product, index) => (
-          <StoreDetail
-            key={index}
-            product={product}
-            menu={menuData}
-          ></StoreDetail>
+          <StoreDetail key={index} product={product} menu={menuData} service={service}></StoreDetail>
         ))
-      ) : selectedStore !== null &&
-        menuData !== null &&
-        selectedDish === null &&
-        !collectionCheck ? (
+      ) : storeDetailAndMenuExist ? (
         <StoreDetail product={selectedStore} menu={menuData}></StoreDetail>
-      ) : selectedStore !== null &&
-        selectedDish === null &&
-        !collectionCheck ? (
+      ) : storeDetailExist ? (
         <StoreDetail product={selectedStore}></StoreDetail>
-      ) : selectedDish && !collectionCheck ? (
-        <DishDetail dishdata={selectedDish}></DishDetail>
+      ) : dishDetailExist ? (
+        <DishDetail dishdata={selectedDish} service={service}></DishDetail>
       ) : collectionCheck ? (
-        <CollectionList></CollectionList>
+        <CollectionList service={service}></CollectionList>
       ) : (
         <></>
       )}
 
-      {selectedStore && !collectionCheck ? (
-        <InformationBoxS onClick={handleStoreListClick}>
-          {storeData.length > 1 ? (
+      {smileStoreExist && (
+        <InformationBoxS>
+          {/* <InformationBoxS onClick={handleStoreListClick}>*/}
+          {storeData.length > 1 &&
             storeData.map((product, key) => (
-              <StoreCardS
-                key={key}
-                product={product}
-                id={product.name}
-                service={service}
-              />
-            ))
-          ) : (
-            <div></div>
-          )}
+              <StoreCardS key={key} product={product} id={product.name} service={service} />
+            ))}
         </InformationBoxS>
-      ) : (
-        <div></div>
       )}
       {!userStatus ? (
         <ButtonPrimaryFlat
@@ -480,46 +454,68 @@ function App() {
         </ButtonPrimaryFlat>
       )}
 
-      <ButtonPrimaryFlat
-        style={{ position: 'fixed', right: '62px', bottom: '24px' }}
-        onClick={getCurrentLoction}
-        panTo={panTo}
-      >
-        check position
-      </ButtonPrimaryFlat>
+      {!isMobile && (
+        <ButtonPrimaryFlat
+          style={{ position: 'fixed', right: '62px', bottom: '24px' }}
+          onClick={getCurrentLoction}
+          panTo={panTo}
+        >
+          check position
+        </ButtonPrimaryFlat>
+      )}
 
+      {isMobile && !informationWindow ? (
+        <ButtonPrimaryRound
+          style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+          onClick={closeInformation}
+          zIndex={4}
+        >
+          開啟map
+        </ButtonPrimaryRound>
+      ) : (
+        isMobile &&
+        informationWindow &&
+        storeListExist && (
+          <ButtonPrimaryRound style={{ position: 'fixed', right: '40%', bottom: '24px' }} onClick={closeInformation}>
+            關閉map
+          </ButtonPrimaryRound>
+        )
+      )}
 
       <GoogleMap
-        mapContainerStyle={mapContainerStyle}
+        mapContainerStyle={
+          storeListExist && !isMobile
+            ? mapContainerStyleWithSearch
+            : storeListExist && isMobile
+            ? mapContainerStyle
+            : mapContainerStyle
+        }
         zoom={16}
         center={center}
         onLoad={onMapLoad}
         onBoundsChanged={onBoundsChanged}
         style={{ padding: 0 }}
       >
-        {collectionMarks.length === 0 ? (
-          mapMarkers.map((marker, key) => (
-            <CollectionMarker
-              service={service}
-              marker={marker}
-              content={storeData}
-              key={key}
-              onLoad={markeronLoad}
-            ></CollectionMarker>
-          ))
-        ) : collectionCheck ? (
-          collectionMarks.map((marker, key) => (
-            <CollectionMarker
-              tag={collectionCheck}
-              marker={marker}
-              key={key}
-              onLoad={markeronLoad}
-            ></CollectionMarker>
-          ))
-        ) : (
-          <></>
-        )}
-        {currentLoction ? (
+        {collectionMarks.length === 0
+          ? mapMarkers.map((marker, key) => (
+              <CollectionMarker
+                service={service}
+                marker={marker}
+                content={storeData}
+                key={key}
+                onLoad={markeronLoad}
+              ></CollectionMarker>
+            ))
+          : collectionCheck &&
+            collectionMarks.map((marker, key) => (
+              <CollectionMarker
+                tag={collectionCheck}
+                marker={marker}
+                key={key}
+                onLoad={markeronLoad}
+              ></CollectionMarker>
+            ))}
+        {currentLoction && (
           <Marker
             position={{ lat: currentLoction.lat, lng: currentLoction.lng }}
             icon={{
@@ -527,8 +523,6 @@ function App() {
               scaledSize: new window.google.maps.Size(44, 44)
             }}
           ></Marker>
-        ) : (
-          <></>
         )}
       </GoogleMap>
     </Frame>

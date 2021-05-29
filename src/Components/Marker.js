@@ -12,7 +12,15 @@ function CollectionMarker(porps) {
 
   let url = '';
 
+  const timer = () => {
+    setTimeout(() => {
+      markerRef.current.setAnimation(null);
+    }, 470);
+  };
+
   const handleCollectionMarker = (marker) => {
+    markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+    timer();
     dispatch({
       type: 'setSelectedTab',
       data: 'information'
@@ -20,7 +28,7 @@ function CollectionMarker(porps) {
 
     collectionList.forEach((product) => {
       console.log(product);
-      if (marker.storename === product.name) {
+      if (porps.marker.storename === product.name) {
         const newMarker = {
           lat: product.geometry.lat,
           lng: product.geometry.lng,
@@ -72,12 +80,6 @@ function CollectionMarker(porps) {
     });
   };
 
-  const timer = () => {
-    setTimeout(() => {
-      markerRef.current.setAnimation(null);
-    }, 470);
-  };
-
   const handleMapMarker = (marker) => {
     markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
     timer();
@@ -88,7 +90,7 @@ function CollectionMarker(porps) {
     });
 
     porps.content.forEach((product) => {
-      if (marker.storename === product.name) {
+      if (porps.marker.storename === product.name) {
         getMorereDetail(product, porps.service).then((res) => {
           dispatch({
             type: 'setSelectedStore',
@@ -99,6 +101,16 @@ function CollectionMarker(porps) {
           type: 'setSelectedDish',
           data: null
         });
+
+        if (product.deliver.uberEatUrl) {
+          const callback = (data) => {
+            dispatch({
+              type: 'setMenuData',
+              data: data
+            });
+          };
+          getMenuData(product.name, callback);
+        }
       }
     });
   };
@@ -122,9 +134,7 @@ function CollectionMarker(porps) {
         url: url,
         scaledSize: new window.google.maps.Size(20, 30)
       }}
-      onClick={() => {
-        handleCollectionMarker(porps.marker);
-      }}
+      onClick={handleCollectionMarker}
       onLoad={(marker) => {
         porps.onLoad(marker, porps.marker.storename);
         markeronLoad(marker);

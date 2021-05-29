@@ -4,15 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
-import {
-  ButtonPrimaryRound,
-  ButtonGhostRound
-} from '../Components/UIComponents/Button';
-import {
-  PageTitle,
-  Description,
-  SubTitle
-} from '../Components/UIComponents/Typography';
+import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents/Button';
+import { PageTitle, Description, SubTitle } from '../Components/UIComponents/Typography';
+import { deviceSize } from '../responsive/responsive';
 
 const Separator = styled.div`
   width: auto;
@@ -29,6 +23,10 @@ const Dish = styled.div`
   flex-direction: column;
   overflow: auto;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+  }
 `;
 
 const DishImg = styled.img`
@@ -240,10 +238,7 @@ function DishDetail(props) {
         if (data && data.collection && data.collection.length !== 0) {
           let collectionArray = [];
           data.collection.forEach((collect) => {
-            if (
-              collect.storeCollectionID === selectedDish.storeCollectionID &&
-              collect.name === selectedDish.name
-            ) {
+            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
               collectionArray.push(collect);
             }
           });
@@ -303,9 +298,7 @@ function DishDetail(props) {
             <>
               <Icon src="/falg_select.png"></Icon>
               <CollectionBox>
-                <Info style={{ fontSize: '15px' }}>
-                  已儲存於「{data.collectName}」
-                </Info>
+                <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
                 <Info
                   style={{
                     fontWeight: '600',
@@ -323,9 +316,7 @@ function DishDetail(props) {
             <>
               <Icon src="/heart_select.png"></Icon>
               <CollectionBox>
-                <Info style={{ fontSize: '15px' }}>
-                  已儲存於「{data.collectName}」
-                </Info>
+                <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
                 <Info
                   style={{
                     fontWeight: '600',
@@ -343,9 +334,7 @@ function DishDetail(props) {
             <>
               <Icon src="/star_select.png"></Icon>
               <CollectionBox>
-                <Info style={{ fontSize: '15px' }}>
-                  已儲存於「{data.collectName}」
-                </Info>
+                <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
                 <Info
                   style={{
                     fontWeight: '600',
@@ -378,9 +367,7 @@ function DishDetail(props) {
       )}
       <TopDiv>
         <DishBox>
-          <PageTitle padding={'10px 0 10px 20px'}>
-            {selectedDish.name}
-          </PageTitle>
+          <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
 
           <RatingDiv>
             <DishPrice>NT${selectedDish.price}</DishPrice>
@@ -389,17 +376,9 @@ function DishDetail(props) {
           </RatingDiv>
         </DishBox>
         {collectData.length > 0 ? (
-          <CollectIcon
-            src="/collected.png"
-            id="collectIcon"
-            onClick={handleCollectIconClick}
-          ></CollectIcon>
+          <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
         ) : (
-          <CollectIcon
-            src="/collect.png"
-            id="collectIcon"
-            onClick={handleCollectIconClick}
-          ></CollectIcon>
+          <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
         )}
       </TopDiv>
 
@@ -408,9 +387,7 @@ function DishDetail(props) {
       {userReviewSet ? (
         <div>
           <CommentDiv>
-            <CommentTitle style={{ color: 'black', margin: '10px 0 10px 0' }}>
-              你的評論
-            </CommentTitle>
+            <CommentTitle style={{ color: 'black', margin: '10px 0 10px 0' }}>你的評論</CommentTitle>
           </CommentDiv>
           <ReviewCard review={userReviewSet}></ReviewCard>
         </div>
@@ -430,17 +407,11 @@ function DishDetail(props) {
 
       <Box>
         <SubTitle padding={'0'}>評論</SubTitle>
-        {allDishReviews ? (
-          <SubTitle padding={'0 0 0 8px'}>{allDishReviews.length}</SubTitle>
-        ) : (
-          <InfoBold>0</InfoBold>
-        )}
+        {allDishReviews ? <SubTitle padding={'0 0 0 8px'}>{allDishReviews.length}</SubTitle> : <InfoBold>0</InfoBold>}
       </Box>
       <Separator></Separator>
       {allDishReviews ? (
-        allDishReviews.map((review, key) => (
-          <ReviewCard review={review} key={key}></ReviewCard>
-        ))
+        allDishReviews.map((review, key) => <ReviewCard review={review} key={key}></ReviewCard>)
       ) : (
         <NoComment>目前沒有任何評論</NoComment>
       )}

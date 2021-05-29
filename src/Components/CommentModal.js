@@ -4,39 +4,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import renderStar from '../Utils/renderStar';
 import Modal from './Modal';
 import { ButtonPrimaryFlat } from './UIComponents/Button';
+import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typography';
+import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
 
-import {
-  upLoadPhotoToFirebase,
-  upLoadReview,
-  userReviewEdit
-} from '../Utils/firebase';
-
-const ModalTitle = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: black;
-  padding: 0px 0 12px 0px;
-  border-bottom: 1px solid #efefef;
-  margin-bottom: 16px;
-`;
-
-const SubTitle = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: black;
-  padding: 12px 0 8px 0px;
+const Separator = styled.div`
+  width: auto;
+  min-height: 1px;
+  background: #efefef;
+  margin: 14px 0 16px 0;
 `;
 
 const Textarea = styled.textarea`
@@ -45,23 +20,17 @@ const Textarea = styled.textarea`
   resize: none;
   border: ' 1px solid #efefef';
   width: 97.2%;
-  height: 140px;
+  height: 120px;
   outline: none;
   padding: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 `;
 
-const Discription = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #757575;
-  padding: 8px 0 0px 0px;
+const RatingDiv = styled.div`
+  display: flex;
+  margin: 0;
+  align-items: center;
+  padding: 6px 0 0 0;
 `;
 
 const Footer = styled.div`
@@ -69,14 +38,38 @@ const Footer = styled.div`
   justify-content: flex-end;
 `;
 
+const UpLoadImg = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+  border: 1px solid #d0d0d0;
+
+  &:hover {
+    background: #fbfbfb;
+    border: 1px solid #1973e8;
+  }
+
+  img {
+    width: 76%;
+    height: 76%;
+    object-fit: cover;
+  }
+`;
+
 const Img = styled.img`
   width: 60px;
   height: 60px;
   border-radius: 8px;
   margin: 0px 0px 0px 12px;
-  text-align: right;
+
   flex-shrink: 1;
-  object-fit: cover;
 `;
 
 const ModalContent = styled.div`
@@ -112,7 +105,9 @@ function CommentModal({ show }) {
   renderStar(starRating, starArry);
 
   function handleStarRating(e) {
-    setStarRating(e.target.id);
+    if (e.target.id !== '') {
+      setStarRating(e.target.id);
+    }
   }
 
   const bindUploadPhotoBtn = async (e) => {
@@ -167,20 +162,15 @@ function CommentModal({ show }) {
     <>
       <Modal visible={modalShow} onCancel={handleClose}>
         <ModalContent>
-          <ModalTitle>
-            {DishData.name}
-            <Discription>店家：{DishData.storeName}</Discription>
-          </ModalTitle>
-          <div>{userStatus.displayName}</div>
-          <div onClick={handleStarRating}>{starArry}</div>
+          <PageTitle padding={'0'}>{DishData.name}</PageTitle>
+          <Description padding={'4px 0 0 0'}>店家：{DishData.storeName}</Description>
+          <Separator></Separator>
+          <Content>{userStatus.displayName}</Content>
+          <RatingDiv onClick={handleStarRating}>{starArry}</RatingDiv>
 
-          <SubTitle>我要留言</SubTitle>
+          <SubTitle padding={'0 0 6px 0'}>我要留言</SubTitle>
           {!userReviewSet ? (
-            <Textarea
-              rows={3}
-              placeholder="分享你的心得或感想"
-              onChange={handleInputChange}
-            ></Textarea>
+            <Textarea rows={3} placeholder="分享你的心得或感想" onChange={handleInputChange}></Textarea>
           ) : (
             <Textarea rows={3} onChange={handleInputChange}>
               {userReviewSet.comment}
@@ -195,19 +185,15 @@ function CommentModal({ show }) {
             style={{ display: 'none' }}
             multiple
           ></input>
-          <img
-            src="/uploadbtn.png"
-            alt=""
-            style={{ border: ' 1px solid #D0D0D0', borderRadius: '6px' }}
-            onClick={handleInputClick}
-          ></img>
-          {imgUrl ? imgUrl.map((url) => <Img src={url}></Img>) : <></>}
+          <RatingDiv>
+            <UpLoadImg style={{ borderRadius: '6px' }} onClick={handleInputClick}>
+              <img src="/uploadbtn.png" alt=""></img>
+            </UpLoadImg>
+            {imgUrl ? imgUrl.map((url) => <Img src={url} alt=""></Img>) : <></>}
+          </RatingDiv>
           <Footer>
             <ButtonPrimaryFlat onClick={handleClose}>取消</ButtonPrimaryFlat>
-            <ButtonPrimaryFlat
-              onClick={bindupLoadReview}
-              style={{ marginLeft: '16px' }}
-            >
+            <ButtonPrimaryFlat onClick={bindupLoadReview} style={{ marginLeft: '16px' }}>
               評論
             </ButtonPrimaryFlat>
           </Footer>

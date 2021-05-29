@@ -3,11 +3,8 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import MenuCard from '../Components/MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  PageTitle,
-  Description,
-  SubTitle
-} from '../Components/UIComponents/Typography';
+import { PageTitle, Description, SubTitle } from '../Components/UIComponents/Typography';
+import { deviceSize } from '../responsive/responsive';
 
 const Store = styled.div`
   position: relative;
@@ -18,6 +15,10 @@ const Store = styled.div`
   flex-direction: column;
   overflow: auto;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+  }
 `;
 
 const StoreImg = styled.img`
@@ -173,9 +174,7 @@ function StoreDetail(props) {
   let websitesURL = '';
   let deliverSite = '';
   let deliverSiteTag = <div></div>;
-  let typesCheck =
-    props.product.types.includes('food') ||
-    props.product.types.includes('cafe');
+  let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
 
   const dispatch = useDispatch();
   const tab = useSelector((state) => state.selectedTab);
@@ -186,12 +185,8 @@ function StoreDetail(props) {
     const today = new Date().getDay();
     //
     if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(
-        5
-      );
-      OpenStatu = (
-        <Description color={'000000'}>營業中：{timestamp}</Description>
-      );
+      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
+      OpenStatu = <Description color={'000000'}>營業中：{timestamp}</Description>;
     } else {
       OpenStatu = (
         <Description color={'000000'} padding={'0 0 0 10px'}>
@@ -207,18 +202,13 @@ function StoreDetail(props) {
     websitesURL = props.product.website.split('/');
   }
 
-  if (
-    props.product.deliver.foodPandaUrl !== null ||
-    props.product.deliver.uberEatUrl !== null
-  ) {
+  if (props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null) {
     if (props.product.deliver.uberEatUrl) {
       deliverSite = props.product.deliver.uberEatUrl.split('/');
       deliverSiteTag = (
         <InfoBox>
           <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.uberEatUrl}>
-            {deliverSite[2]}
-          </InfoLink>
+          <InfoLink href={props.product.deliver.uberEatUrl}>{deliverSite[2]}</InfoLink>
         </InfoBox>
       );
     } else if (props.product.deliver.foodPandaUrl) {
@@ -226,9 +216,7 @@ function StoreDetail(props) {
       deliverSiteTag = (
         <InfoBox>
           <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.foodPandaUrl}>
-            {deliverSite[2]}
-          </InfoLink>
+          <InfoLink href={props.product.deliver.foodPandaUrl}>{deliverSite[2]}</InfoLink>
         </InfoBox>
       );
     }
@@ -247,9 +235,7 @@ function StoreDetail(props) {
           {renderStar(review.rating, reviewArry)}
           <StarBoxReview>
             {reviewArry}
-            <Description padding={'0 0 0 10px'}>
-              {review.relative_time_description}
-            </Description>
+            <Description padding={'0 0 0 10px'}>{review.relative_time_description}</Description>
           </StarBoxReview>
           <Description color={'000000'} padding={'8px 0px'}>
             {review.text}
@@ -302,19 +288,10 @@ function StoreDetail(props) {
         <Description>{props.product.user_ratings_total} 則評論</Description>
       </RatingDiv>
       <Separator></Separator>
-      {props.product.deliver.uberEatUrl ||
-      props.product.deliver.foodPandaUrl ? (
+      {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
         <TabBox>
-          {tab === 'information' ? (
-            <TabActive id="information">資訊</TabActive>
-          ) : (
-            <Tab id="information">資訊</Tab>
-          )}
-          {tab === 'menu' ? (
-            <TabActive id="menu">菜單</TabActive>
-          ) : (
-            <Tab id="menu">菜單</Tab>
-          )}
+          {tab === 'information' ? <TabActive id="information">資訊</TabActive> : <Tab id="information">資訊</Tab>}
+          {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
         </TabBox>
       ) : (
         <div></div>
@@ -330,8 +307,7 @@ function StoreDetail(props) {
               <CheckIcon src="/true.png"></CheckIcon>
               <Description>外帶</Description>
               <Description>．</Description>
-              {props.product.deliver.uberEatUrl ||
-              props.product.deliver.foodPandaUrl ? (
+              {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
                 <CheckIcon src="/true.png"></CheckIcon>
               ) : (
                 <CheckIcon src="/false.png"></CheckIcon>
@@ -345,9 +321,7 @@ function StoreDetail(props) {
           <InforList>
             <InfoBox>
               <Icon src="/location.png"></Icon>
-              <Description color={'000000'}>
-                {props.product.formatted_address}
-              </Description>
+              <Description color={'000000'}>{props.product.formatted_address}</Description>
             </InfoBox>
             <InfoBox>
               <Icon src="/time.png"></Icon>
@@ -357,9 +331,7 @@ function StoreDetail(props) {
             {props.product.website ? (
               <InfoBox>
                 <Icon src="/earth.png"></Icon>
-                <InfoLink href={props.product.website}>
-                  {websitesURL[2]}
-                </InfoLink>
+                <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
               </InfoBox>
             ) : (
               <div></div>
@@ -367,9 +339,7 @@ function StoreDetail(props) {
             {props.product.formatted_phone_number ? (
               <InfoBox>
                 <Icon src="/phone.png"></Icon>
-                <Description color={'000000'}>
-                  {props.product.formatted_phone_number}
-                </Description>
+                <Description color={'000000'}>{props.product.formatted_phone_number}</Description>
               </InfoBox>
             ) : (
               <div></div>
@@ -377,23 +347,15 @@ function StoreDetail(props) {
 
             <InfoBox>
               <Icon src="/plusCode.png"></Icon>
-              <Description color={'000000'}>
-                {props.product.plus_code.compound_code}
-              </Description>
+              <Description color={'000000'}>{props.product.plus_code.compound_code}</Description>
             </InfoBox>
           </InforList>
           <Separator></Separator>
           <SubTitle>評論摘要</SubTitle>
           {AllReviews}
         </div>
-      ) : props.menu !== undefined && props.menu !== null && tab === 'menu' ? (
-        props.menu.map((item) => (
-          <MenuCard
-            data={item}
-            key={item.dishCollectionID}
-            id={item.dishCollectionID}
-          />
-        ))
+      ) : props.menu && props.menu !== null && tab === 'menu' ? (
+        props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
       ) : (
         <div></div>
       )}

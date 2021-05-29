@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { deviceSize } from '../../responsive/responsive';
 
 const Pagetitle = styled.div`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
@@ -30,7 +31,6 @@ const Subtitle = styled.div`
 `;
 
 const Itemtitle = styled.div`
-  width: 210px;
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 16px;
   font-weight: 500;
@@ -42,6 +42,10 @@ const Itemtitle = styled.div`
   color: ${({ color }) => (color ? '#' + color : '#000000')};
   margin: 0;
   padding: ${({ padding }) => (padding ? padding : '0')};
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 14px;
+  }
 `;
 
 const DescriptionContent = styled.p`

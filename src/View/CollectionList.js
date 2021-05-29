@@ -47,22 +47,6 @@ const Info = styled.p`
   margin: 1px;
 `;
 
-const Data = {
-  collectName: '想去的地點',
-  dishCollectionID: '5HvockQsac640laKhn4A',
-  imageUrl:
-    'https://d1ralsognjng37.cloudfront.net/a01565f2-6fe1-48bf-ac1c-bcc3f0df97f3.jpeg',
-  name: '墨西哥BBQ煙燻豬肉捲餅',
-  plus_code: {
-    global_code: '7QQ32G88+95',
-    compound_code: '2G88+95 永和區 新北市'
-  },
-  price: 120,
-  rating: 0,
-  storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
-  storeName: 'miniB 手作漢堡',
-  user_ratings_total: 0
-};
 let unsubscribe;
 
 function CollectionList(props) {
@@ -91,9 +75,7 @@ function CollectionList(props) {
           });
           Promise.all(store).then((res) => {
             const set = new Set();
-            const result = res.filter((item) =>
-              !set.has(item.name) ? set.add(item.name) : false
-            );
+            const result = res.filter((item) => (!set.has(item.name) ? set.add(item.name) : false));
             setStoreArray(result);
             console.log(result);
             dispatch({
@@ -141,6 +123,7 @@ function CollectionList(props) {
     });
 
     collectionList.forEach((product) => {
+      console.log(product);
       if (e.target.id === product.name) {
         const newMarker = {
           lat: product.geometry.lat,
@@ -216,11 +199,7 @@ function CollectionList(props) {
           <Collection>
             <InformationBox onClick={handleStoreListClick}>
               {storeArray.map((product, key) => (
-                <StoreCardL
-                  key={product.place_id}
-                  product={product}
-                  id={product.name}
-                />
+                <StoreCardL key={product.place_id} product={product} id={product.name} service={props.service} />
               ))}
             </InformationBox>
           </Collection>
