@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import styled from 'styled-components';
 import useMediaQuery from './Utils/useMediaQuery';
 import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
-import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
 import { SearchInput, SearchBox, Frame, InformationBoxS, SearchBoxShow } from './style';
 
 import StoreCardS from './Components/StoreCardS';
@@ -22,6 +23,35 @@ import SearchList from './View/SearchList';
 import MapInforWindow from './Components/InfoWindow';
 
 import { getStoreUrl } from './Utils/fetch';
+
+const UserPositionCheck = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  right: 10px;
+  top: 64px;
+
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    position: fixed;
+    right: 10px;
+    top: 396px;
+    z-index: 6;
+  }
+`;
 
 const libraries = ['drawing', 'places'];
 const center = {
@@ -53,6 +83,7 @@ function App() {
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const informationWindow = useSelector((state) => state.informationWindow);
+  const storeHover = useSelector((state) => state.storeHover);
 
   const mapRef = useRef();
   const searchRef = useRef();
@@ -61,6 +92,7 @@ function App() {
   const [bounds, setBounds] = useState(null);
   const [mapStore, setMapStore] = useState([]);
   const [markerLoad, setMarkerLoad] = useState([]);
+
   const [currentLoction, setcurrentLoction] = useState(null);
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
@@ -86,7 +118,7 @@ function App() {
 
   const mapContainerStyleWithStore = {
     width: 'calc(100vw - 435px)',
-    height: 'calc(100vh - 242px)',
+    height: 'calc(100vh - 230px)',
     position: 'absolute',
     top: 0,
     left: '435px',
@@ -118,6 +150,7 @@ function App() {
 
   useEffect(() => {
     if (mapStore.length > 1 && algoliaStore && mapStore) {
+      // console.log(mapStore[0].plus_code.compound_code);
       // console.log(mapStore, algoliaStore);
 
       algoliaStore.forEach((store) => {
@@ -172,6 +205,18 @@ function App() {
       });
     }
   }, [collectionMarks]);
+
+  //
+  // useEffect(() => {
+  //   if (selectedStore) {
+  //     let selected = mapMarkers.find((marker) => marker.storename === selectedStore.name);
+  //     console.log(selected);
+  //     let condition = selected.storename === selectedStore.name;
+  //     setSelectedMarker(selected);
+  //     // let selected = mapMarkers.storename === selectedStore.name;
+  //   }
+  // }, [selectedStore]);
+  // console.log(selectedMarker);
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
@@ -267,7 +312,7 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-
+        console.log(res[0].deliver);
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
         } else {
@@ -310,6 +355,7 @@ function App() {
           type: 'setSearchMenu',
           data: hits
         });
+        console.log(hits);
 
         let algoliaSearchData = [];
         hits.forEach((hit) => {
@@ -317,6 +363,7 @@ function App() {
           algoliaSearchData.push(data);
         });
         Promise.all(algoliaSearchData).then((res) => {
+          console.log(res);
           setAlgoliaStore(res);
         });
       });
@@ -446,15 +493,13 @@ function App() {
         </ButtonPrimaryFlat>
       )}
 
-      {!isMobile && (
-        <ButtonPrimaryFlat
-          style={{ position: 'fixed', right: '62px', bottom: '24px' }}
-          onClick={getCurrentLoction}
-          panTo={panTo}
-        >
-          check position
-        </ButtonPrimaryFlat>
-      )}
+      <UserPositionCheck
+        onClick={getCurrentLoction}
+        panTo={panTo}
+        style={{ display: informationWindow ? 'none' : 'flex' }}
+      >
+        <img src="/current.png" alt=""></img>
+      </UserPositionCheck>
 
       <GoogleMap
         mapContainerStyle={
@@ -480,6 +525,13 @@ function App() {
                 content={storeData}
                 key={key}
                 onLoad={markeronLoad}
+                // icon={{
+                //   url:
+                //     selectedStore && selectedMarker && selectedMarker.storename === selectedStore.name
+                //       ? '/Selectedmarker.png'
+                //       : '/marker.png',
+                //   scaledSize: new window.google.maps.Size(20, 30)
+                // }}
               ></CollectionMarker>
             ))
           : collectionCheck &&
@@ -497,6 +549,28 @@ function App() {
             icon={{
               url: '/loction.png',
               scaledSize: new window.google.maps.Size(44, 44)
+            }}
+          ></Marker>
+        )}
+        {storeHover && (
+          <Marker
+            position={
+              storeHover.geometry.location
+                ? { lat: storeHover.geometry.location.lat(), lng: storeHover.geometry.location.lng() }
+                : { lat: storeHover.geometry.lat, lng: storeHover.geometry.lng }
+            }
+            icon={{
+              url: '/Selectedmarker.png',
+              scaledSize: new window.google.maps.Size(26, 38)
+            }}
+            animation={(marker) => {
+              const timer = () => {
+                setTimeout(() => {
+                  marker.setAnimation(null);
+                }, 470);
+              };
+              marker.setAnimation(window.google.maps.Animation.BOUNCE);
+              timer();
             }}
           ></Marker>
         )}

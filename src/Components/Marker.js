@@ -1,16 +1,27 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
 import getMorereDetail from '../Utils/getMoreDetail';
 
-function CollectionMarker(porps) {
+function CollectionMarker(props) {
   const dispatch = useDispatch();
   const collectionList = useSelector((state) => state.collectionList);
   const collectionMarks = useSelector((state) => state.collectionMarks);
+  const selectedStore = useSelector((state) => state.selectedStore);
+  // const [mapUrl, setMapUrl] = useState('/marker.png');
+
+  // let selected = props.marker.storename === selectedStore.name;
+
   const markerRef = useRef();
 
   let url = '';
+
+  // useEffect(() => {
+  //   if (selectedStore) {
+  //     setMapUrl('/Selectedmarker.png');
+  //   }
+  // }, [selectedStore]);
 
   const timer = () => {
     setTimeout(() => {
@@ -28,7 +39,7 @@ function CollectionMarker(porps) {
 
     collectionList.forEach((product) => {
       console.log(product);
-      if (porps.marker.storename === product.name) {
+      if (props.marker.storename === product.name) {
         const newMarker = {
           lat: product.geometry.lat,
           lng: product.geometry.lng,
@@ -82,6 +93,7 @@ function CollectionMarker(porps) {
 
   const handleMapMarker = (marker) => {
     markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+
     timer();
 
     dispatch({
@@ -89,15 +101,13 @@ function CollectionMarker(porps) {
       data: 'information'
     });
 
-    porps.content.forEach((product) => {
-      if (porps.marker.storename === product.name) {
-        console.log(porps.marker);
-        getMorereDetail(product, porps.service).then((res) => {
+    props.content.forEach((product) => {
+      if (props.marker.storename === product.name) {
+        getMorereDetail(product, props.service).then((res) => {
           dispatch({
             type: 'setSelectedStore',
             data: res
           });
-          console.log(res);
         });
         dispatch({
           type: 'setSelectedDish',
@@ -117,11 +127,11 @@ function CollectionMarker(porps) {
     });
   };
 
-  if (porps.tag === '想去的地點') {
+  if (props.tag === '想去的地點') {
     url = '/falg_marker.png';
-  } else if (porps.tag === '喜愛的地點') {
+  } else if (props.tag === '喜愛的地點') {
     url = '/heart_marker.png';
-  } else if (porps.tag === '已加星號的地點') {
+  } else if (props.tag === '已加星號的地點') {
     url = '/star_marker.png';
   }
   const markeronLoad = useCallback((marker) => {
@@ -131,24 +141,28 @@ function CollectionMarker(porps) {
 
   return collectionMarks.length !== 0 ? (
     <Marker
-      position={{ lat: porps.marker.lat, lng: porps.marker.lng }}
+      position={{ lat: props.marker.lat, lng: props.marker.lng }}
       icon={{
         url: url,
         scaledSize: new window.google.maps.Size(20, 30)
       }}
       onClick={handleCollectionMarker}
       onLoad={(marker) => {
-        porps.onLoad(marker, porps.marker.storename);
+        props.onLoad(marker, props.marker.storename);
         markeronLoad(marker);
       }}
     />
   ) : (
     <Marker
-      position={{ lat: porps.marker.lat, lng: porps.marker.lng }}
+      position={{ lat: props.marker.lat, lng: props.marker.lng }}
       onClick={handleMapMarker}
       onLoad={(marker) => {
-        porps.onLoad(marker, porps.marker.storename);
+        props.onLoad(marker, props.marker.storename);
         markeronLoad(marker);
+      }}
+      icon={{
+        url: '/marker.png',
+        scaledSize: new window.google.maps.Size(20, 30)
       }}
     />
   );

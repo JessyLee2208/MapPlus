@@ -25,29 +25,29 @@ function SearchList(props) {
   const storeData = useSelector((state) => state.storeData);
   const mapMarkers = useSelector((state) => state.mapMarkers);
 
-  function handleStoreListClick(e) {
-    storeData.forEach((product) => {
-      if (e.target.id === product.name) {
-        console.log(product);
-        let a = mapMarkers.find((marker) => e.target.id === marker.storename);
+  // function handleStoreListClick(e) {
+  //   storeData.forEach((product) => {
+  //     if (e.target.id === product.name) {
+  //       console.log(product);
+  //       let a = mapMarkers.find((marker) => e.target.id === marker.storename);
 
-        markerLoad.forEach((marker) => {
-          const timer = () => {
-            setTimeout(() => {
-              marker.mrker.setAnimation(null);
-            }, 400);
-          };
-          if (e.target.id === marker.storename) {
-            marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
-            timer();
-          }
-        });
-      }
-    });
-  }
+  //       markerLoad.forEach((marker) => {
+  //         const timer = () => {
+  //           setTimeout(() => {
+  //             marker.mrker.setAnimation(null);
+  //           }, 400);
+  //         };
+  //         if (e.target.id === marker.storename) {
+  //           marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
+  //           timer();
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
 
   return (
-    <InformationBox onClick={handleStoreListClick}>
+    <InformationBox>
       <SearchBg></SearchBg>
       {storeData.map((product) => (
         <StoreCardL key={product.place_id} product={product} id={product.name} service={service} />

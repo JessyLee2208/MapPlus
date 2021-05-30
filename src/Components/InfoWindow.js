@@ -18,11 +18,6 @@ const StoreImg = styled.img`
   object-fit: cover;
 `;
 
-const Img = styled.img`
-  width: 16px;
-  height: 16px;
-`;
-
 const RatingDiv = styled.div`
   display: flex;
   margin: 0;

@@ -19,13 +19,7 @@ const db = firebase.firestore();
 let provider = new firebase.auth.GoogleAuthProvider();
 
 const postStoreData = (storeData) => {
-  return db
-    .collection('store')
-    .doc(storeData.place_id)
-    .set(storeData)
-    .then(() => {
-      console.log('Document successfully written!');
-    });
+  return db.collection('store').doc(storeData.place_id).set(storeData);
 };
 
 function getMenuData(selectedStoreName, callback) {
@@ -42,23 +36,6 @@ function getMenuData(selectedStoreName, callback) {
       callback(promises);
     });
 }
-
-// function userReviewEdit(reviewData, newData) {
-//   return db
-//     .collection('review')
-//     .where('email', '==', reviewData.email)
-//     .where('dishCollectionID', '==', reviewData.dishCollectionID)
-//     .limit(1)
-//     .get()
-//     .then((data) => {
-//       let dataDocument = data.docs[0];
-//       dataDocument.ref.update({
-//         comment: newData.comment,
-//         imageUrl: newData.imageUrl,
-//         rating: newData.rating
-//       });
-//     });
-// }
 
 function getDishData(dishName) {
   return db
@@ -311,5 +288,4 @@ export {
   userReviewEdit,
   userReviewGet,
   getDishData
-  // GetDishCollection
 };

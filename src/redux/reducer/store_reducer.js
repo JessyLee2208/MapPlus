@@ -14,7 +14,8 @@ const initState = {
   collectData: [],
   searchMenu: null,
   userReviewSet: null,
-  informationWindow: true
+  informationWindow: true,
+  storeHover: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -168,6 +169,13 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         informationWindow: data
+      };
+    }
+
+    case 'setStoreHover': {
+      return {
+        ...preState,
+        storeHover: data
       };
     }
 

@@ -94,6 +94,24 @@ const Contentbody = styled.p`
   padding: ${({ padding }) => (padding ? padding : '0')};
 `;
 
+const LinkTag = styled.a`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: 0.5px;
+
+  text-align: center;
+  text-decoration: none;
+  color: ${({ color }) => (color ? '#' + color : '#185EE6')};
+  padding: ${({ padding }) => (padding ? padding : '0')};
+
+  margin: 0px;
+  flex-grow: 1;
+`;
+
 function PageTitle(props) {
   const { padding } = props;
   return (
@@ -142,4 +160,13 @@ function Content(props) {
   const { padding } = props;
   return <Contentbody padding={padding}>{props.children}</Contentbody>;
 }
-export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle };
+
+function Link(props) {
+  const { padding, color } = props;
+  return (
+    <LinkTag padding={padding} color={color}>
+      {props.children}
+    </LinkTag>
+  );
+}
+export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link };

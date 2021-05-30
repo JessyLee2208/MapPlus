@@ -25,6 +25,7 @@ const Menu = styled.div`
   border-radius: 4px;
   align-items: center;
   // justify-content: space-between;
+  background: #ffffff;
 
   @media screen and (max-width: ${deviceSize.mobile}px) {
     display: flax;
@@ -136,7 +137,6 @@ function SearchMenuCard(props) {
 
   return (
     <Menu onClick={click}>
-      {/* <Box> */}
       {props.content.imageUrl !== '' ? (
         <MenuImg src={props.content.imageUrl} alt=""></MenuImg>
       ) : (
@@ -147,7 +147,6 @@ function SearchMenuCard(props) {
         <SubItemTitle>{props.content.name}</SubItemTitle>
         <SubTitle>NT.{props.content.price}</SubTitle>
       </MenuInfo>
-      {/* </Box> */}
       <Box style={{ flexDirection: 'column', paddingRight: '20px' }}>
         <Box style={{ justifyContent: 'center' }}>
           <RatingTitle style={{ textAlign: 'center' }}>{props.content.rating}</RatingTitle>

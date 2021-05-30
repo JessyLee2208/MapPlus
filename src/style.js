@@ -46,7 +46,6 @@ const SearchBoxShow = styled.div`
   height: 48px;
   padding: 0 12px;
 
-  boxshadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   fontsize: 14px;
   outline: none;
   textoverflow: ellipses;
@@ -85,7 +84,6 @@ const SearchBoxNoShadow = styled.div`
   height: 48px;
   padding: 0 12px;
 
-  boxshadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   fontsize: 14px;
   outline: none;
   textoverflow: ellipses;
