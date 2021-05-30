@@ -91,11 +91,13 @@ function CollectionMarker(porps) {
 
     porps.content.forEach((product) => {
       if (porps.marker.storename === product.name) {
+        console.log(porps.marker);
         getMorereDetail(product, porps.service).then((res) => {
           dispatch({
             type: 'setSelectedStore',
             data: res
           });
+          console.log(res);
         });
         dispatch({
           type: 'setSelectedDish',

@@ -17,8 +17,6 @@ const InformationBox = styled.div`
   padding-top: 70px;
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: 100vw;
-    // height: 100vh;
-    // transition: all 150ms ease-in-out;
   }
 `;
 
@@ -30,7 +28,9 @@ function SearchList(props) {
   function handleStoreListClick(e) {
     storeData.forEach((product) => {
       if (e.target.id === product.name) {
+        console.log(product);
         let a = mapMarkers.find((marker) => e.target.id === marker.storename);
+
         markerLoad.forEach((marker) => {
           const timer = () => {
             setTimeout(() => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import useMediaQuery from './Utils/useMediaQuery';
 import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
-import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker, InfoWindow } from '@react-google-maps/api';
 import { SearchInput, SearchBox, Frame, InformationBoxS, SearchBoxShow } from './style';
 
 import StoreCardS from './Components/StoreCardS';
@@ -19,6 +19,7 @@ import CollectionList from './View/CollectionList';
 import CollectionMarker from './Components/Marker';
 
 import SearchList from './View/SearchList';
+import MapInforWindow from './Components/InfoWindow';
 
 import { getStoreUrl } from './Utils/fetch';
 
@@ -55,7 +56,7 @@ function App() {
 
   const mapRef = useRef();
   const searchRef = useRef();
-  // const markerRef = useRef();
+  // const markerRef = useRef()
 
   const [bounds, setBounds] = useState(null);
   const [mapStore, setMapStore] = useState([]);
@@ -104,6 +105,7 @@ function App() {
     top: '18px',
     zIndex: '4'
   };
+
   const storeListExist =
     storeData && storeData.length > 1 && selectedStore === null && selectedDish === null && !collectionCheck;
   const storeDetailOnlyOneExist =
@@ -366,7 +368,8 @@ function App() {
         </ButtonPrimaryRound>
       ) : (
         isMobile &&
-        informationWindow && (
+        informationWindow &&
+        (storeListExist || storeDetailExist || collectionCheck || dishDetailExist) && (
           <ButtonPrimaryRound
             style={{ position: 'fixed', right: '40%', bottom: '24px' }}
             onClick={closeInformation}
@@ -497,6 +500,7 @@ function App() {
             }}
           ></Marker>
         )}
+        {selectedStore && isMobile && <MapInforWindow></MapInforWindow>}
       </GoogleMap>
     </Frame>
   );

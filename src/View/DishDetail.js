@@ -60,7 +60,7 @@ const DishPrice = styled.p`
   text-align: left;
   color: #185ee6;
   margin: 1px;
-  // padding: 2px 0 12px 18px;
+
   padding-right: 20px;
 `;
 
@@ -109,7 +109,7 @@ const CommentTitle = styled.p`
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
-  color: 'black';
+  color: black;
   margin: 10px 0;
   border-bottom: 1px solid #efefef;
   padding-bottom: 10px;
@@ -125,11 +125,10 @@ const TopDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  // border-bottom: 1px solid #efefef;
 `;
 const DishBox = styled.div`
   display: flex;
-  // align-items: center;
+
   width: 380px;
   flex-direction: column;
 `;

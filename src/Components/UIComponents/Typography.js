@@ -26,7 +26,7 @@ const Subtitle = styled.div`
   letter-spacing: normal;
   text-align: left;
   color: ${({ color }) => (color ? '#' + color : '#000000')};
-  margin: 12px 0 0 0;
+  margin: ${({ margin }) => (margin ? margin : '12px 0 0 0')};
   padding: ${({ padding }) => (padding ? padding : '0 20px')};
 `;
 
@@ -113,9 +113,9 @@ function Description(props) {
 }
 
 function SubTitle(props) {
-  const { padding, color, id } = props;
+  const { padding, color, id, margin } = props;
   return (
-    <Subtitle color={color} padding={padding} id={id}>
+    <Subtitle color={color} padding={padding} id={id} margin={margin} style={props.style}>
       {props.children}
     </Subtitle>
   );
