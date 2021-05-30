@@ -1,8 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
-import MenuCard from './MenuCard';
+import MenuCard from '../Components/MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
+import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
+import { deviceSize } from '../responsive/responsive';
+import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 
 const Store = styled.div`
   position: relative;
@@ -13,38 +16,33 @@ const Store = styled.div`
   flex-direction: column;
   overflow: auto;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+  }
 `;
 
 const StoreImg = styled.img`
   width: 100%;
   height: 260px;
-
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
 `;
 
-const StoreTitle = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: black;
-  padding: 12px 0 12px 18px;
-`;
-
 const RatingDiv = styled.div`
   display: flex;
   margin: 0;
-  padding: 0 0 0 18px;
+
   align-items: center;
-  border-bottom: 1px solid #efefef;
   margin-bottom: 10px;
-  padding-bottom: 10px;
+  padding: 0 20px;
+`;
+
+const Separator = styled.div`
+  width: auto;
+  min-height: 1px;
+  background: #efefef;
 `;
 
 const StarBoxStore = styled.div`
@@ -59,7 +57,7 @@ const StarBoxReview = styled.div`
 `;
 
 const Icon = styled.img`
-  // width: 24px;
+  width: 24px;
   height: 24px;
   padding-right: 18px;
 `;
@@ -70,32 +68,6 @@ const CheckIcon = styled.img`
   padding-right: 2px;
 `;
 
-const Info = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #5d6267;
-  margin: 1px;
-`;
-
-const InfoDetail = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #1e1e1e;
-  margin: 1px;
-  letter-spacing: 0.5px;　
-`;
 const InfoLink = styled.a`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 15px;
@@ -113,32 +85,29 @@ const InfoLink = styled.a`
 
 const InfoBox = styled.div`
   display: flex;
-  padding: 8px 0 8px 18px;
+
   align-items: center;
+  padding: 8px 20px;
+
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
+
+const Box = styled.div`
+  display: flex;
+
+  align-items: center;
+  padding: 18px 20px;
 `;
 
 const InforList = styled.div`
-  border-bottom: 1px solid #efefef;
   border-top: 1px solid #efefef;
-  margin-top: 10px;
-  padding-top: 10px;
-`;
-
-const H3Title = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: black;
-  padding: 12px 0 0px 18px;
+  padding: 10px 0;
 `;
 
 const ReviewerBox = styled.div`
-  padding: 8px 16px 8px 18px;
+  padding: 8px 20px;
   align-items: center;
   flex-irection: 'column';
   border-bottom: 1px solid #efefef;
@@ -147,20 +116,19 @@ const ReviewerBox = styled.div`
 const AuthorBox = styled.div`
   display: flex;
   align-items: center;
-  padding: 14px 0 14px 0;
+  padding: 12px 0;
 `;
 
 const AuthorImg = styled.img`
-  // width: 32px;
+  width: 32px;
   height: 32px;
   padding-right: 12px;
 `;
 
 const TabBox = styled.div`
   display: flex;
-  padding-left 20px;
-  border-bottom: 1px solid #efefef;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  padding: 0 20px;
 `;
 const TabActive = styled.div`
   margin: 10px 20px 0px 0;
@@ -174,6 +142,8 @@ const TabActive = styled.div`
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
+
+  cursor: pointer;
 `;
 const Tab = styled.div`
   margin: 10px 20px 0px 0;
@@ -185,6 +155,8 @@ const Tab = styled.div`
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
+
+  cursor: pointer;
 `;
 
 const WithoutDishImg = styled.div`
@@ -197,17 +169,15 @@ const WithoutDishImg = styled.div`
 `;
 
 function StoreDetail(props) {
+  const storeData = useSelector((state) => state.storeData);
   let starArry = [];
 
   let OpenStatu = <div></div>;
   let websitesURL = '';
   let deliverSite = '';
   let deliverSiteTag = <div></div>;
-  let typesCheck =
-    props.product.types.includes('food') ||
-    props.product.types.includes('cafe');
-  // let showType = <div></div>;
-  // const [selectedTab, setSelectedTab] = React.useState('information');
+  let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
+
   const dispatch = useDispatch();
   const tab = useSelector((state) => state.selectedTab);
 
@@ -217,33 +187,30 @@ function StoreDetail(props) {
     const today = new Date().getDay();
     //
     if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(
-        5
-      );
-      OpenStatu = <InfoDetail>營業中：{timestamp}</InfoDetail>;
+      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
+      OpenStatu = <Description color={'000000'}>營業中：{timestamp}</Description>;
     } else {
-      OpenStatu = <InfoDetail>營業中</InfoDetail>;
+      OpenStatu = (
+        <Description color={'000000'} padding={'0 0 0 10px'}>
+          營業中
+        </Description>
+      );
     }
   } else if (props.product.business_status === 'CLOSED_TEMPORARILY') {
-    OpenStatu = <InfoDetail> 歇業中</InfoDetail>;
+    OpenStatu = <Description color={'000000'}>歇業中</Description>;
   }
 
   if (props.product.website) {
     websitesURL = props.product.website.split('/');
   }
-  // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
-  if (
-    props.product.deliver.foodPandaUrl !== null ||
-    props.product.deliver.uberEatUrl !== null
-  ) {
+
+  if (props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null) {
     if (props.product.deliver.uberEatUrl) {
       deliverSite = props.product.deliver.uberEatUrl.split('/');
       deliverSiteTag = (
         <InfoBox>
           <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.uberEatUrl}>
-            {deliverSite[2]}
-          </InfoLink>
+          <InfoLink href={props.product.deliver.uberEatUrl}>{deliverSite[2]}</InfoLink>
         </InfoBox>
       );
     } else if (props.product.deliver.foodPandaUrl) {
@@ -251,9 +218,7 @@ function StoreDetail(props) {
       deliverSiteTag = (
         <InfoBox>
           <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.foodPandaUrl}>
-            {deliverSite[2]}
-          </InfoLink>
+          <InfoLink href={props.product.deliver.foodPandaUrl}>{deliverSite[2]}</InfoLink>
         </InfoBox>
       );
     }
@@ -272,9 +237,11 @@ function StoreDetail(props) {
           {renderStar(review.rating, reviewArry)}
           <StarBoxReview>
             {reviewArry}
-            <Info> {review.relative_time_description}</Info>
+            <Description padding={'0 0 0 10px'}>{review.relative_time_description}</Description>
           </StarBoxReview>
-          <InfoDetail>{review.text}</InfoDetail>
+          <Description color={'000000'} padding={'8px 0px'}>
+            {review.text}
+          </Description>
         </ReviewerBox>
       );
       AllReviews.push(reviewer);
@@ -282,7 +249,6 @@ function StoreDetail(props) {
   }
 
   function handleClickEvent(e) {
-    // if(e.target.id ===)
     if (props.menu) {
       props.menu.forEach((dish) => {
         if (e.target.id === dish.name) {
@@ -295,13 +261,11 @@ function StoreDetail(props) {
     }
 
     if (e.target.id === 'information') {
-      // setSelectedTab('information');
       dispatch({
         type: 'setSelectedTab',
         data: 'information'
       });
     } else if (e.target.id === 'menu') {
-      // setSelectedTab('menu');
       dispatch({
         type: 'setSelectedTab',
         data: 'menu'
@@ -309,8 +273,27 @@ function StoreDetail(props) {
     }
   }
 
+  function handleBack() {
+    dispatch({
+      type: 'setSelectedStore',
+      data: null
+    });
+  }
+
   return (
     <Store onClick={handleClickEvent}>
+      {storeData.length > 1 && (
+        <>
+          <SearchSeparator></SearchSeparator>
+          <Back>
+            <SubItemTitle onClick={handleBack} color={'185ee6'} style={{ position: 'relative', bottom: '-56px' }}>
+              回到搜尋列表
+            </SubItemTitle>
+          </Back>
+          <SearchBg></SearchBg>
+        </>
+      )}
+
       {props.product.photos && props.product.photos.length !== 0 ? (
         <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>
       ) : props.product.photo ? (
@@ -319,51 +302,39 @@ function StoreDetail(props) {
         <WithoutDishImg></WithoutDishImg>
       )}
 
-      <StoreTitle>{props.product.name}</StoreTitle>
+      <PageTitle>{props.product.name}</PageTitle>
       <RatingDiv>
-        <Info>{props.product.rating}</Info>
+        <Description>{props.product.rating}</Description>
         <StarBoxStore>{starArry}</StarBoxStore>
-        <Info>{props.product.user_ratings_total} 則評論</Info>
+        <Description>{props.product.user_ratings_total} 則評論</Description>
       </RatingDiv>
-      {props.product.deliver.uberEatUrl ||
-      props.product.deliver.foodPandaUrl ? (
+      <Separator></Separator>
+      {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
         <TabBox>
-          {tab === 'information' ? (
-            <TabActive id="information">資訊</TabActive>
-          ) : (
-            <Tab id="information">資訊</Tab>
-          )}
-          {tab === 'menu' ? (
-            <TabActive id="menu">菜單</TabActive>
-          ) : (
-            <Tab id="menu">菜單</Tab>
-          )}
+          {tab === 'information' ? <TabActive id="information">資訊</TabActive> : <Tab id="information">資訊</Tab>}
+          {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
         </TabBox>
       ) : (
         <div></div>
       )}
-
+      <Separator></Separator>
       {tab === 'information' ? (
         <div>
           {typesCheck ? (
-            props.product.deliver.uberEatUrl ||
-            props.product.deliver.foodPandaUrl ? (
-              <InfoBox>
-                <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-                <Info>．</Info>
-                <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-                <Info>．</Info>
-                <CheckIcon src="/true.png"></CheckIcon> <Info>外送</Info>
-              </InfoBox>
-            ) : (
-              <InfoBox>
-                <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-                <Info>．</Info>
-                <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-                <Info>．</Info>
-                <CheckIcon src="/false.png"></CheckIcon> <Info>外送</Info>
-              </InfoBox>
-            )
+            <Box>
+              <CheckIcon src="/true.png"></CheckIcon>
+              <Description>內用</Description>
+              <Description>．</Description>
+              <CheckIcon src="/true.png"></CheckIcon>
+              <Description>外帶</Description>
+              <Description>．</Description>
+              {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+                <CheckIcon src="/true.png"></CheckIcon>
+              ) : (
+                <CheckIcon src="/false.png"></CheckIcon>
+              )}
+              <Description>外送</Description>
+            </Box>
           ) : (
             <div></div>
           )}
@@ -371,7 +342,7 @@ function StoreDetail(props) {
           <InforList>
             <InfoBox>
               <Icon src="/location.png"></Icon>
-              <InfoDetail>{props.product.formatted_address} </InfoDetail>
+              <Description color={'000000'}>{props.product.formatted_address}</Description>
             </InfoBox>
             <InfoBox>
               <Icon src="/time.png"></Icon>
@@ -381,9 +352,7 @@ function StoreDetail(props) {
             {props.product.website ? (
               <InfoBox>
                 <Icon src="/earth.png"></Icon>
-                <InfoLink href={props.product.website}>
-                  {websitesURL[2]}
-                </InfoLink>
+                <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
               </InfoBox>
             ) : (
               <div></div>
@@ -391,7 +360,7 @@ function StoreDetail(props) {
             {props.product.formatted_phone_number ? (
               <InfoBox>
                 <Icon src="/phone.png"></Icon>
-                <InfoDetail>{props.product.formatted_phone_number}</InfoDetail>
+                <Description color={'000000'}>{props.product.formatted_phone_number}</Description>
               </InfoBox>
             ) : (
               <div></div>
@@ -399,21 +368,15 @@ function StoreDetail(props) {
 
             <InfoBox>
               <Icon src="/plusCode.png"></Icon>
-              <InfoDetail>{props.product.plus_code.compound_code}</InfoDetail>
+              <Description color={'000000'}>{props.product.plus_code.compound_code}</Description>
             </InfoBox>
           </InforList>
-
-          <H3Title>評論摘要</H3Title>
+          <Separator></Separator>
+          <SubTitle>評論摘要</SubTitle>
           {AllReviews}
         </div>
-      ) : props.menu !== undefined && props.menu !== null && tab === 'menu' ? (
-        props.menu.map((item) => (
-          <MenuCard
-            data={item}
-            key={item.dishCollectionID}
-            id={item.dishCollectionID}
-          />
-        ))
+      ) : props.menu && props.menu !== null && tab === 'menu' ? (
+        props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
       ) : (
         <div></div>
       )}

@@ -1,11 +1,12 @@
-import firebase from 'firebase';
-import { useSelector } from 'react-redux';
+import firebase from 'firebase/app';
+import 'firebase/storage';
+import 'firebase/firestore';
+import 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: 'map-780c3.firebaseapp.com',
-  databaseURL:
-    'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
+  databaseURL: 'https://map-780c3-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'map-780c3',
   storageBucket: 'map-780c3.appspot.com',
   messagingSenderId: '325004892900',
@@ -18,17 +19,12 @@ const db = firebase.firestore();
 let provider = new firebase.auth.GoogleAuthProvider();
 
 const postStoreData = (storeData) => {
-  return db
-    .collection('store')
-    .doc(storeData.place_id)
-    .set(storeData)
-    .then(() => {
-      console.log('Document successfully written!');
-    });
+  return db.collection('store').doc(storeData.place_id).set(storeData);
 };
 
 function getMenuData(selectedStoreName, callback) {
-  db.collection('menu')
+  return db
+    .collection('menu')
     .where('storeName', '==', selectedStoreName)
     .onSnapshot((querySnapshot) => {
       const promises = [];
@@ -38,6 +34,20 @@ function getMenuData(selectedStoreName, callback) {
         promises.push(data);
       });
       callback(promises);
+    });
+}
+
+function getDishData(dishName) {
+  return db
+    .collection('menu')
+    .where('name', '==', dishName)
+    .limit(1)
+    .get()
+    .then((data) => {
+      const dishCollectionID = data.docs[0].id;
+      let dataDocument = data.docs[0].data();
+      const dishData = { ...dataDocument, dishCollectionID: dishCollectionID };
+      return dishData;
     });
 }
 
@@ -51,29 +61,35 @@ function getStoreData(collectionID) {
     });
 }
 
-const upLoadPhotoToFirebase = (e) => {
-  let file = e.target.files[0];
+const upLoadPhotoToFirebase = (e, newPhotoArray) => {
+  let files = e.target.files;
 
-  let storageRef = firebase.storage().ref('img/' + file.name);
+  let filesArr = Object.values(files);
+  let promises = [];
+  filesArr.forEach((file) => {
+    let storageRef = firebase.storage().ref('img/' + file.name);
+    let task = storageRef.put(file);
 
-  let task = storageRef.put(file);
-  return new Promise((res, rej) => {
-    task.on(
-      firebase.storage.TaskEvent.STATE_CHANGED,
-      (snapshot) => {},
-      (error) => {
-        console.log('error');
-      },
-      () => {
-        let URL = task.snapshot.ref.getDownloadURL();
-        res(URL);
-      }
-    );
+    const photoRes = new Promise((res, rej) => {
+      task.on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        (snapshot) => {},
+        (error) => {
+          console.log('error');
+        },
+        () => {
+          res(task.snapshot.ref.getDownloadURL());
+        }
+      );
+    });
+    promises.push(photoRes);
   });
+  return promises;
 };
 
-function getMenuReviews(DishData, callback) {
-  db.collection('review')
+function getAllDishReviews(DishData, callback) {
+  return db
+    .collection('review')
     .where('dishCollectionID', '==', DishData.dishCollectionID)
 
     .onSnapshot((querySnapshot) => {
@@ -95,8 +111,7 @@ const upLoadReview = async (ReviewData, DishData) => {
       return review.size;
     });
 
-  const averageRating =
-    (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
+  const averageRating = (Number(DishData.rating) + Number(ReviewData.rating)) / (reviewsCount + 1);
 
   let userReviewData = {
     dishCollectionID: DishData.dishCollectionID,
@@ -161,7 +176,7 @@ function removeDishToCollectList(usermail, selectedDish, collectList) {
 //1. caollback
 // return => async awiat 接直
 
-function userReviewCheck(userStatus) {
+function userDatasCheck(userStatus) {
   return db
     .collection('user')
     .doc(userStatus.email)
@@ -185,6 +200,21 @@ function userReviewEdit(reviewData, newData) {
         imageUrl: newData.imageUrl,
         rating: newData.rating
       });
+    });
+}
+
+function userReviewGet(storeName, newData) {
+  return db
+    .collection('review')
+    .where('email', '==', newData.email)
+    .where('storeName', '==', storeName)
+    .get()
+    .then((data) => {
+      let newArray = [];
+      data.forEach((d) => {
+        newArray.push(d.data());
+      });
+      return newArray;
     });
 }
 
@@ -250,11 +280,12 @@ export {
   googleAccountSignIn,
   googleAccountStateChanged,
   googleAccountLogOut,
-  userReviewCheck,
-  getMenuReviews,
+  userDatasCheck,
+  getAllDishReviews,
   addDishToCollectList,
   removeDishToCollectList,
   getStoreData,
-  userReviewEdit
-  // GetDishCollection
+  userReviewEdit,
+  userReviewGet,
+  getDishData
 };

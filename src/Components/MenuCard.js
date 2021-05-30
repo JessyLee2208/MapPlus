@@ -2,53 +2,59 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { useDispatch, useSelector } from 'react-redux';
-import { userReviewCheck } from '../Utils/firebase';
+import { userReviewGet } from '../Utils/firebase';
+import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
+import { ItemTitle, Description } from './UIComponents/Typography';
+import { deviceSize } from '../responsive/responsive';
 
 const Menu = styled.div`
   background: #ffffff;
-  width: 100%;
+  display: grid;
+  grid-template-columns: 90px 235px 68px;
 
-  display: flex;
-  margin: 10px 0;
   align-items: center;
-  //
+  padding: 12px 20px;
+
+  &:hover {
+    background: #f7f7f7;
+  }
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    display: flax;
+    padding: 12px 16px;
+  }
 `;
 
 const MenuImg = styled.img`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px 10px 10px 18px;
+  // margin: 10px 10px 10px 18px;
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
 const NoImg = styled.div`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px 10px 10px 18px;
+  // margin: 10px 10px 10px 18px;
   text-align: right;
   flex-shrink: 1;
 
   background: #f0f0f0;
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
-const MenuTitle = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #1e1e1e;
-  margin: 0;
-  padding-bottom: 6px;
-  width: 224px;
-`;
 const MenuPrice = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 16px;
@@ -63,7 +69,7 @@ const MenuPrice = styled.p`
 `;
 const InfoBox = styled.div`
   display: block;
-  padding: 0px 0 0px 8px;
+  padding: 0px 8px 0 14px;
   flex-direction: column;
 
   flex-grow: 2;
@@ -73,79 +79,32 @@ const RatingDiv = styled.div`
   display: flex;
   margin: 0;
   align-items: center;
-  padding-bottom: 18px;
+  padding-bottom: 12px;
 `;
-const Info = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #5d6267;
-  margin: 1px 4px 0 0;
-`;
-
-const CommentBtn = styled.button`
-  border: 1px solid #185ee6;
-  background: #fff;
-  color: #185ee6;
-  //   width: 64px;
-  height: 2em;
-  border-radius: 25px;
-  padding: 0.1em 1em;
-  font-size: 15px;
-
-  margin-right: 20px;
-`;
-
-const EditorBtn = styled.button`
-  border: 1px solid #4285f4;
-  background: #4285f4;
-  color: #fff;
-  //   width: 64px;
-  height: 2em;
-  border-radius: 25px;
-  padding: 0.1em 1em;
-  font-size: 15px;
-
-  margin-right: 20px;
-`;
-
-const product = {
-  imageUrl:
-    'https://d1ralsognjng37.cloudfront.net/5739a5ec-6a96-4ef5-904c-839cc3b07419.jpeg',
-  name: '雙層享受牛肉黑麥堡',
-  price: 250,
-  storeCollectionID: 'ChIJS8TJdhypQjQRS8vJNQ1cFRM',
-  storeName: 'miniB 手作漢堡',
-  rating: 0,
-  user_ratings_total: 0
-};
 
 function MenuCard(props) {
   let starArry = [];
-  const [userReviewSet, setUserReviewSet] = React.useState(null);
+  const [userDatasCheck, setuserDatasCheck] = React.useState(null);
 
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
+
   let newRating = props.data.rating.toFixed(1);
 
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
-        let data = await userReviewCheck(userStatus);
-        if (data && data.reviews.length !== 0) {
-          const target = data.reviews.find(
-            (recoom) =>
-              recoom.storeCollectionID === props.data.storeCollectionID &&
-              recoom.dishName === props.data.name
+        let userdata = await userReviewGet(props.data.storeName, userStatus);
+
+        if (userdata) {
+          const target = userdata.find(
+            (data) => data.storeCollectionID === props.data.storeCollectionID && data.dishName === props.data.name
           );
 
-          target ? setUserReviewSet(target) : setUserReviewSet(null);
+          target ? setuserDatasCheck(target) : setuserDatasCheck(null);
         }
+
+        // }
       }
       reviewData();
     }
@@ -154,29 +113,33 @@ function MenuCard(props) {
   renderStar(props.data.rating, starArry);
 
   function callModal(e) {
-    if (userStatus) {
+    if (userDatasCheck) {
       dispatch({
-        type: 'setModalShow',
-        data: true
-      });
-
-      dispatch({
-        type: 'setSelectedDish',
-        data: props.data
+        type: 'setUserReviewSet',
+        data: userDatasCheck
       });
     } else {
-      console.log('Please login first');
+      dispatch({
+        type: 'setUserReviewSet',
+        data: null
+      });
     }
+
+    dispatch({
+      type: 'setModalShow',
+      data: true
+    });
+
+    dispatch({
+      type: 'setSelectedDish',
+      data: props.data
+    });
   }
 
   return (
     <Menu id={props.data.name}>
       {props.data.imageUrl !== '' ? (
-        <MenuImg
-          alt=""
-          src={props.data.imageUrl}
-          id={props.data.name}
-        ></MenuImg>
+        <MenuImg alt="" src={props.data.imageUrl} id={props.data.name}></MenuImg>
       ) : (
         <NoImg id={props.data.name}></NoImg>
       )}
@@ -184,22 +147,28 @@ function MenuCard(props) {
 
       <InfoBox id={props.data.name}>
         <div id={props.data.name}>
-          <MenuTitle id={props.data.name}>{props.data.name}</MenuTitle>
+          <ItemTitle id={props.data.name} padding={'0 0 6px 0'}>
+            {props.data.name}
+          </ItemTitle>
           <RatingDiv id={props.data.name}>
-            <Info id={props.data.name}>{newRating}</Info>
+            <Description padding={'0 6px 0 0'} id={props.data.name}>
+              {newRating}
+            </Description>
             {starArry}
           </RatingDiv>
         </div>
-        <MenuPrice id={props.data.name}>NT$ {props.data.price}</MenuPrice>
+        <ItemTitle id={props.data.name} color={'185ee6'}>
+          NT$ {props.data.price}
+        </ItemTitle>
       </InfoBox>
-      {!userReviewSet ? (
-        <CommentBtn type="button" onClick={callModal}>
+      {!userDatasCheck ? (
+        <ButtonGhostRound type="button" onClick={callModal}>
           評論
-        </CommentBtn>
+        </ButtonGhostRound>
       ) : (
-        <EditorBtn type="button" onClick={callModal}>
+        <ButtonPrimaryRound type="button" onClick={callModal}>
           編輯
-        </EditorBtn>
+        </ButtonPrimaryRound>
       )}
     </Menu>
   );

@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import SearchMenuCard from './SearchMenuCard';
+import { getStoreMenu } from '../Utils/fetch';
+import getMorereDetail from '../Utils/getMoreDetail';
+import { getMenuData } from '../Utils/firebase';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -21,18 +24,23 @@ const StoreTitle = styled.div`
   letter-spacing: normal;
   text-align: left;
   color: black;
-  padding-top: 6px;
+
   padding-bottom: 4px;
 `;
 const Store = styled.div`
   position: relative;
-  background: #ffffff;
   width: 100%;
-
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
 `;
+
+const StoreL = styled.div`
+  padding: 8px 0;
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
+
 const StoreImg = styled.img`
   width: 90px;
   height: 90px;
@@ -96,23 +104,23 @@ function StoreCard(props) {
   const searchMenu = useSelector((state) => state.searchMenu);
   const [menu, setmenu] = React.useState(null);
   let menuArray = [];
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    searchMenu.forEach((data) => {
-      if (data.storeName === props.product.name) {
-        menuArray.push(data);
-      }
-    });
-    setmenu(menuArray);
+    if (searchMenu) {
+      searchMenu.forEach((data) => {
+        if (data.storeName === props.product.name) {
+          menuArray.push(data);
+        }
+      });
+      setmenu(menuArray);
+    }
   }, []);
 
   renderStar(props.product.rating, starArry);
   // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
   if (typesCheck) {
-    if (
-      props.product.deliver.uberEatUrl ||
-      props.product.deliver.foodPandaUrl
-    ) {
+    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
       showType = (
         <RatingDiv id={props.id}>
           <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
@@ -137,7 +145,7 @@ function StoreCard(props) {
 
   if (props.product.price_level !== undefined) {
     for (let i = 0; i < props.product.price_level; i++) {
-      const leval = <Info>$</Info>;
+      const leval = <Info key={i}>$</Info>;
       priceLevel.push(leval);
     }
   }
@@ -149,9 +157,7 @@ function StoreCard(props) {
       const timestamp = props.product.peridos[today].close.time.substring(0, 2);
       OpenStatu = <Info id={props.id}>營業至 下午{timestamp}:00</Info>;
     } else if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(
-        5
-      );
+      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
       OpenStatu = <Info id={props.id}>營業中：{timestamp}</Info>;
     } else {
       OpenStatu = <Info id={props.id}>營業中</Info>;
@@ -160,8 +166,54 @@ function StoreCard(props) {
     OpenStatu = <Info></Info>;
   }
 
+  function handleStoreListClick(e) {
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedTab',
+      data: 'information'
+    });
+
+    if (e.target.name === 'menu') {
+      dispatch({
+        type: 'setSelectedTab',
+        data: 'menu'
+      });
+    }
+    getStoreMenu(props.product.deliver);
+    getMorereDetail(props.product, props.service).then((res) => {
+      dispatch({
+        type: 'setSelectedStore',
+        data: res
+      });
+    });
+    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
+      function setData(data) {
+        dispatch({
+          type: 'setMenuData',
+          data: data
+        });
+      }
+      getMenuData(props.product.name, setData);
+    } else {
+      dispatch({
+        type: 'setMenuData',
+        data: null
+      });
+    }
+  }
+
+  function handleHoverEvent() {
+    dispatch({
+      type: 'setStoreHover',
+      data: props.product
+    });
+  }
+
   return (
-    <div>
+    <StoreL onClick={handleStoreListClick} onMouseOver={handleHoverEvent}>
       <Store id={props.id}>
         <StoreInfo id={props.id}>
           <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
@@ -183,29 +235,15 @@ function StoreCard(props) {
           {showType}
         </StoreInfo>
         {props.product.photos && props.product.photos.length > 0 ? (
-          <StoreImg
-            alt=""
-            src={props.product.photos[0].getUrl()}
-            id={props.id}
-          ></StoreImg>
+          <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>
         ) : props.product.photo ? (
-          <StoreImg
-            alt=""
-            src={props.product.photo[0]}
-            id={props.id}
-          ></StoreImg>
+          <StoreImg alt="" src={props.product.photo[0]} id={props.id}></StoreImg>
         ) : (
           <WithoutImg></WithoutImg>
         )}
       </Store>
-      {menu ? (
-        menu.map((data, key) => (
-          <SearchMenuCard key={key} content={data}></SearchMenuCard>
-        ))
-      ) : (
-        <></>
-      )}
-    </div>
+      {menu ? menu.map((data, key) => <SearchMenuCard key={key} content={data}></SearchMenuCard>) : <></>}
+    </StoreL>
   );
 }
 

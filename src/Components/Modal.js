@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { deviceSize } from '../responsive/responsive';
 
 const ModalContainer = styled.div`
   position: absolute;
@@ -21,14 +22,23 @@ const Overlay = styled.div`
 const ModalContent = styled.article`
   position: fixed;
   top: 50%;
-  left: 10%;
+  left: 15%;
   background-color: white;
   border-radius: 8px;
-  width: 80%;
+  width: 70%;
   max-height: 80%;
-  padding: 25px;
+  // padding: 25px;
   box-sizing: border-box;
   overflow: auto;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    left: 0;
+    top: 50%;
+    border-radius: 0;
+  }
 `;
 
 const CloseButton = styled.span`
@@ -49,9 +59,7 @@ const reverseAnimationSettings = {
   ...animationSettings,
   direction: 'reverse'
 };
-/**
- * 弹窗组件
- */
+
 function Modal(props) {
   const [visible, setVisible] = useState(props.visible || false);
   const overlayRef = useRef(null);
@@ -65,15 +73,12 @@ function Modal(props) {
 
   const animateOut = useCallback(async () => {
     await Promise.all([
-      contentRef.current.animate(contentAnimation, reverseAnimationSettings)
-        .finished,
-      overlayRef.current.animate(overlayAnimation, reverseAnimationSettings)
-        .finished
+      contentRef.current.animate(contentAnimation, reverseAnimationSettings).finished,
+      overlayRef.current.animate(overlayAnimation, reverseAnimationSettings).finished
     ]);
     setVisible(false);
   }, [contentAnimation, overlayAnimation, reverseAnimationSettings]);
 
-  // 关闭弹窗
   const onCancel = () => {
     props.onCancel && props.onCancel();
   };

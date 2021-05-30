@@ -1,18 +1,32 @@
 const initState = {
   selectedTab: 'information',
   modalShow: false,
+  storeData: [],
+  mapMarkers: [],
+  selectedStore: null,
   selectedDish: null,
   userStatus: null,
+  collectionMarks: [],
+  collectionTitle: false,
+  collectionList: [],
   menuData: null,
   collect: false,
   collectData: [],
   searchMenu: null,
-  userReviewSet: null
+  userReviewSet: null,
+  informationWindow: true,
+  storeHover: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
 
   switch (type) {
+    case 'setSelectedStore':
+      return {
+        ...preState,
+        selectedStore: data
+      };
+
     case 'setSelectedTab':
       return {
         ...preState,
@@ -39,10 +53,9 @@ export default function storeReducer(preState = initState, action) {
         ...preState,
         menuData: data
       };
+
     case 'upDateMenuData': {
-      const index = preState.menuData.findIndex(
-        (data) => data.name === preState.selectedDish.name
-      );
+      const index = preState.menuData.findIndex((data) => data.name === preState.selectedDish.name);
       const newMenuData = [...preState.menuData];
       const NewObj = { ...newMenuData[index], rating: data };
       newMenuData[index] = NewObj;
@@ -86,6 +99,83 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         userReviewSet: data
+      };
+    }
+
+    case 'setCollectionMarks': {
+      return {
+        ...preState,
+        collectionMarks: data
+      };
+    }
+
+    case 'setCollectionTitle': {
+      return {
+        ...preState,
+        collectionTitle: data
+      };
+    }
+
+    case 'setCollectionList': {
+      return {
+        ...preState,
+        collectionList: data
+      };
+    }
+
+    case 'setStoreData': {
+      return {
+        ...preState,
+        storeData: data
+      };
+    }
+
+    case 'setMapMarkers': {
+      return {
+        ...preState,
+        mapMarkers: [
+          ...preState.mapMarkers,
+          {
+            lat: data.geometry.location.lat(),
+            lng: data.geometry.location.lng(),
+            storename: data.name
+          }
+        ]
+      };
+    }
+
+    case 'updateMapMarkers': {
+      return {
+        ...preState,
+        mapMarkers: [
+          ...preState.mapMarkers,
+          {
+            lat: data.geometry.lat,
+            lng: data.geometry.lng,
+            storename: data.name
+          }
+        ]
+      };
+    }
+
+    case 'initMapMarkers': {
+      return {
+        ...preState,
+        mapMarkers: data
+      };
+    }
+
+    case 'setInformationWindow': {
+      return {
+        ...preState,
+        informationWindow: data
+      };
+    }
+
+    case 'setStoreHover': {
+      return {
+        ...preState,
+        storeHover: data
       };
     }
 

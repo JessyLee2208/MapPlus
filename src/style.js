@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { deviceSize } from './responsive/responsive';
 
 const SearchInput = styled.input`
   brackground: none;
@@ -12,24 +13,66 @@ const SearchInput = styled.input`
 
 const SearchBox = styled.div`
   background: #ffffff;
-  border: 1px solid transparent;
+
   border-radius: 8px;
-  width: 392px;
+  width: 376px;
+  height: 48px;
+  padding: 0 12px;
+  position: fixed;
+
+  fontsize: 14px;
+  textoverflow: ellipses;
+
+  left: 8px;
+  top: 12px;
+  margin-left: 8px;
+
+  transition-duration: 0.3s;
+  outline: none;
+
+  z-index: 5;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 140px);
+    margin: 0px 8px;
+  }
+`;
+
+const SearchBoxShow = styled.div`
+  background: #ffffff;
+
+  border-radius: 8px;
+  width: 376px;
   height: 48px;
   padding: 0 12px;
 
-  boxshadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   fontsize: 14px;
   outline: none;
   textoverflow: ellipses;
-  position: absolute;
-  left: 10px;
-  top: 20px;
+  position: fixed;
+  left: 8px;
+  top: 12px;
   margin-left: 8px;
   transition-property: background, box-shadow;
 
   transition-duration: 0.3s;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0px rgb(0 0 0 / 2%);
+  z-index: 4;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 140px);
+    margin: 0px 8px;
+  }
+`;
+
+const Separator = styled.div`
+  min-height: 1px;
+  background: #efefef;
+  z-index: 5;
+  position: relative;
+  top: 58px;
+  left: 16px;
+  width: 402px;
   z-index: 5;
 `;
 
@@ -37,17 +80,16 @@ const SearchBoxNoShadow = styled.div`
   background: #ffffff;
   // border: 1px solid transparent;
   border-radius: 8px 8px 0 0;
-  width: 392px;
+  width: 376px;
   height: 48px;
   padding: 0 12px;
 
-  boxshadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   fontsize: 14px;
   outline: none;
   textoverflow: ellipses;
   position: absolute;
   left: 10px;
-  top: 20px;
+  top: 12px;
   margin-left: 8px;
   transition-property: background, box-shadow;
 
@@ -55,6 +97,11 @@ const SearchBoxNoShadow = styled.div`
 
   border-bottom: 1px solid #efefef;
   z-index: 5;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 60px);
+    margin: 0px 8px;
+  }
 `;
 
 const InformationBox = styled.div`
@@ -91,43 +138,26 @@ const Frame = styled.div`
   left:0
 `;
 
-const SingInBtn = styled.button`
-  position: fixed;
-  right: 62px;
-  top: 13px;
-
-  background: #4285f4;
-  color: #fff;
-  outline: none;
-  font-weight: bold;
-  display: inline-block;
-  line-height: 36px;
-  padding: 0 16px;
-  border-radius: 2px;
-  border: 0;
-`;
-
 const Back = styled.div`
   background: #ffffff;
-  border: 1px solid transparent;
+
   border-radius: 8px;
-  width: 392px;
+  width: 376px;
   height: 86px;
   padding: 0 12px;
 
-  boxshadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  fontsize: 14px;
-  outline: none;
-  textoverflow: ellipses;
   position: absolute;
-  left: 10px;
-  top: 20px;
+  left: 8px;
+  top: 12px;
   margin-left: 8px;
-  transition-property: background, box-shadow;
 
-  transition-duration: 0.3s;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0px rgb(0 0 0 / 2%);
   z-index: 4;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: calc(100vw - 60px);
+    margin: 0px 8px;
+  }
 `;
 
 const BackTitle = styled.p`
@@ -142,7 +172,7 @@ const BackTitle = styled.p`
   color: #185ee6;
   position: relative;
   left: 0px;
-  bottom: -56px;
+  bottom: -43px;
 `;
 
 const SearchBg = styled.div`
@@ -161,6 +191,10 @@ const SearchBg = styled.div`
   transition-duration: 0.3s;
 
   z-index: 2;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    width: 100vw;
+  }
 `;
 
 export {
@@ -170,9 +204,10 @@ export {
   InformationBg,
   Frame,
   InformationBoxS,
-  SingInBtn,
   Back,
   BackTitle,
   SearchBoxNoShadow,
+  SearchBoxShow,
+  Separator,
   SearchBg
 };
