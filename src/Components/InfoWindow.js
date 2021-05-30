@@ -38,10 +38,17 @@ function MapInforWindow() {
 
   useEffect(() => {
     if (selectedStore) {
-      setPosition({
-        lat: selectedStore.geometry.location.lat(),
-        lng: selectedStore.geometry.location.lng()
-      });
+      if (selectedStore.geometry.location) {
+        setPosition({
+          lat: selectedStore.geometry.location.lat(),
+          lng: selectedStore.geometry.location.lng()
+        });
+      } else {
+        setPosition({
+          lat: selectedStore.geometry.lat,
+          lng: selectedStore.geometry.lng
+        });
+      }
     }
   }, [selectedStore]);
 
@@ -65,7 +72,12 @@ function MapInforWindow() {
     <div onClick={handleInfoWindow}>
       <InfoWindow onLoad={onInfoWindowLoad} position={position}>
         <div style={divStyle}>
-          <StoreImg alt="" src={selectedStore.photos[0].getUrl()}></StoreImg>
+          {selectedStore.photos ? (
+            <StoreImg alt="" src={selectedStore.photos[0].getUrl()}></StoreImg>
+          ) : (
+            <StoreImg alt="" src={selectedStore.photo[0]}></StoreImg>
+          )}
+
           <SubTitle padding={'0'} margin={'0'} style={{ width: '160px' }}>
             {selectedStore.name}
           </SubTitle>

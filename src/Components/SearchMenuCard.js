@@ -123,7 +123,6 @@ function SearchMenuCard(props) {
 
   function click(e) {
     getDishData(props.content.name).then((res) => {
-      console.log(res);
       dispatch({
         type: 'setSelectedDish',
         data: res

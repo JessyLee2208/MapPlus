@@ -367,7 +367,17 @@ function DishDetail(props) {
     <Dish onClick={handleStatusCheck}>
       <SearchSeparator></SearchSeparator>
       <Back>
-        <SubItemTitle onClick={handleBack} color={'185ee6'} style={{ position: 'relative', bottom: '-56px' }}>
+        <SubItemTitle
+          onClick={handleBack}
+          color={'185ee6'}
+          style={{
+            position: 'relative',
+            bottom: '-56px',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden'
+          }}
+        >
           回到 {selectedDish.storeName}
         </SubItemTitle>
       </Back>

@@ -82,7 +82,7 @@ function CollectionList(props) {
             const set = new Set();
             const result = res.filter((item) => (!set.has(item.name) ? set.add(item.name) : false));
             setStoreArray(result);
-            console.log(result);
+
             dispatch({
               type: 'setCollectionList',
               data: result
@@ -128,7 +128,6 @@ function CollectionList(props) {
     });
 
     collectionList.forEach((product) => {
-      console.log(product);
       if (e.target.id === product.name) {
         const newMarker = {
           lat: product.geometry.lat,

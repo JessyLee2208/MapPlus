@@ -62,8 +62,8 @@ const center = {
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-// const host_name = 'https://hsiaohan.cf';
-const host_name = 'http://localhost:5000';
+const host_name = 'https://hsiaohan.cf';
+// const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -355,7 +355,6 @@ function App() {
           type: 'setSearchMenu',
           data: hits
         });
-        console.log(hits);
 
         let algoliaSearchData = [];
         hits.forEach((hit) => {
@@ -363,7 +362,6 @@ function App() {
           algoliaSearchData.push(data);
         });
         Promise.all(algoliaSearchData).then((res) => {
-          console.log(res);
           setAlgoliaStore(res);
         });
       });

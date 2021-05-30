@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
@@ -38,7 +38,6 @@ function CollectionMarker(props) {
     });
 
     collectionList.forEach((product) => {
-      console.log(product);
       if (props.marker.storename === product.name) {
         const newMarker = {
           lat: product.geometry.lat,

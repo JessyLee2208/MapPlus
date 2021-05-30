@@ -287,7 +287,7 @@ function StoreDetail(props) {
           <SearchSeparator></SearchSeparator>
           <Back>
             <SubItemTitle onClick={handleBack} color={'185ee6'} style={{ position: 'relative', bottom: '-56px' }}>
-              回到收尋列表
+              回到搜尋列表
             </SubItemTitle>
           </Back>
           <SearchBg></SearchBg>

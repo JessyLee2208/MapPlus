@@ -123,7 +123,6 @@ function CommentModal({ show }) {
   const bindUploadPhotoBtn = async (e) => {
     const url = upLoadPhotoToFirebase(e);
     Promise.all(url).then((res) => {
-      console.log(res);
       setImgUrl(res);
     });
   };
@@ -166,7 +165,6 @@ function CommentModal({ show }) {
   function handleInputClick() {
     ref.current.click();
   }
-  console.log(DishData);
 
   return (
     <>
