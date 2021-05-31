@@ -4,14 +4,12 @@ import useMediaQuery from './Utils/useMediaQuery';
 import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
 import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
-import { SearchInput, SearchBox, Frame, InformationBoxS, SearchBoxShow } from './style';
+import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 
-import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
 import { getMenuData, googleAccountSignIn, googleAccountLogOut, getStoreData } from './Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
-import getMorereDetail from './Utils/getMoreDetail';
 
 import algoliasearch from 'algoliasearch';
 import CommentModal from './Components/CommentModal';
@@ -150,6 +148,20 @@ function App() {
   const dishDetailExist = selectedDish && !collectionCheck;
   const smileStoreExist = selectedStore && !collectionCheck;
 
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+  }, []);
+  const onSearchLoad = useCallback((search) => {
+    searchRef.current = search;
+  }, []);
+  const markeronLoad = useCallback((marker, storename) => {
+    setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
+  }, []);
+
+  const panTo = useCallback(({ lat, lng }) => {
+    mapRef.current.panTo({ lat, lng });
+  }, []);
+
   useEffect(() => {
     if (mapStore.length > 1 && algoliaStore && mapStore) {
       // console.log(mapStore[0].plus_code.compound_code);
@@ -208,31 +220,23 @@ function App() {
     }
   }, [collectionMarks]);
 
-  //
-  // useEffect(() => {
-  //   if (selectedStore) {
-  //     let selected = mapMarkers.find((marker) => marker.storename === selectedStore.name);
-  //     console.log(selected);
-  //     let condition = selected.storename === selectedStore.name;
-  //     setSelectedMarker(selected);
-  //     // let selected = mapMarkers.storename === selectedStore.name;
-  //   }
-  // }, [selectedStore]);
-  // console.log(selectedMarker);
-
-  const onMapLoad = useCallback((map) => {
-    mapRef.current = map;
-  }, []);
-  const onSearchLoad = useCallback((search) => {
-    searchRef.current = search;
-  }, []);
-  const markeronLoad = useCallback((marker, storename) => {
-    setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
-  }, []);
-
-  const panTo = useCallback(({ lat, lng }) => {
-    mapRef.current.panTo({ lat, lng });
-  }, []);
+  useEffect(() => {
+    if (selectedStore) {
+      console.log(selectedStore);
+      if (selectedStore.geometry.lat) {
+        panTo({
+          lat: selectedStore.geometry.lat,
+          lng: selectedStore.geometry.lng
+        });
+      }
+      if (selectedStore.geometry.location) {
+        panTo({
+          lat: selectedStore.geometry.location.lat(),
+          lng: selectedStore.geometry.location.lng()
+        });
+      }
+    }
+  }, [selectedStore]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
@@ -328,25 +332,6 @@ function App() {
       }
     });
   };
-
-  // function handleStoreListClick(e) {
-  //   storeData.forEach((product) => {
-  //     if (e.target.id === product.name) {
-  //       let a = mapMarkers.find((marker) => e.target.id === marker.storename);
-  //       markerLoad.forEach((marker) => {
-  //         const timer = () => {
-  //           setTimeout(() => {
-  //             marker.mrker.setAnimation(null);
-  //           }, 400);
-  //         };
-  //         if (e.target.id === marker.storename) {
-  //           marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
-  //           timer();
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
 
   function handleSearchText(e) {
     setSearchText(e.target.value);
@@ -449,7 +434,7 @@ function App() {
       <SearchBoxShow></SearchBoxShow>
 
       {storeListExist ? (
-        <SearchList markerLoad={markerLoad} service={service}></SearchList>
+        <SearchList markerLoad={markerLoad} service={service} panTo={panTo}></SearchList>
       ) : storeDetailOnlyOneExist ? (
         storeData.map((product, index) => (
           <StoreDetail key={index} product={product} menu={menuData} service={service}></StoreDetail>
@@ -466,16 +451,7 @@ function App() {
         <></>
       )}
 
-      {smileStoreExist && (
-        <SearchListS service={service}></SearchListS>
-        // <InformationBoxS>
-        //   {/* <InformationBoxS onClick={handleStoreListClick}>*/}
-        //   {storeData.length > 1 &&
-        //     storeData.map((product, key) => (
-        //       <StoreCardS key={key} product={product} id={product.name} service={service} />
-        //     ))}
-        // </InformationBoxS>
-      )}
+      {smileStoreExist && <SearchListS service={service}></SearchListS>}
       {!userStatus ? (
         <ButtonPrimaryFlat
           onClick={(e) => {
@@ -528,13 +504,6 @@ function App() {
                 content={storeData}
                 key={key}
                 onLoad={markeronLoad}
-                // icon={{
-                //   url:
-                //     selectedStore && selectedMarker && selectedMarker.storename === selectedStore.name
-                //       ? '/Selectedmarker.png'
-                //       : '/marker.png',
-                //   scaledSize: new window.google.maps.Size(20, 30)
-                // }}
               ></CollectionMarker>
             ))
           : collectionCheck &&
@@ -555,28 +524,7 @@ function App() {
             }}
           ></Marker>
         )}
-        {storeHover && (
-          <Marker
-            position={
-              storeHover.geometry.location
-                ? { lat: storeHover.geometry.location.lat(), lng: storeHover.geometry.location.lng() }
-                : { lat: storeHover.geometry.lat, lng: storeHover.geometry.lng }
-            }
-            icon={{
-              url: '/Selectedmarker.png',
-              scaledSize: new window.google.maps.Size(26, 38)
-            }}
-            animation={(marker) => {
-              const timer = () => {
-                setTimeout(() => {
-                  marker.setAnimation(null);
-                }, 470);
-              };
-              marker.setAnimation(window.google.maps.Animation.BOUNCE);
-              timer();
-            }}
-          ></Marker>
-        )}
+
         {selectedStore && isMobile && <MapInforWindow></MapInforWindow>}
       </GoogleMap>
     </Frame>

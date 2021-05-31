@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
@@ -9,19 +9,13 @@ function CollectionMarker(props) {
   const collectionList = useSelector((state) => state.collectionList);
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const selectedStore = useSelector((state) => state.selectedStore);
-  // const [mapUrl, setMapUrl] = useState('/marker.png');
-
-  // let selected = props.marker.storename === selectedStore.name;
+  const storeHover = useSelector((state) => state.storeHover);
 
   const markerRef = useRef();
 
   let url = '';
 
-  // useEffect(() => {
-  //   if (selectedStore) {
-  //     setMapUrl('/Selectedmarker.png');
-  //   }
-  // }, [selectedStore]);
+  useEffect(() => {}, [storeHover, selectedStore]);
 
   const timer = () => {
     setTimeout(() => {
@@ -135,7 +129,6 @@ function CollectionMarker(props) {
   }
   const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;
-    // marker.setAnimation(window.google.maps.Animation.BOUNCE);
   }, []);
 
   return collectionMarks.length !== 0 ? (
@@ -143,7 +136,11 @@ function CollectionMarker(props) {
       position={{ lat: props.marker.lat, lng: props.marker.lng }}
       icon={{
         url: url,
-        scaledSize: new window.google.maps.Size(20, 30)
+        scaledSize: storeHover
+          ? storeHover.name === props.marker.storename
+            ? new window.google.maps.Size(26, 38)
+            : new window.google.maps.Size(20, 30)
+          : new window.google.maps.Size(20, 30)
       }}
       onClick={handleCollectionMarker}
       onLoad={(marker) => {
@@ -160,8 +157,26 @@ function CollectionMarker(props) {
         markeronLoad(marker);
       }}
       icon={{
-        url: '/marker.png',
-        scaledSize: new window.google.maps.Size(20, 30)
+        url:
+          selectedStore && storeHover
+            ? selectedStore.name === props.marker.storename || storeHover.name === props.marker.storename
+              ? '/Selectedmarker.png'
+              : '/marker.png'
+            : storeHover
+            ? storeHover.name === props.marker.storename
+              ? '/Selectedmarker.png'
+              : '/marker.png'
+            : '/marker.png',
+        scaledSize:
+          selectedStore && storeHover
+            ? selectedStore.name === props.marker.storename || storeHover.name === props.marker.storename
+              ? new window.google.maps.Size(26, 38)
+              : new window.google.maps.Size(20, 30)
+            : storeHover
+            ? storeHover.name === props.marker.storename
+              ? new window.google.maps.Size(26, 38)
+              : new window.google.maps.Size(20, 30)
+            : new window.google.maps.Size(20, 30)
       }}
     />
   );
