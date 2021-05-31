@@ -91,6 +91,7 @@ const MenuImg = styled.img`
   border: 0;
 
   flex-grow: 1;
+  object-fit: cover;
 
   @media screen and (max-width: ${deviceSize.mobileS}px) {
     width: 60px;

@@ -2,6 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/storage';
 import 'firebase/firestore';
 import 'firebase/auth';
+import { connectAdvanced } from 'react-redux';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -19,7 +20,14 @@ const db = firebase.firestore();
 let provider = new firebase.auth.GoogleAuthProvider();
 
 const postStoreData = (storeData) => {
-  return db.collection('store').doc(storeData.place_id).set(storeData);
+  console.log(storeData);
+  return db
+    .collection('store')
+    .doc(storeData.place_id)
+    .set(storeData)
+    .then(() => {
+      console.log('successfully upload');
+    });
 };
 
 function getMenuData(selectedStoreName, callback) {

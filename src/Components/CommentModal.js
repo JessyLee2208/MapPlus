@@ -139,17 +139,20 @@ function CommentModal({ show }) {
       imageUrl: imgUrl
     };
     if (!userReviewSet) {
-      upLoadReview(ReviewData, DishData).then((res) => {
-        dispatch({
-          type: 'upDateMenuData',
-          data: res
-        });
+      console.log(starRating);
+      if (starRating !== 0) {
+        upLoadReview(ReviewData, DishData).then((res) => {
+          dispatch({
+            type: 'upDateMenuData',
+            data: res
+          });
 
-        dispatch({
-          type: 'upDateSelectMenuData',
-          data: res
+          dispatch({
+            type: 'upDateSelectMenuData',
+            data: res
+          });
         });
-      });
+      }
     } else {
       userReviewEdit(userReviewSet, ReviewData);
     }

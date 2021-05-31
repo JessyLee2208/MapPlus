@@ -11,6 +11,7 @@ import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
 import { getMenuData, googleAccountSignIn, googleAccountLogOut, getStoreData } from './Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
+import getMorereDetail from './Utils/getMoreDetail';
 
 import algoliasearch from 'algoliasearch';
 import CommentModal from './Components/CommentModal';
@@ -20,6 +21,7 @@ import CollectionList from './View/CollectionList';
 import CollectionMarker from './Components/Marker';
 
 import SearchList from './View/SearchList';
+import SearchListS from './View/SearchListS';
 import MapInforWindow from './Components/InfoWindow';
 
 import { getStoreUrl } from './Utils/fetch';
@@ -62,8 +64,8 @@ const center = {
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-const host_name = 'https://hsiaohan.cf';
-// const host_name = 'http://localhost:5000';
+// const host_name = 'https://hsiaohan.cf';
+const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -312,7 +314,9 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        console.log(res[0].deliver);
+        console.log(res[0]);
+        console.log(res[0].photos[0].getUrl());
+
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
         } else {
@@ -463,13 +467,14 @@ function App() {
       )}
 
       {smileStoreExist && (
-        <InformationBoxS>
-          {/* <InformationBoxS onClick={handleStoreListClick}>*/}
-          {storeData.length > 1 &&
-            storeData.map((product, key) => (
-              <StoreCardS key={key} product={product} id={product.name} service={service} />
-            ))}
-        </InformationBoxS>
+        <SearchListS service={service}></SearchListS>
+        // <InformationBoxS>
+        //   {/* <InformationBoxS onClick={handleStoreListClick}>*/}
+        //   {storeData.length > 1 &&
+        //     storeData.map((product, key) => (
+        //       <StoreCardS key={key} product={product} id={product.name} service={service} />
+        //     ))}
+        // </InformationBoxS>
       )}
       {!userStatus ? (
         <ButtonPrimaryFlat
@@ -494,7 +499,7 @@ function App() {
       <UserPositionCheck
         onClick={getCurrentLoction}
         panTo={panTo}
-        style={{ display: informationWindow ? 'none' : 'flex' }}
+        style={{ display: informationWindow && isMobile ? 'none' : 'flex' }}
       >
         <img src="/current.png" alt=""></img>
       </UserPositionCheck>
