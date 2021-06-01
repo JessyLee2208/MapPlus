@@ -35,6 +35,7 @@ const Back = styled.div`
 
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0px rgb(0 0 0 / 2%);
   z-index: 4;
+  cursor: pointer;
 
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: calc(100vw - 140px);

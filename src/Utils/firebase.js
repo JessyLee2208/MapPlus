@@ -20,7 +20,6 @@ const db = firebase.firestore();
 let provider = new firebase.auth.GoogleAuthProvider();
 
 const postStoreData = (storeData) => {
-  console.log(storeData);
   return db
     .collection('store')
     .doc(storeData.place_id)

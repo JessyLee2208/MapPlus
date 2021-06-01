@@ -171,56 +171,33 @@ const WithoutDishImg = styled.div`
 function StoreDetail(props) {
   const storeData = useSelector((state) => state.storeData);
   let starArry = [];
-
-  let OpenStatu = <div></div>;
   let websitesURL = '';
   let deliverSite = '';
   let deliverSiteTag = <div></div>;
   let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
+  const deliverCheck = props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null;
 
   const dispatch = useDispatch();
   const tab = useSelector((state) => state.selectedTab);
+  let timestamp = '';
 
   renderStar(props.product.rating, starArry);
 
   if (props.product.opening_hours !== undefined) {
     const today = new Date().getDay();
-    //
     if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
-      OpenStatu = <Description color={'000000'}>營業中：{timestamp}</Description>;
-    } else {
-      OpenStatu = (
-        <Description color={'000000'} padding={'0 0 0 10px'}>
-          營業中
-        </Description>
-      );
+      timestamp = props.product.opening_hours.weekday_text[today].slice(5);
     }
-  } else if (props.product.business_status === 'CLOSED_TEMPORARILY') {
-    OpenStatu = <Description color={'000000'}>歇業中</Description>;
   }
-
   if (props.product.website) {
     websitesURL = props.product.website.split('/');
   }
 
-  if (props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null) {
+  if (deliverCheck) {
     if (props.product.deliver.uberEatUrl) {
       deliverSite = props.product.deliver.uberEatUrl.split('/');
-      deliverSiteTag = (
-        <InfoBox>
-          <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.uberEatUrl}>{deliverSite[2]}</InfoLink>
-        </InfoBox>
-      );
     } else if (props.product.deliver.foodPandaUrl) {
       deliverSite = props.product.deliver.foodPandaUrl.split('/');
-      deliverSiteTag = (
-        <InfoBox>
-          <Icon src="/car.png"></Icon>
-          <InfoLink href={props.product.deliver.foodPandaUrl}>{deliverSite[2]}</InfoLink>
-        </InfoBox>
-      );
     }
   }
 
@@ -309,18 +286,16 @@ function StoreDetail(props) {
         <Description>{props.product.user_ratings_total} 則評論</Description>
       </RatingDiv>
       <Separator></Separator>
-      {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+      {(props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) && (
         <TabBox>
           {tab === 'information' ? <TabActive id="information">資訊</TabActive> : <Tab id="information">資訊</Tab>}
           {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
         </TabBox>
-      ) : (
-        <div></div>
       )}
       <Separator></Separator>
       {tab === 'information' ? (
         <div>
-          {typesCheck ? (
+          {typesCheck && (
             <Box>
               <CheckIcon src="/true.png"></CheckIcon>
               <Description>內用</Description>
@@ -335,8 +310,6 @@ function StoreDetail(props) {
               )}
               <Description>外送</Description>
             </Box>
-          ) : (
-            <div></div>
           )}
 
           <InforList>
@@ -346,24 +319,47 @@ function StoreDetail(props) {
             </InfoBox>
             <InfoBox>
               <Icon src="/time.png"></Icon>
-              {OpenStatu}
+
+              {props.product.opening_hours !== undefined ? (
+                props.product.opening_hours.weekday_text ? (
+                  <Description color={'000000'}>營業中：{timestamp}</Description>
+                ) : (
+                  <Description color={'000000'} padding={'0 0 0 10px'}>
+                    營業中
+                  </Description>
+                )
+              ) : (
+                props.product.business_status === 'CLOSED_TEMPORARILY' && (
+                  <Description color={'000000'}>歇業中</Description>
+                )
+              )}
             </InfoBox>
-            {deliverSiteTag}
-            {props.product.website ? (
+
+            {deliverCheck && (
+              <InfoBox>
+                <Icon src="/car.png"></Icon>
+                <InfoLink
+                  href={
+                    props.product.deliver.uberEatUrl
+                      ? props.product.deliver.uberEatUrl
+                      : props.product.deliver.foodPandaUrl
+                  }
+                >
+                  {deliverSite[2]}
+                </InfoLink>
+              </InfoBox>
+            )}
+            {props.product.website && (
               <InfoBox>
                 <Icon src="/earth.png"></Icon>
                 <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
               </InfoBox>
-            ) : (
-              <div></div>
             )}
-            {props.product.formatted_phone_number ? (
+            {props.product.formatted_phone_number && (
               <InfoBox>
                 <Icon src="/phone.png"></Icon>
                 <Description color={'000000'}>{props.product.formatted_phone_number}</Description>
               </InfoBox>
-            ) : (
-              <div></div>
             )}
 
             <InfoBox>

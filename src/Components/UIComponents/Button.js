@@ -82,6 +82,27 @@ const ButtonsecondaryFlat = styled.button`
   }
 `;
 
+const ButtondisableFlat = styled.button`
+  border: none;
+  outline: none;
+
+  background: #d6d6d6;
+  color: #a5a5a5;
+
+  padding: 0.1em 1.2em;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 36px;
+  border-radius: 4px;
+
+  cursor: not-allowed;
+  // transition: all 150ms ease-in-out;
+
+  &:focus {
+    outline: none;
+  }
+`;
+
 const ButtonghostRound = styled.button`
   border: none;
   outline: none;
@@ -144,4 +165,12 @@ function ButtonSecondaryFlat(props) {
   );
 }
 
-export { ButtonPrimaryRound, ButtonGhostRound, ButtonPrimaryFlat, ButtonSecondaryFlat };
+function ButtonDisableFlat(props) {
+  return (
+    <ButtondisableFlat onClick={props.onClick} style={props.style}>
+      {props.children}
+    </ButtondisableFlat>
+  );
+}
+
+export { ButtonPrimaryRound, ButtonGhostRound, ButtonPrimaryFlat, ButtonSecondaryFlat, ButtonDisableFlat };

@@ -56,11 +56,7 @@ function ReminderModal() {
   }
 
   return (
-    <Modal
-      visible={modalShow}
-      onCancel={handleClose}
-      style={{ padding: '0px' }}
-    >
+    <Modal visible={modalShow} onCancel={handleClose} style={{ padding: '0px' }}>
       <TopBackground>
         <Img src="/profile.png" alt=""></Img>
         <Title>登入GOOGLE帳戶即可發表評論</Title>

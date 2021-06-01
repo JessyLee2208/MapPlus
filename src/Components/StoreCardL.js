@@ -32,6 +32,7 @@ const Store = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
 `;
 
 const StoreL = styled.div`
@@ -211,9 +212,15 @@ function StoreCard(props) {
       data: props.product
     });
   }
+  function handleHoverOutEvent() {
+    dispatch({
+      type: 'setStoreHover',
+      data: null
+    });
+  }
 
   return (
-    <StoreL onClick={handleStoreListClick} onMouseOver={handleHoverEvent}>
+    <StoreL onClick={handleStoreListClick} onMouseOver={handleHoverEvent} onMouseOut={handleHoverOutEvent}>
       <Store id={props.id}>
         <StoreInfo id={props.id}>
           <StoreTitle id={props.id}>{props.product.name}</StoreTitle>

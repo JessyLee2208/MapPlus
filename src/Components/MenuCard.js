@@ -143,7 +143,6 @@ function MenuCard(props) {
       ) : (
         <NoImg id={props.data.name}></NoImg>
       )}
-      {}
 
       <InfoBox id={props.data.name}>
         <div id={props.data.name}>

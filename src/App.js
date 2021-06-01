@@ -22,6 +22,8 @@ import SearchList from './View/SearchList';
 import SearchListS from './View/SearchListS';
 import MapInforWindow from './Components/InfoWindow';
 
+import Toast from './Components/Toast';
+
 import { getStoreUrl } from './Utils/fetch';
 
 const UserPositionCheck = styled.div`
@@ -83,7 +85,6 @@ function App() {
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const informationWindow = useSelector((state) => state.informationWindow);
-  const storeHover = useSelector((state) => state.storeHover);
 
   const mapRef = useRef();
   const searchRef = useRef();
@@ -97,6 +98,9 @@ function App() {
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
+
+  const [loginToast, setloginToast] = useState(false);
+  const [logOutToast, setlogOutToast] = useState(false);
 
   const mapContainerStyle = {
     width: '100vw',
@@ -146,7 +150,7 @@ function App() {
     selectedStore !== null && menuData !== null && selectedDish === null && !collectionCheck;
   const storeDetailExist = selectedStore !== null && selectedDish === null && !collectionCheck;
   const dishDetailExist = selectedDish && !collectionCheck;
-  const smileStoreExist = selectedStore && !collectionCheck;
+  const smileStoreExist = selectedStore && !collectionCheck && storeData.length > 1;
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
@@ -158,15 +162,8 @@ function App() {
     setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
   }, []);
 
-  const panTo = useCallback(({ lat, lng }) => {
-    mapRef.current.panTo({ lat, lng });
-  }, []);
-
   useEffect(() => {
     if (mapStore.length > 1 && algoliaStore && mapStore) {
-      // console.log(mapStore[0].plus_code.compound_code);
-      // console.log(mapStore, algoliaStore);
-
       algoliaStore.forEach((store) => {
         if (store) {
           const condition = mapStore.find((storename) => storename.name === store.name);
@@ -196,16 +193,17 @@ function App() {
           placeId: placeMarkers.place_id,
           fields: ['geometry']
         };
-
-        const c = new Promise((res, rej) => {
+        // console.log(placeMarkers);
+        const markerArray = new Promise((res, rej) => {
           service.getDetails(request, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
               const geometry = place.geometry;
+
               res({ ...placeMarkers, geometry: geometry });
             }
           });
         });
-        newPlaceArray.push(c);
+        newPlaceArray.push(markerArray);
       });
       Promise.all(newPlaceArray).then((res) => {
         res.forEach((view) => {
@@ -222,7 +220,6 @@ function App() {
 
   useEffect(() => {
     if (selectedStore) {
-      console.log(selectedStore);
       if (selectedStore.geometry.lat) {
         panTo({
           lat: selectedStore.geometry.lat,
@@ -237,6 +234,12 @@ function App() {
       }
     }
   }, [selectedStore]);
+
+  const panTo = useCallback(({ lat, lng }) => {
+    mapRef.current.panTo({ lat, lng });
+  }, []);
+
+  useEffect(() => {}, [storeData]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
@@ -291,8 +294,7 @@ function App() {
       } else {
         bounds.extend(place.geometry.location);
       }
-      // const placePromise = getStoreUrl(placeName, place);
-      // console.log(placePromise);
+
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
         const a = await res.json();
 
@@ -318,8 +320,8 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        console.log(res[0]);
-        console.log(res[0].photos[0].getUrl());
+        // console.log(res[0]);
+        // console.log(res[0].photos[0].getUrl());
 
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
@@ -390,6 +392,10 @@ function App() {
     }
   }
 
+  function a() {
+    console.log(loginToast);
+  }
+
   return (
     <Frame>
       {isMobile && !informationWindow ? (
@@ -414,9 +420,19 @@ function App() {
         )
       )}
 
+      {loginToast && userStatus && (
+        <Toast visible={loginToast} onCancel={() => setloginToast(!loginToast)}>
+          成功登入
+        </Toast>
+      )}
+      {logOutToast && !userStatus && (
+        <Toast visible={logOutToast} onCancel={() => setloginToast(!logOutToast)}>
+          成功登出
+        </Toast>
+      )}
+
       {show && userStatus && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
-
       <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
         <SearchBox>
           <SearchInput
@@ -432,7 +448,6 @@ function App() {
         </SearchBox>
       </StandaloneSearchBox>
       <SearchBoxShow></SearchBoxShow>
-
       {storeListExist ? (
         <SearchList markerLoad={markerLoad} service={service} panTo={panTo}></SearchList>
       ) : storeDetailOnlyOneExist ? (
@@ -446,16 +461,16 @@ function App() {
       ) : dishDetailExist ? (
         <DishDetail dishdata={selectedDish} service={service}></DishDetail>
       ) : collectionCheck ? (
-        <CollectionList service={service}></CollectionList>
+        <CollectionList service={service} panTo={panTo}></CollectionList>
       ) : (
         <></>
       )}
-
       {smileStoreExist && <SearchListS service={service}></SearchListS>}
       {!userStatus ? (
         <ButtonPrimaryFlat
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
+            setloginToast(!loginToast);
           }}
           style={!isMobile ? style : mobileStyle}
         >
@@ -465,13 +480,13 @@ function App() {
         <ButtonPrimaryFlat
           onClick={(e) => {
             googleAccountLogOut(e, dispatch);
+            setlogOutToast(!logOutToast);
           }}
           style={!isMobile ? style : mobileStyle}
         >
           登出
         </ButtonPrimaryFlat>
       )}
-
       <UserPositionCheck
         onClick={getCurrentLoction}
         panTo={panTo}
@@ -479,7 +494,6 @@ function App() {
       >
         <img src="/current.png" alt=""></img>
       </UserPositionCheck>
-
       <GoogleMap
         mapContainerStyle={
           storeListExist && !isMobile

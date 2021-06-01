@@ -83,7 +83,7 @@ const DescriptionContent = styled.p`
 const Contentbody = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 15px;
-  font-weight: 400;
+  font-weight: ${({ fontWeight }) => (fontWeight ? fontWeight : 400)};
   font-stretch: normal;
   font-style: normal;
   line-height: normal;
@@ -157,8 +157,12 @@ function SubItemTitle(props) {
   );
 }
 function Content(props) {
-  const { padding } = props;
-  return <Contentbody padding={padding}>{props.children}</Contentbody>;
+  const { padding, fontWeight, color } = props;
+  return (
+    <Contentbody padding={padding} fontWeight={fontWeight} color={color}>
+      {props.children}
+    </Contentbody>
+  );
 }
 
 function Link(props) {

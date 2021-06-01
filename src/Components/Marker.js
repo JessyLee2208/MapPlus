@@ -17,15 +17,15 @@ function CollectionMarker(props) {
 
   useEffect(() => {}, [storeHover, selectedStore]);
 
-  const timer = () => {
-    setTimeout(() => {
-      markerRef.current.setAnimation(null);
-    }, 470);
-  };
+  // const timer = () => {
+  //   setTimeout(() => {
+  //     markerRef.current.setAnimation(null);
+  //   }, 470);
+  // };
 
   const handleCollectionMarker = (marker) => {
-    markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
-    timer();
+    // markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+    // timer();
     dispatch({
       type: 'setSelectedTab',
       data: 'information'
@@ -85,9 +85,9 @@ function CollectionMarker(props) {
   };
 
   const handleMapMarker = (marker) => {
-    markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+    // markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
 
-    timer();
+    // timer();
 
     dispatch({
       type: 'setSelectedTab',
@@ -119,6 +119,8 @@ function CollectionMarker(props) {
       }
     });
   };
+  // selectedStore.name === props.marker.storename || storeHover.name === props.marker.storename
+  console.log(selectedStore, props.marker, storeHover);
 
   if (props.tag === '想去的地點') {
     url = '/falg_marker.png';
@@ -159,21 +161,29 @@ function CollectionMarker(props) {
       icon={{
         url:
           selectedStore && storeHover
-            ? selectedStore.name === props.marker.storename || storeHover.name === props.marker.storename
+            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
               ? '/Selectedmarker.png'
               : '/marker.png'
             : storeHover
-            ? storeHover.name === props.marker.storename
+            ? storeHover.place_id === props.marker.place_id
+              ? '/Selectedmarker.png'
+              : '/marker.png'
+            : selectedStore
+            ? selectedStore.place_id === props.marker.place_id
               ? '/Selectedmarker.png'
               : '/marker.png'
             : '/marker.png',
         scaledSize:
           selectedStore && storeHover
-            ? selectedStore.name === props.marker.storename || storeHover.name === props.marker.storename
+            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
             : storeHover
-            ? storeHover.name === props.marker.storename
+            ? storeHover.place_id === props.marker.place_id
+              ? new window.google.maps.Size(26, 38)
+              : new window.google.maps.Size(20, 30)
+            : selectedStore
+            ? selectedStore.place_id === props.marker.place_id
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
             : new window.google.maps.Size(20, 30)
