@@ -320,8 +320,8 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        // console.log(res[0]);
-        // console.log(res[0].photos[0].getUrl());
+        console.log(res[0]);
+        console.log(res[0].photos[0].getUrl());
 
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
@@ -352,6 +352,7 @@ function App() {
           const data = getStoreData(hit.storeCollectionID);
           algoliaSearchData.push(data);
         });
+        // setAlgoSearchData(algoliaSearchData);
         Promise.all(algoliaSearchData).then((res) => {
           setAlgoliaStore(res);
         });

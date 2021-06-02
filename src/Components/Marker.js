@@ -119,8 +119,6 @@ function CollectionMarker(props) {
       }
     });
   };
-  // selectedStore.name === props.marker.storename || storeHover.name === props.marker.storename
-  console.log(selectedStore, props.marker, storeHover);
 
   if (props.tag === '想去的地點') {
     url = '/falg_marker.png';
@@ -132,6 +130,8 @@ function CollectionMarker(props) {
   const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;
   }, []);
+
+  // console.log(storeHover, props.marker.place_id);
 
   return collectionMarks.length !== 0 ? (
     <Marker
@@ -165,7 +165,7 @@ function CollectionMarker(props) {
               ? '/Selectedmarker.png'
               : '/marker.png'
             : storeHover
-            ? storeHover.place_id === props.marker.place_id
+            ? storeHover.name === props.marker.storename
               ? '/Selectedmarker.png'
               : '/marker.png'
             : selectedStore
@@ -179,7 +179,7 @@ function CollectionMarker(props) {
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
             : storeHover
-            ? storeHover.place_id === props.marker.place_id
+            ? storeHover.name === props.marker.storename
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
             : selectedStore

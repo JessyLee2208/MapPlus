@@ -2,36 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { deviceSize } from '../../responsive/responsive';
 
-const ButtonprimaryRound = styled.button`
-  border: none;
-  outline: none;
-
-  background: #4285f4;
-  color: #fff;
-
-  padding: 0.3em 1.2em;
-  font-size: 15px;
-  border-radius: 25px;
-
-  cursor: pointer;
-  transition: all 150ms ease-in-out;
-
-  &:hover {
-    background: #3075e8;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  z-index: ${({ zIndex }) => (zIndex ? zIndex : 1)};
-
-  @media screen and (max-width: ${deviceSize.mobileS}px) {
-    font-size: 13px;
-    padding: 0.3em 1em;
-  }
-`;
-
 const ButtonprimaryFlat = styled.button`
   border: none;
   outline: none;
@@ -103,6 +73,36 @@ const ButtondisableFlat = styled.button`
   }
 `;
 
+const ButtonprimaryRound = styled.button`
+  border: none;
+  outline: none;
+
+  background: #4285f4;
+  color: #fff;
+
+  padding: 0.3em 1.2em;
+  font-size: 15px;
+  border-radius: 25px;
+
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+
+  &:hover {
+    background: #3075e8;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  z-index: ${({ zIndex }) => (zIndex ? zIndex : 1)};
+
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 13px;
+    padding: 0.3em 1em;
+  }
+`;
+
 const ButtonghostRound = styled.button`
   border: none;
   outline: none;
@@ -130,6 +130,45 @@ const ButtonghostRound = styled.button`
   @media screen and (max-width: ${deviceSize.mobileS}px) {
     font-size: 13px;
     padding: 0.3em 1em;
+  }
+`;
+
+const ButtonghostRoundWithIcon = styled.button`
+  border: none;
+  outline: none;
+  // width: 140px;
+
+  border: 1px solid #d1d4d9;
+  background: #fff;
+  color: #black;
+
+  padding: 0.5em 0.9em;
+  font-size: 15px;
+  border-radius: 25px;
+
+  display: flex;
+  align-items: center;
+
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+
+  margin: ${({ margin }) => (margin ? margin : 0)};
+
+  &:hover {
+    background: #eef0f1;
+  }
+
+  &:focus {
+    outline: none;
+  }
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 13px;
+    padding: 0.3em 1em;
+  }
+
+  img {
+    width: 14px;
+    margin-left: 4px;
   }
 `;
 
@@ -173,4 +212,21 @@ function ButtonDisableFlat(props) {
   );
 }
 
-export { ButtonPrimaryRound, ButtonGhostRound, ButtonPrimaryFlat, ButtonSecondaryFlat, ButtonDisableFlat };
+function ButtonGhostRoundIcon(props) {
+  const { src, margin } = props;
+  return (
+    <ButtonghostRoundWithIcon onClick={props.onClick} style={props.style} margin={margin}>
+      {props.children}
+      <img src={src} alt=""></img>
+    </ButtonghostRoundWithIcon>
+  );
+}
+
+export {
+  ButtonPrimaryRound,
+  ButtonGhostRound,
+  ButtonPrimaryFlat,
+  ButtonSecondaryFlat,
+  ButtonDisableFlat,
+  ButtonGhostRoundIcon
+};

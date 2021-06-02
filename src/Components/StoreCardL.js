@@ -215,7 +215,7 @@ function StoreCard(props) {
   function handleHoverOutEvent() {
     dispatch({
       type: 'setStoreHover',
-      data: null
+      data: props.product
     });
   }
 

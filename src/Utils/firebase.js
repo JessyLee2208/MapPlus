@@ -115,6 +115,7 @@ const upLoadReview = async (ReviewData, DishData) => {
     .where('dishCollectionID', '==', DishData.dishCollectionID)
     .get()
     .then((review) => {
+      // console.log(review.size);
       return review.size;
     });
 
@@ -147,7 +148,8 @@ const upLoadReview = async (ReviewData, DishData) => {
     .collection('menu')
     .doc(DishData.dishCollectionID)
     .update({
-      rating: reviewsCount !== 0 ? averageRating : Number(ReviewData.rating)
+      rating: reviewsCount !== 0 ? averageRating : Number(ReviewData.rating),
+      user_ratings_total: reviewsCount + 1
     })
     .then(() => {
       return reviewsCount !== 0 ? averageRating : Number(ReviewData.rating);
