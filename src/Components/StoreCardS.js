@@ -9,7 +9,6 @@ import { Description, Link } from './UIComponents/Typography';
 const StoreInfo = styled.div`
   display: flex;
   flex-direction: column;
-
   padding: 0 12px;
 `;
 
@@ -39,6 +38,7 @@ const Store = styled.div`
   border: 1px solid #efefef;
   margin: 20px 6px;
   border-radius: 8px;
+  cursor: pointer;
 
   &:hover {
     box-shadow: 0 0px 6px rgba(0, 0, 0, 0.15);
@@ -162,10 +162,21 @@ function StoreCardS(props, key) {
     }
   }
 
-  function handleHoverEvent() {
+  function handleHoverEvent(e) {
     dispatch({
       type: 'setStoreHover',
       data: props.product
+    });
+    e.stopPropagation();
+    props.icon(true);
+
+    //
+    // console.log(props.icon);
+  }
+  function handleHoverOutEvent() {
+    dispatch({
+      type: 'setStoreHover',
+      data: null
     });
   }
 
@@ -175,6 +186,7 @@ function StoreCardS(props, key) {
       onClick={handleStoreListClick}
       style={selected ? selectedStyle : { border: '1px solid #efefef' }}
       onMouseOver={handleHoverEvent}
+      onMouseOut={handleHoverOutEvent}
     >
       {props.product.photos && props.product.photos.length > 0 ? (
         <StoreImg

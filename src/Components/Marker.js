@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
@@ -9,29 +9,25 @@ function CollectionMarker(props) {
   const collectionList = useSelector((state) => state.collectionList);
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const selectedStore = useSelector((state) => state.selectedStore);
-  // const [mapUrl, setMapUrl] = useState('/marker.png');
+  const storeHover = useSelector((state) => state.storeHover);
 
-  // let selected = props.marker.storename === selectedStore.name;
+  // const [markerHover, setMarkerHover] = useState(false);
 
   const markerRef = useRef();
 
   let url = '';
 
-  // useEffect(() => {
-  //   if (selectedStore) {
-  //     setMapUrl('/Selectedmarker.png');
-  //   }
-  // }, [selectedStore]);
+  useEffect(() => {}, [storeHover, selectedStore]);
 
-  const timer = () => {
-    setTimeout(() => {
-      markerRef.current.setAnimation(null);
-    }, 470);
-  };
+  // const timer = () => {
+  //   setTimeout(() => {
+  //     markerRef.current.setAnimation(null);
+  //   }, 470);
+  // };
 
   const handleCollectionMarker = (marker) => {
-    markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
-    timer();
+    // markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+    // timer();
     dispatch({
       type: 'setSelectedTab',
       data: 'information'
@@ -91,9 +87,9 @@ function CollectionMarker(props) {
   };
 
   const handleMapMarker = (marker) => {
-    markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
+    // markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
 
-    timer();
+    // timer();
 
     dispatch({
       type: 'setSelectedTab',
@@ -126,6 +122,12 @@ function CollectionMarker(props) {
     });
   };
 
+  // const handleMarkerHover = (marker) => {
+  //   // const markerLatLng = { lat: marker.latLng.lat(), lng: marker.latLng.lng() };
+  //   console.log(props.marker);
+  //   setMarkerHover(props.marker);
+  // };
+
   if (props.tag === '想去的地點') {
     url = '/falg_marker.png';
   } else if (props.tag === '喜愛的地點') {
@@ -135,15 +137,20 @@ function CollectionMarker(props) {
   }
   const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;
-    // marker.setAnimation(window.google.maps.Animation.BOUNCE);
   }, []);
+
+  // console.log(storeHover, props.marker);
 
   return collectionMarks.length !== 0 ? (
     <Marker
       position={{ lat: props.marker.lat, lng: props.marker.lng }}
       icon={{
         url: url,
-        scaledSize: new window.google.maps.Size(20, 30)
+        scaledSize: storeHover
+          ? storeHover.name === props.marker.storename
+            ? new window.google.maps.Size(26, 38)
+            : new window.google.maps.Size(20, 30)
+          : new window.google.maps.Size(20, 30)
       }}
       onClick={handleCollectionMarker}
       onLoad={(marker) => {
@@ -159,9 +166,37 @@ function CollectionMarker(props) {
         props.onLoad(marker, props.marker.storename);
         markeronLoad(marker);
       }}
+      // onMouseOver={handleMarkerHover}
       icon={{
-        url: '/marker.png',
-        scaledSize: new window.google.maps.Size(20, 30)
+        url:
+          selectedStore && storeHover
+            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
+              ? '/Selectedmarker.png'
+              : '/marker.png'
+            : storeHover
+            ? storeHover.place_id === props.marker.place_id
+              ? '/Selectedmarker.png'
+              : '/marker.png'
+            : selectedStore
+            ? selectedStore.place_id === props.marker.place_id
+              ? '/Selectedmarker.png'
+              : '/marker.png'
+            : '/marker.png',
+
+        scaledSize:
+          selectedStore && storeHover
+            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
+              ? new window.google.maps.Size(26, 38)
+              : new window.google.maps.Size(20, 30)
+            : storeHover
+            ? storeHover.place_id === props.marker.place_id
+              ? new window.google.maps.Size(26, 38)
+              : new window.google.maps.Size(20, 30)
+            : selectedStore
+            ? selectedStore.place_id === props.marker.place_id
+              ? new window.google.maps.Size(26, 38)
+              : new window.google.maps.Size(20, 30)
+            : new window.google.maps.Size(20, 30)
       }}
     />
   );

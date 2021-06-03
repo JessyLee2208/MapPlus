@@ -37,6 +37,7 @@ export default function storeReducer(preState = initState, action) {
         ...preState,
         modalShow: data
       };
+
     case 'setSelectedDish':
       return {
         ...preState,
@@ -138,6 +139,7 @@ export default function storeReducer(preState = initState, action) {
           {
             lat: data.geometry.location.lat(),
             lng: data.geometry.location.lng(),
+            place_id: data.place_id,
             storename: data.name
           }
         ]
@@ -152,6 +154,7 @@ export default function storeReducer(preState = initState, action) {
           {
             lat: data.geometry.lat,
             lng: data.geometry.lng,
+            place_id: data.place_id,
             storename: data.name
           }
         ]

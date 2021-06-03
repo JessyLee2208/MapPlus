@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import renderStar from '../Utils/renderStar';
 import Modal from './Modal';
-import { ButtonPrimaryFlat } from './UIComponents/Button';
+import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typography';
 import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
 import useMediaQuery from '../Utils/useMediaQuery';
 import { deviceSize } from '../responsive/responsive';
+import Toast from './Toast';
 
 const Separator = styled.div`
   width: auto;
@@ -98,6 +99,9 @@ function CommentModal({ show }) {
   const [commentValue, setCommentValue] = React.useState('');
   const [imgUrl, setImgUrl] = React.useState([]);
 
+  const [commentToast, setCommentToast] = React.useState(false);
+  // const [buttonStatu, setButtonStatu] = useState(false);
+
   function handleClose() {
     dispatch({
       type: 'setModalShow',
@@ -117,6 +121,7 @@ function CommentModal({ show }) {
   function handleStarRating(e) {
     if (e.target.id !== '') {
       setStarRating(e.target.id);
+      // setButtonStatu(true);
     }
   }
 
@@ -149,6 +154,7 @@ function CommentModal({ show }) {
           type: 'upDateSelectMenuData',
           data: res
         });
+        setCommentToast(!commentToast);
       });
     } else {
       userReviewEdit(userReviewSet, ReviewData);
@@ -168,6 +174,12 @@ function CommentModal({ show }) {
 
   return (
     <>
+      {commentToast && (
+        <Toast visible={commentToast} onCancel={() => setCommentToast(!commentToast)}>
+          評論送出成功
+        </Toast>
+      )}
+
       <Modal visible={modalShow} onCancel={handleClose}>
         <ModalContent>
           <PageTitle padding={'0'}>{DishData.name}</PageTitle>
@@ -204,12 +216,18 @@ function CommentModal({ show }) {
             <ButtonPrimaryFlat onClick={handleClose} style={{ width: isMobile ? '100%' : 'auto' }}>
               取消
             </ButtonPrimaryFlat>
-            <ButtonPrimaryFlat
-              onClick={bindupLoadReview}
-              style={{ marginLeft: '16px', width: isMobile ? '100%' : 'auto' }}
-            >
-              評論
-            </ButtonPrimaryFlat>
+            {starRating > 0 ? (
+              <ButtonPrimaryFlat
+                onClick={bindupLoadReview}
+                style={{ marginLeft: '16px', width: isMobile ? '100%' : 'auto' }}
+              >
+                評論
+              </ButtonPrimaryFlat>
+            ) : (
+              <ButtonDisableFlat style={{ marginLeft: '16px', width: isMobile ? '100%' : 'auto' }}>
+                評論
+              </ButtonDisableFlat>
+            )}
           </Footer>
         </ModalContent>
       </Modal>

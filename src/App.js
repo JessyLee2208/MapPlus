@@ -4,9 +4,8 @@ import useMediaQuery from './Utils/useMediaQuery';
 import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
 import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
-import { SearchInput, SearchBox, Frame, InformationBoxS, SearchBoxShow } from './style';
+import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 
-import StoreCardS from './Components/StoreCardS';
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
 import { getMenuData, googleAccountSignIn, googleAccountLogOut, getStoreData } from './Utils/firebase';
@@ -20,7 +19,10 @@ import CollectionList from './View/CollectionList';
 import CollectionMarker from './Components/Marker';
 
 import SearchList from './View/SearchList';
+import SearchListS from './View/SearchListS';
 import MapInforWindow from './Components/InfoWindow';
+
+import Toast from './Components/Toast';
 
 import { getStoreUrl } from './Utils/fetch';
 
@@ -53,6 +55,16 @@ const UserPositionCheck = styled.div`
   }
 `;
 
+const AuthorImg = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  position: fixed;
+  right: 47px;
+  top: 11px;
+`;
+
 const libraries = ['drawing', 'places'];
 const center = {
   lat: 25.020397,
@@ -62,8 +74,8 @@ const center = {
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-const host_name = 'https://hsiaohan.cf';
-// const host_name = 'http://localhost:5000';
+// const host_name = 'https://hsiaohan.cf';
+const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -83,7 +95,6 @@ function App() {
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const informationWindow = useSelector((state) => state.informationWindow);
-  const storeHover = useSelector((state) => state.storeHover);
 
   const mapRef = useRef();
   const searchRef = useRef();
@@ -97,6 +108,9 @@ function App() {
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
+
+  const [loginToast, setloginToast] = useState(false);
+  const [logOutToast, setlogOutToast] = useState(false);
 
   const mapContainerStyle = {
     width: '100vw',
@@ -125,11 +139,7 @@ function App() {
     zIndex: -10
   };
 
-  const style = {
-    position: 'fixed',
-    right: '62px',
-    top: '11px'
-  };
+  // const style = ;
 
   const mobileStyle = {
     position: 'fixed',
@@ -146,13 +156,20 @@ function App() {
     selectedStore !== null && menuData !== null && selectedDish === null && !collectionCheck;
   const storeDetailExist = selectedStore !== null && selectedDish === null && !collectionCheck;
   const dishDetailExist = selectedDish && !collectionCheck;
-  const smileStoreExist = selectedStore && !collectionCheck;
+  const smileStoreExist = selectedStore && !collectionCheck && storeData.length > 1;
+
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+  }, []);
+  const onSearchLoad = useCallback((search) => {
+    searchRef.current = search;
+  }, []);
+  const markeronLoad = useCallback((marker, storename) => {
+    setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
+  }, []);
 
   useEffect(() => {
     if (mapStore.length > 1 && algoliaStore && mapStore) {
-      // console.log(mapStore[0].plus_code.compound_code);
-      // console.log(mapStore, algoliaStore);
-
       algoliaStore.forEach((store) => {
         if (store) {
           const condition = mapStore.find((storename) => storename.name === store.name);
@@ -182,16 +199,17 @@ function App() {
           placeId: placeMarkers.place_id,
           fields: ['geometry']
         };
-
-        const c = new Promise((res, rej) => {
+        // console.log(placeMarkers);
+        const markerArray = new Promise((res, rej) => {
           service.getDetails(request, (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
               const geometry = place.geometry;
+
               res({ ...placeMarkers, geometry: geometry });
             }
           });
         });
-        newPlaceArray.push(c);
+        newPlaceArray.push(markerArray);
       });
       Promise.all(newPlaceArray).then((res) => {
         res.forEach((view) => {
@@ -206,31 +224,28 @@ function App() {
     }
   }, [collectionMarks]);
 
-  //
-  // useEffect(() => {
-  //   if (selectedStore) {
-  //     let selected = mapMarkers.find((marker) => marker.storename === selectedStore.name);
-  //     console.log(selected);
-  //     let condition = selected.storename === selectedStore.name;
-  //     setSelectedMarker(selected);
-  //     // let selected = mapMarkers.storename === selectedStore.name;
-  //   }
-  // }, [selectedStore]);
-  // console.log(selectedMarker);
-
-  const onMapLoad = useCallback((map) => {
-    mapRef.current = map;
-  }, []);
-  const onSearchLoad = useCallback((search) => {
-    searchRef.current = search;
-  }, []);
-  const markeronLoad = useCallback((marker, storename) => {
-    setMarkerLoad((m) => [...m, { mrker: marker, storename: storename }]);
-  }, []);
+  useEffect(() => {
+    if (selectedStore) {
+      if (selectedStore.geometry.lat) {
+        panTo({
+          lat: selectedStore.geometry.lat,
+          lng: selectedStore.geometry.lng
+        });
+      }
+      if (selectedStore.geometry.location) {
+        panTo({
+          lat: selectedStore.geometry.location.lat(),
+          lng: selectedStore.geometry.location.lng()
+        });
+      }
+    }
+  }, [selectedStore]);
 
   const panTo = useCallback(({ lat, lng }) => {
     mapRef.current.panTo({ lat, lng });
   }, []);
+
+  useEffect(() => {}, [storeData]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
@@ -285,8 +300,7 @@ function App() {
       } else {
         bounds.extend(place.geometry.location);
       }
-      // const placePromise = getStoreUrl(placeName, place);
-      // console.log(placePromise);
+
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
         const a = await res.json();
 
@@ -312,7 +326,9 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        console.log(res[0].deliver);
+        console.log(res[0]);
+        console.log(res[0].photos[0].getUrl());
+
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
         } else {
@@ -324,25 +340,6 @@ function App() {
       }
     });
   };
-
-  // function handleStoreListClick(e) {
-  //   storeData.forEach((product) => {
-  //     if (e.target.id === product.name) {
-  //       let a = mapMarkers.find((marker) => e.target.id === marker.storename);
-  //       markerLoad.forEach((marker) => {
-  //         const timer = () => {
-  //           setTimeout(() => {
-  //             marker.mrker.setAnimation(null);
-  //           }, 400);
-  //         };
-  //         if (e.target.id === marker.storename) {
-  //           marker.mrker.setAnimation(window.google.maps.Animation.BOUNCE);
-  //           timer();
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
 
   function handleSearchText(e) {
     setSearchText(e.target.value);
@@ -361,6 +358,7 @@ function App() {
           const data = getStoreData(hit.storeCollectionID);
           algoliaSearchData.push(data);
         });
+        // setAlgoSearchData(algoliaSearchData);
         Promise.all(algoliaSearchData).then((res) => {
           setAlgoliaStore(res);
         });
@@ -401,6 +399,10 @@ function App() {
     }
   }
 
+  function a() {
+    console.log(loginToast);
+  }
+
   return (
     <Frame>
       {isMobile && !informationWindow ? (
@@ -425,9 +427,19 @@ function App() {
         )
       )}
 
+      {loginToast && userStatus && (
+        <Toast visible={loginToast} onCancel={() => setloginToast(!loginToast)}>
+          成功登入
+        </Toast>
+      )}
+      {logOutToast && !userStatus && (
+        <Toast visible={logOutToast} onCancel={() => setloginToast(!logOutToast)}>
+          成功登出
+        </Toast>
+      )}
+
       {show && userStatus && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
-
       <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
         <SearchBox>
           <SearchInput
@@ -443,9 +455,8 @@ function App() {
         </SearchBox>
       </StandaloneSearchBox>
       <SearchBoxShow></SearchBoxShow>
-
       {storeListExist ? (
-        <SearchList markerLoad={markerLoad} service={service}></SearchList>
+        <SearchList markerLoad={markerLoad} service={service} panTo={panTo}></SearchList>
       ) : storeDetailOnlyOneExist ? (
         storeData.map((product, index) => (
           <StoreDetail key={index} product={product} menu={menuData} service={service}></StoreDetail>
@@ -457,48 +468,58 @@ function App() {
       ) : dishDetailExist ? (
         <DishDetail dishdata={selectedDish} service={service}></DishDetail>
       ) : collectionCheck ? (
-        <CollectionList service={service}></CollectionList>
+        <CollectionList service={service} panTo={panTo}></CollectionList>
       ) : (
         <></>
       )}
-
-      {smileStoreExist && (
-        <InformationBoxS>
-          {/* <InformationBoxS onClick={handleStoreListClick}>*/}
-          {storeData.length > 1 &&
-            storeData.map((product, key) => (
-              <StoreCardS key={key} product={product} id={product.name} service={service} />
-            ))}
-        </InformationBoxS>
-      )}
+      {smileStoreExist && <SearchListS service={service}></SearchListS>}
       {!userStatus ? (
         <ButtonPrimaryFlat
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
+            setloginToast(!loginToast);
           }}
-          style={!isMobile ? style : mobileStyle}
+          style={
+            !isMobile
+              ? {
+                  position: 'fixed',
+                  right: '62px',
+                  top: '11px'
+                }
+              : mobileStyle
+          }
         >
           登入
         </ButtonPrimaryFlat>
       ) : (
-        <ButtonPrimaryFlat
-          onClick={(e) => {
-            googleAccountLogOut(e, dispatch);
-          }}
-          style={!isMobile ? style : mobileStyle}
-        >
-          登出
-        </ButtonPrimaryFlat>
+        <>
+          <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
+          <ButtonPrimaryFlat
+            onClick={(e) => {
+              googleAccountLogOut(e, dispatch);
+              setlogOutToast(!logOutToast);
+            }}
+            style={
+              !isMobile
+                ? {
+                    position: 'fixed',
+                    right: '112px',
+                    top: '11px'
+                  }
+                : mobileStyle
+            }
+          >
+            登出
+          </ButtonPrimaryFlat>
+        </>
       )}
-
       <UserPositionCheck
         onClick={getCurrentLoction}
         panTo={panTo}
-        style={{ display: informationWindow ? 'none' : 'flex' }}
+        style={{ display: informationWindow && isMobile ? 'none' : 'flex' }}
       >
         <img src="/current.png" alt=""></img>
       </UserPositionCheck>
-
       <GoogleMap
         mapContainerStyle={
           storeListExist && !isMobile
@@ -523,13 +544,6 @@ function App() {
                 content={storeData}
                 key={key}
                 onLoad={markeronLoad}
-                // icon={{
-                //   url:
-                //     selectedStore && selectedMarker && selectedMarker.storename === selectedStore.name
-                //       ? '/Selectedmarker.png'
-                //       : '/marker.png',
-                //   scaledSize: new window.google.maps.Size(20, 30)
-                // }}
               ></CollectionMarker>
             ))
           : collectionCheck &&
@@ -550,28 +564,7 @@ function App() {
             }}
           ></Marker>
         )}
-        {storeHover && (
-          <Marker
-            position={
-              storeHover.geometry.location
-                ? { lat: storeHover.geometry.location.lat(), lng: storeHover.geometry.location.lng() }
-                : { lat: storeHover.geometry.lat, lng: storeHover.geometry.lng }
-            }
-            icon={{
-              url: '/Selectedmarker.png',
-              scaledSize: new window.google.maps.Size(26, 38)
-            }}
-            animation={(marker) => {
-              const timer = () => {
-                setTimeout(() => {
-                  marker.setAnimation(null);
-                }, 470);
-              };
-              marker.setAnimation(window.google.maps.Animation.BOUNCE);
-              timer();
-            }}
-          ></Marker>
-        )}
+
         {selectedStore && isMobile && <MapInforWindow></MapInforWindow>}
       </GoogleMap>
     </Frame>

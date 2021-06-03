@@ -9,6 +9,7 @@ const SearchInput = styled.input`
   padding: 0;
   border: none;
   outline: none;
+  font-size: initial;
 `;
 
 const SearchBox = styled.div`

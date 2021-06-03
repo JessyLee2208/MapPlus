@@ -60,8 +60,11 @@ function CollectionList(props) {
 
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const collectionList = useSelector((state) => state.collectionList);
+  const collectionMarks = useSelector((state) => state.collectionMarks);
+  // const storeData = useSelector((state) => state.storeData);
 
   const [storeArray, setStoreArray] = useState(null);
+  const [searchMenu, setSearchMenu] = useState(null);
 
   useEffect(() => {
     if (userStatus) {
@@ -74,8 +77,8 @@ function CollectionList(props) {
           UserData.collection.forEach(async (collect) => {
             if (collect.collectName === collectionCheck) {
               collection.push(collect);
-              let storeData = getStoreData(collect.storeCollectionID);
-              store.push(storeData);
+              let Data = getStoreData(collect.storeCollectionID);
+              store.push(Data);
             }
           });
           Promise.all(store).then((res) => {
@@ -96,17 +99,19 @@ function CollectionList(props) {
                 place_id: a.place_id
               };
               collectionMarks.push(marks);
-              dispatch({
-                type: 'setCollectionMarks',
-                data: collectionMarks
-              });
             });
+            dispatch({
+              type: 'setCollectionMarks',
+              data: collectionMarks
+            });
+            console.log(collectionMarks);
           });
 
           dispatch({
             type: 'setSearchMenu',
             data: collection
           });
+          setSearchMenu(collection);
         }
       }
       reviewData();
@@ -115,29 +120,14 @@ function CollectionList(props) {
 
   function handleStoreListClick(e) {
     dispatch({
-      type: 'setSelectedDish',
-      data: null
-    });
-    dispatch({
-      type: 'setSelectedTab',
-      data: 'information'
-    });
-    dispatch({
       type: 'setSelectedStore',
       data: null
     });
 
     collectionList.forEach((product) => {
       if (e.target.id === product.name) {
-        const newMarker = {
-          lat: product.geometry.lat,
-          lng: product.geometry.lng,
-          storename: product.name
-        };
-        dispatch({
-          type: 'setSelectedStore',
-          data: product
-        });
+        let mach = collectionMarks.find((store) => store.storename === product.name);
+
         dispatch({
           type: 'setCollectionTitle',
           data: false
@@ -145,31 +135,35 @@ function CollectionList(props) {
 
         dispatch({
           type: 'initMapMarkers',
-          data: [newMarker]
+          data: [mach]
         });
 
         dispatch({
           type: 'setCollectionMarks',
           data: []
         });
+        dispatch({
+          type: 'setStoreData',
+          data: [product]
+        });
 
-        if (product.deliver.uberEatUrl || product.deliver.foodPandaUrl) {
-          function setData(data) {
-            dispatch({
-              type: 'setMenuData',
-              data: data
-            });
-          }
-          unsubscribe = getMenuData(product.name, setData);
-        } else {
-          dispatch({
-            type: 'setMenuData',
-            data: null
-          });
-        }
         dispatch({
           type: 'setCollectionTitle',
           data: false
+        });
+      }
+    });
+
+    searchMenu.forEach((menu) => {
+      if (e.target.id === menu.name) {
+        let mach = collectionMarks.find((store) => store.storename === menu.storeName);
+        dispatch({
+          type: 'initMapMarkers',
+          data: [mach]
+        });
+        dispatch({
+          type: 'setCollectionMarks',
+          data: []
         });
       }
     });
