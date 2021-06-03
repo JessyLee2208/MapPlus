@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
+import { Loading } from '../Components/UIComponents/LottieAnimat';
 
 const Store = styled.div`
   position: relative;
@@ -292,6 +293,7 @@ function StoreDetail(props) {
           {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
         </TabBox>
       )}
+
       <Separator></Separator>
       {tab === 'information' ? (
         <div>
@@ -372,7 +374,11 @@ function StoreDetail(props) {
           {AllReviews}
         </div>
       ) : props.menu && props.menu !== null && tab === 'menu' ? (
-        props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
+        props.menu.length > 0 ? (
+          props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
+        ) : (
+          <Loading />
+        )
       ) : (
         <div></div>
       )}

@@ -162,11 +162,16 @@ function StoreCardS(props, key) {
     }
   }
 
-  function handleHoverEvent() {
+  function handleHoverEvent(e) {
     dispatch({
       type: 'setStoreHover',
       data: props.product
     });
+    e.stopPropagation();
+    props.icon(true);
+
+    //
+    // console.log(props.icon);
   }
   function handleHoverOutEvent() {
     dispatch({

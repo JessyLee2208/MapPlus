@@ -45,12 +45,25 @@ const InformationBoxS = styled.div`
   padding: 0 10px;
 `;
 
+const DicContainer = styled.div`
+  // &:hover {
+  //   & .button {
+  //     diaplay: flex;
+  //   }
+  // }
+`;
+
 function SearchListS(props) {
   const { service } = props;
   const storeData = useSelector((state) => state.storeData);
   const myRef = useRef(null);
   const [scrollXLeft, setScrollXLeft] = useState(null);
   const [scrollXRight, setScrollXRight] = useState(null);
+  const [iconShow, setIconShow] = useState(false);
+
+  const buttonRef = useRef();
+  // const buttonClassName = buttonRef.current.className;
+  // console.log();
 
   const executeScrollRight = () => {
     myRef.current.scrollBy({ left: 175, top: 0, behavior: 'smooth' });
@@ -59,7 +72,6 @@ function SearchListS(props) {
 
     setScrollXLeft(loction);
     setScrollXRight(loctionRight);
-    console.log(loctionRight);
 
     // console.log(offsetright);
   };
@@ -70,34 +82,59 @@ function SearchListS(props) {
 
     setScrollXLeft(loction);
     setScrollXRight(loctionRight);
-    console.log(loctionRight);
   };
 
+  function handleHoverEvent(e) {
+    if (!iconShow) {
+      setIconShow(true);
+      // e.stopPropagation();
+    }
+  }
+  function handleHoverOutEvent() {
+    if (iconShow) {
+      setIconShow(false);
+    }
+  }
+
+  // function handleIconHoverEvent(e) {
+  //   e.stopPropagation();
+  //   // if (!iconShow) {
+  //   //   // setIconShow(true);
+
+  //   // }
+  // }
+  // onMouseOver={handleHoverEvent} onMouseOut={handleHoverOutEvent}
+
   return (
-    <div>
+    <DicContainer>
+      {/* {iconShow && */}
       {!scrollXRight || scrollXRight > -415 ? (
-        <UserPositionCheck onClick={executeScrollRight} style={{ right: '8px' }}>
+        <UserPositionCheck
+          onClick={executeScrollRight}
+          style={{ right: '8px' }}
+          ref={buttonRef}
+          // onMouseOver={handleIconHoverEvent}
+        >
           <img src="/right.png" alt=""></img>
         </UserPositionCheck>
       ) : (
         <></>
       )}
-
+      {/* {iconShow && */}
       {scrollXLeft && scrollXLeft > 0 ? (
-        <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px' }}>
+        <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px' }} id="button">
           <img src="/left.png" alt=""></img>
         </UserPositionCheck>
       ) : (
         <></>
       )}
-
       <InformationBoxS id="smallCardList" ref={myRef}>
         {storeData.length > 1 &&
           storeData.map((product, key) => (
-            <StoreCardS key={key} product={product} id={product.name} service={service} />
+            <StoreCardS key={key} product={product} id={product.name} service={service} icon={setIconShow} />
           ))}
       </InformationBoxS>
-    </div>
+    </DicContainer>
   );
 }
 

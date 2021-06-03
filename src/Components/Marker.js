@@ -11,6 +11,8 @@ function CollectionMarker(props) {
   const selectedStore = useSelector((state) => state.selectedStore);
   const storeHover = useSelector((state) => state.storeHover);
 
+  // const [markerHover, setMarkerHover] = useState(false);
+
   const markerRef = useRef();
 
   let url = '';
@@ -120,6 +122,12 @@ function CollectionMarker(props) {
     });
   };
 
+  // const handleMarkerHover = (marker) => {
+  //   // const markerLatLng = { lat: marker.latLng.lat(), lng: marker.latLng.lng() };
+  //   console.log(props.marker);
+  //   setMarkerHover(props.marker);
+  // };
+
   if (props.tag === '想去的地點') {
     url = '/falg_marker.png';
   } else if (props.tag === '喜愛的地點') {
@@ -131,7 +139,7 @@ function CollectionMarker(props) {
     markerRef.current = marker;
   }, []);
 
-  // console.log(storeHover, props.marker.place_id);
+  // console.log(storeHover, props.marker);
 
   return collectionMarks.length !== 0 ? (
     <Marker
@@ -158,6 +166,7 @@ function CollectionMarker(props) {
         props.onLoad(marker, props.marker.storename);
         markeronLoad(marker);
       }}
+      // onMouseOver={handleMarkerHover}
       icon={{
         url:
           selectedStore && storeHover
@@ -165,7 +174,7 @@ function CollectionMarker(props) {
               ? '/Selectedmarker.png'
               : '/marker.png'
             : storeHover
-            ? storeHover.name === props.marker.storename
+            ? storeHover.place_id === props.marker.place_id
               ? '/Selectedmarker.png'
               : '/marker.png'
             : selectedStore
@@ -173,13 +182,14 @@ function CollectionMarker(props) {
               ? '/Selectedmarker.png'
               : '/marker.png'
             : '/marker.png',
+
         scaledSize:
           selectedStore && storeHover
             ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
             : storeHover
-            ? storeHover.name === props.marker.storename
+            ? storeHover.place_id === props.marker.place_id
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
             : selectedStore

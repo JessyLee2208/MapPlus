@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 
 import StoreCardL from '../Components/StoreCardL';
 import { deviceSize } from '../responsive/responsive';
-import { SearchBg } from '../Components/UIComponents/common';
-import { ButtonGhostRoundIcon } from '../Components/UIComponents/Button';
+// import { SearchBg } from '../Components/UIComponents/common';
+// import { ButtonGhostRoundIcon } from '../Components/UIComponents/Button';
 import SearchMenuCard from '../Components/SearchMenuCard';
 import FilterBox from '../Components/FilterBox';
 

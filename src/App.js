@@ -55,6 +55,16 @@ const UserPositionCheck = styled.div`
   }
 `;
 
+const AuthorImg = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  position: fixed;
+  right: 47px;
+  top: 11px;
+`;
+
 const libraries = ['drawing', 'places'];
 const center = {
   lat: 25.020397,
@@ -129,11 +139,7 @@ function App() {
     zIndex: -10
   };
 
-  const style = {
-    position: 'fixed',
-    right: '62px',
-    top: '11px'
-  };
+  // const style = ;
 
   const mobileStyle = {
     position: 'fixed',
@@ -473,20 +479,39 @@ function App() {
             googleAccountSignIn(e, dispatch);
             setloginToast(!loginToast);
           }}
-          style={!isMobile ? style : mobileStyle}
+          style={
+            !isMobile
+              ? {
+                  position: 'fixed',
+                  right: '62px',
+                  top: '11px'
+                }
+              : mobileStyle
+          }
         >
           登入
         </ButtonPrimaryFlat>
       ) : (
-        <ButtonPrimaryFlat
-          onClick={(e) => {
-            googleAccountLogOut(e, dispatch);
-            setlogOutToast(!logOutToast);
-          }}
-          style={!isMobile ? style : mobileStyle}
-        >
-          登出
-        </ButtonPrimaryFlat>
+        <>
+          <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
+          <ButtonPrimaryFlat
+            onClick={(e) => {
+              googleAccountLogOut(e, dispatch);
+              setlogOutToast(!logOutToast);
+            }}
+            style={
+              !isMobile
+                ? {
+                    position: 'fixed',
+                    right: '112px',
+                    top: '11px'
+                  }
+                : mobileStyle
+            }
+          >
+            登出
+          </ButtonPrimaryFlat>
+        </>
       )}
       <UserPositionCheck
         onClick={getCurrentLoction}

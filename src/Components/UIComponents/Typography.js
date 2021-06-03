@@ -166,9 +166,9 @@ function Content(props) {
 }
 
 function Link(props) {
-  const { padding, color } = props;
+  const { padding, color, name } = props;
   return (
-    <LinkTag padding={padding} color={color}>
+    <LinkTag padding={padding} color={color} name={name}>
       {props.children}
     </LinkTag>
   );

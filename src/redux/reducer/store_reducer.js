@@ -154,6 +154,7 @@ export default function storeReducer(preState = initState, action) {
           {
             lat: data.geometry.lat,
             lng: data.geometry.lng,
+            place_id: data.place_id,
             storename: data.name
           }
         ]
