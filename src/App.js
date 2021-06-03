@@ -21,6 +21,7 @@ import CollectionMarker from './Components/Marker';
 import SearchList from './View/SearchList';
 import SearchListS from './View/SearchListS';
 import MapInforWindow from './Components/InfoWindow';
+import MemberPage from './View/MemberPage';
 
 import Toast from './Components/Toast';
 
@@ -111,6 +112,7 @@ function App() {
 
   const [loginToast, setloginToast] = useState(false);
   const [logOutToast, setlogOutToast] = useState(false);
+  const [memberPageShow, setMemberPageShow] = useState(false);
 
   const mapContainerStyle = {
     width: '100vw',
@@ -399,12 +401,15 @@ function App() {
     }
   }
 
-  function a() {
-    console.log(loginToast);
+  function handleUserProfile() {
+    // console.log(loginToast);
+    setMemberPageShow(!memberPageShow);
   }
 
   return (
     <Frame>
+      {userStatus && memberPageShow && <MemberPage></MemberPage>}
+
       {isMobile && !informationWindow ? (
         <ButtonPrimaryRound
           style={{ position: 'fixed', right: '40%', bottom: '24px' }}
@@ -441,7 +446,11 @@ function App() {
       {show && userStatus && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
       <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
-        <SearchBox>
+        <SearchBox
+          onClick={() => {
+            setMemberPageShow(false);
+          }}
+        >
           <SearchInput
             type="text"
             placeholder="搜尋 Google 地圖"
@@ -492,26 +501,7 @@ function App() {
           登入
         </ButtonPrimaryFlat>
       ) : (
-        <>
-          <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
-          <ButtonPrimaryFlat
-            onClick={(e) => {
-              googleAccountLogOut(e, dispatch);
-              setlogOutToast(!logOutToast);
-            }}
-            style={
-              !isMobile
-                ? {
-                    position: 'fixed',
-                    right: '112px',
-                    top: '11px'
-                  }
-                : mobileStyle
-            }
-          >
-            登出
-          </ButtonPrimaryFlat>
-        </>
+        <AuthorImg src={userStatus.photoURL} alt="" onClick={handleUserProfile}></AuthorImg>
       )}
       <UserPositionCheck
         onClick={getCurrentLoction}
@@ -535,6 +525,9 @@ function App() {
         onLoad={onMapLoad}
         onBoundsChanged={onBoundsChanged}
         style={{ padding: 0 }}
+        onClick={() => {
+          setMemberPageShow(false);
+        }}
       >
         {collectionMarks.length === 0
           ? mapMarkers.map((marker, key) => (

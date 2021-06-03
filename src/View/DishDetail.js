@@ -6,8 +6,9 @@ import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
 import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents/Button';
 import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
+
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
+import { deviceSize } from '../responsive/responsive';
 
 const Separator = styled.div`
   width: auto;

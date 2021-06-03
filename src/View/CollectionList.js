@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userDatasCheck, getStoreData, getMenuData } from '../Utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
 import { deviceSize } from '../responsive/responsive';
+import { Loading } from '../Components/UIComponents/LottieAnimat';
 
 const Collection = styled.div`
   position: relative;
@@ -116,7 +117,7 @@ function CollectionList(props) {
       }
       reviewData();
     }
-  }, [userStatus]);
+  }, [userStatus, collectionCheck]);
 
   function handleStoreListClick(e) {
     dispatch({
@@ -203,7 +204,7 @@ function CollectionList(props) {
           </Collection>
         </>
       ) : (
-        <></>
+        <Loading></Loading>
       )}
     </Collection>
   );

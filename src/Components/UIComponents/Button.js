@@ -127,6 +127,7 @@ const ButtonghostRound = styled.button`
   &:focus {
     outline: none;
   }
+  margin: ${({ margin }) => (margin ? margin : 0)};
   @media screen and (max-width: ${deviceSize.mobileS}px) {
     font-size: 13px;
     padding: 0.3em 1em;
@@ -182,8 +183,9 @@ function ButtonPrimaryRound(props) {
 }
 
 function ButtonGhostRound(props) {
+  const { margin } = props;
   return (
-    <ButtonghostRound onClick={props.onClick} style={props.style}>
+    <ButtonghostRound onClick={props.onClick} style={props.style} margin={margin}>
       {props.children}
     </ButtonghostRound>
   );

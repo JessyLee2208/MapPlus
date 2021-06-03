@@ -16,6 +16,20 @@ const Pagetitle = styled.div`
   padding: ${({ padding }) => (padding ? padding : '10px 20px')};
 `;
 
+const H3title = styled.div`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: black;
+
+  padding: ${({ padding }) => (padding ? padding : '10px 0px')};
+`;
+
 const Subtitle = styled.div`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 16px;
@@ -121,6 +135,15 @@ function PageTitle(props) {
   );
 }
 
+function H3Title(props) {
+  const { padding } = props;
+  return (
+    <H3title style={props.style} padding={padding}>
+      {props.children}
+    </H3title>
+  );
+}
+
 function Description(props) {
   const { color, padding } = props;
   return (
@@ -173,4 +196,4 @@ function Link(props) {
     </LinkTag>
   );
 }
-export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link };
+export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title };
