@@ -18,7 +18,10 @@ function getMorereDetail(product, service) {
   return new Promise((res, rej) => {
     let moreDetail = {};
     service.getDetails(request, (place, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK && place.opening_hours) {
+      if (
+        status === window.google.maps.places.PlacesServiceStatus.OK &&
+        (place.opening_hours || place.opening_hours.weekday_text)
+      ) {
         moreDetail = {
           name: place.name,
           place_id: place.place_id,
@@ -27,7 +30,7 @@ function getMorereDetail(product, service) {
           formatted_phone_number: place.formatted_phone_number,
           website: place.website,
           opening_hours: {
-            isOpen: place.opening_hours.isOpen ? place.opening_hours.isOpen() : null,
+            isOpen: place.opening_hours.isOpen ? place.opening_hours.isOpen() : '',
             weekday_text:
               place.opening_hours.weekday_text && place.opening_hours.weekday_text !== undefined
                 ? place.opening_hours.weekday_text

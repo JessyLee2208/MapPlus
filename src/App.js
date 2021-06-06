@@ -102,8 +102,8 @@ const searchOption = {
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-// const host_name = 'https://hsiaohan.cf';
-const host_name = 'http://localhost:5000';
+const host_name = 'https://hsiaohan.cf';
+// const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -366,7 +366,11 @@ function App() {
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
         const a = await res.json();
 
-        return { ...place, opening_hours: { isOpen: place.opening_hours.isOpen() }, deliver: a };
+        return {
+          ...place,
+          opening_hours: place.opening_hours ? { isOpen: place.opening_hours.isOpen() } : {},
+          deliver: a
+        };
       });
 
       placePromises.push(placePromise);
@@ -566,7 +570,7 @@ function App() {
       ) : (
         <></>
       )}
-      {smileStoreExist && <SearchListS service={service}></SearchListS>}
+      {smileStoreExist && !isMobile && <SearchListS service={service}></SearchListS>}
       {!userStatus ? (
         <ButtonPrimaryFlat
           onClick={(e) => {
@@ -595,7 +599,12 @@ function App() {
       <UserPositionCheck
         onClick={getCurrentLoction}
         panTo={panTo}
-        // style={{ display: informationWindow && isMobile ? 'none' : 'flex' }}
+        style={{
+          display:
+            informationWindow && (storeListExist || storeDetailExist || collectionCheck || dishDetailExist) && isMobile
+              ? 'none'
+              : 'flex'
+        }}
       >
         <img src="/current.png" alt=""></img>
       </UserPositionCheck>
