@@ -15,7 +15,10 @@ const initState = {
   searchMenu: null,
   userReviewSet: null,
   informationWindow: true,
-  storeHover: null
+  storeHover: null,
+
+  loginToast: false,
+  logOutToast: false
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -179,6 +182,20 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         storeHover: data
+      };
+    }
+
+    case 'setloginToast': {
+      return {
+        ...preState,
+        loginToast: data
+      };
+    }
+
+    case 'setlogOutToast': {
+      return {
+        ...preState,
+        logOutToast: data
       };
     }
 

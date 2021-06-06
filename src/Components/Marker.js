@@ -1,15 +1,16 @@
-import React, { useCallback, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
 import getMorereDetail from '../Utils/getMoreDetail';
 
-function CollectionMarker(props) {
+function Markers(props) {
   const dispatch = useDispatch();
   const collectionList = useSelector((state) => state.collectionList);
   const collectionMarks = useSelector((state) => state.collectionMarks);
   const selectedStore = useSelector((state) => state.selectedStore);
   const storeHover = useSelector((state) => state.storeHover);
+  const storeData = useSelector((state) => state.storeData);
 
   // const [markerHover, setMarkerHover] = useState(false);
 
@@ -17,17 +18,9 @@ function CollectionMarker(props) {
 
   let url = '';
 
-  useEffect(() => {}, [storeHover, selectedStore]);
-
-  // const timer = () => {
-  //   setTimeout(() => {
-  //     markerRef.current.setAnimation(null);
-  //   }, 470);
-  // };
+  // useEffect(() => {}, [storeHover, selectedStore]);
 
   const handleCollectionMarker = (marker) => {
-    // markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
-    // timer();
     dispatch({
       type: 'setSelectedTab',
       data: 'information'
@@ -173,6 +166,8 @@ function CollectionMarker(props) {
             ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
               ? '/Selectedmarker.png'
               : '/marker.png'
+            : storeData.length === 1 && !selectedStore
+            ? '/Selectedmarker.png'
             : storeHover
             ? storeHover.place_id === props.marker.place_id
               ? '/Selectedmarker.png'
@@ -182,7 +177,6 @@ function CollectionMarker(props) {
               ? '/Selectedmarker.png'
               : '/marker.png'
             : '/marker.png',
-
         scaledSize:
           selectedStore && storeHover
             ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
@@ -196,10 +190,12 @@ function CollectionMarker(props) {
             ? selectedStore.place_id === props.marker.place_id
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
+            : storeData.length === 1
+            ? new window.google.maps.Size(26, 38)
             : new window.google.maps.Size(20, 30)
       }}
     />
   );
 }
 
-export default CollectionMarker;
+export default Markers;

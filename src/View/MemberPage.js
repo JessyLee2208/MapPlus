@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typography';
 import { userDatasCheck, googleAccountLogOut } from '../Utils/firebase';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
+import useMediaQuery from '../Utils/useMediaQuery';
 
 const Member = styled.div`
   position: fixed;
@@ -25,7 +26,12 @@ const Member = styled.div`
   z-index: 3;
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: 100vw;
-    height: 100vh;
+    height: 101vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 8;
+    border-radius: 0px;
   }
 `;
 
@@ -35,6 +41,9 @@ const AuthorImg = styled.img`
   border-radius: 50%;
 
   margin-top: 18px;
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    margin-top: 50px;
+  }
 `;
 
 const Separator = styled.div`
@@ -46,7 +55,7 @@ const Separator = styled.div`
 
 const ItemBox = styled.div`
   width: 100%;
-  margin: 2px 0;
+  padding: 4px 0;
   &:hover {
     background: #f7f7f7;
   }
@@ -56,8 +65,11 @@ const CollectListBox = styled.div`
   display: flex;
   margin: 0;
   padding-left: 64px;
-  margin: 6px 0;
+  margin: 4px 0;
   align-items: center;
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    padding-left: 80px;
+  }
 `;
 
 const Icon = styled.img`
@@ -67,6 +79,7 @@ const Icon = styled.img`
 `;
 
 function MemberPage(props) {
+  const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
   const userStatus = useSelector((state) => state.userStatus);
 
   const dispatch = useDispatch();
@@ -83,8 +96,6 @@ function MemberPage(props) {
       let star = [];
 
       if (data && data.collection && data.collection.length !== 0) {
-        console.log(data.collection);
-
         data.collection.forEach((collect) => {
           if (collect.collectName === '想去的地點') {
             want.push(collect);
@@ -112,10 +123,19 @@ function MemberPage(props) {
       type: 'setCollectionList',
       data: []
     });
+    props.show(false);
+  }
+
+  function close() {
+    props.show(false);
   }
 
   return (
     <Member>
+      {isMobile && (
+        <Icon src="/close_big.png" style={{ position: 'fixed', right: '0px', top: '10px' }} onClick={close}></Icon>
+      )}
+
       <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
@@ -152,6 +172,10 @@ function MemberPage(props) {
       <ButtonGhostRound
         onClick={(e) => {
           googleAccountLogOut(e, dispatch);
+          dispatch({
+            type: 'setlogOutToast',
+            data: true
+          });
           //   setlogOutToast(!logOutToast);
         }}
         margin={'6px 0 0 0'}

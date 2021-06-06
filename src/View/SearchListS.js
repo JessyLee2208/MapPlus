@@ -9,11 +9,10 @@ const UserPositionCheck = styled.div`
   height: 50px;
   border-radius: 50%;
 
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   position: fixed;
-  // right: 8px;
   bottom: 97px;
   z-index: 4;
   background: #fff;
@@ -61,10 +60,6 @@ function SearchListS(props) {
   const [scrollXRight, setScrollXRight] = useState(null);
   const [iconShow, setIconShow] = useState(false);
 
-  const buttonRef = useRef();
-  // const buttonClassName = buttonRef.current.className;
-  // console.log();
-
   const executeScrollRight = () => {
     myRef.current.scrollBy({ left: 175, top: 0, behavior: 'smooth' });
     const loction = myRef.current.scrollLeft + 175;
@@ -87,7 +82,6 @@ function SearchListS(props) {
   function handleHoverEvent(e) {
     if (!iconShow) {
       setIconShow(true);
-      // e.stopPropagation();
     }
   }
   function handleHoverOutEvent() {
@@ -96,25 +90,10 @@ function SearchListS(props) {
     }
   }
 
-  // function handleIconHoverEvent(e) {
-  //   e.stopPropagation();
-  //   // if (!iconShow) {
-  //   //   // setIconShow(true);
-
-  //   // }
-  // }
-  // onMouseOver={handleHoverEvent} onMouseOut={handleHoverOutEvent}
-
   return (
-    <DicContainer>
-      {/* {iconShow && */}
+    <DicContainer onMouseOver={handleHoverEvent} onMouseOut={handleHoverOutEvent}>
       {!scrollXRight || scrollXRight > -415 ? (
-        <UserPositionCheck
-          onClick={executeScrollRight}
-          style={{ right: '8px' }}
-          ref={buttonRef}
-          // onMouseOver={handleIconHoverEvent}
-        >
+        <UserPositionCheck onClick={executeScrollRight} style={{ right: '8px', display: iconShow ? 'flex' : 'none' }}>
           <img src="/right.png" alt=""></img>
         </UserPositionCheck>
       ) : (
@@ -122,7 +101,7 @@ function SearchListS(props) {
       )}
       {/* {iconShow && */}
       {scrollXLeft && scrollXLeft > 0 ? (
-        <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px' }} id="button">
+        <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px', display: iconShow ? 'flex' : 'none' }}>
           <img src="/left.png" alt=""></img>
         </UserPositionCheck>
       ) : (

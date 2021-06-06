@@ -78,21 +78,58 @@ function CollectionList(props) {
           UserData.collection.forEach(async (collect) => {
             if (collect.collectName === collectionCheck) {
               collection.push(collect);
-              let Data = getStoreData(collect.storeCollectionID);
-              store.push(Data);
+
+              // let Data = getStoreData(collect.storeCollectionID);
+              // store.push(Data);
             }
           });
+          const set = new Set();
+          let a = collection.filter((item) => (!set.has(item.storeName) ? set.add(item.storeName) : false));
+          const NewRes = [...a];
+          // console.log(a);
+          let removed = [];
+          const count = NewRes.length / 10;
+          const countNam = parseInt(count);
+
+          for (let i = 0; i < countNam; i++) {
+            let newArray = NewRes.slice(0, 10);
+            console.log(newArray.length);
+            newArray.forEach(async (collect) => {
+              let Data = getStoreData(collect.storeCollectionID);
+              store.push(Data);
+            });
+            removed = NewRes.splice(countNam * 10);
+            console.log(removed);
+          }
+
+          if (NewRes.length < 10) {
+            removed = NewRes;
+          }
+
+          removed.forEach(async (collect) => {
+            let Data = getStoreData(collect.storeCollectionID);
+            store.push(Data);
+          });
+
+          // a.forEach(async (collect) => {
+          //   let Data = getStoreData(collect.storeCollectionID);
+          //   store.push(Data);
+          // });
+
+          // console.log(collection);
+          console.log(store);
           Promise.all(store).then((res) => {
-            const set = new Set();
-            const result = res.filter((item) => (!set.has(item.name) ? set.add(item.name) : false));
-            setStoreArray(result);
+            // const set = new Set();
+            // const result = res.filter((item) => (!set.has(item.name) ? set.add(item.name) : false));
+            // console.log(result);
+            setStoreArray(res);
 
             dispatch({
               type: 'setCollectionList',
-              data: result
+              data: res
             });
             let collectionMarks = [];
-            result.forEach((a) => {
+            res.forEach((a) => {
               let marks = {
                 lat: a.geometry.lat,
                 lng: a.geometry.lng,

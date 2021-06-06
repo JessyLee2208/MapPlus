@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import useMediaQuery from './Utils/useMediaQuery';
-import { ButtonPrimaryFlat, ButtonPrimaryRound } from './Components/UIComponents/Button';
+import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
 import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
 import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
-import { getMenuData, googleAccountSignIn, googleAccountLogOut, getStoreData } from './Utils/firebase';
+import { getMenuData, googleAccountSignIn, getStoreData } from './Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 import algoliasearch from 'algoliasearch';
@@ -16,16 +16,14 @@ import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
 
 import CollectionList from './View/CollectionList';
-import CollectionMarker from './Components/Marker';
+import Markers from './Components/Marker';
 
 import SearchList from './View/SearchList';
 import SearchListS from './View/SearchListS';
 import MapInforWindow from './Components/InfoWindow';
 import MemberPage from './View/MemberPage';
 
-import Toast from './Components/Toast';
-
-import { getStoreUrl } from './Utils/fetch';
+import Toast from './Components/Toast2';
 
 const UserPositionCheck = styled.div`
   width: 40px;
@@ -64,12 +62,41 @@ const AuthorImg = styled.img`
   position: fixed;
   right: 47px;
   top: 11px;
+
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 0px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    position: fixed;
+    right: 18px;
+    top: 15px;
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+  }
 `;
 
 const libraries = ['drawing', 'places'];
 const center = {
   lat: 25.020397,
   lng: 121.533053
+};
+
+const searchOption = {
+  fields: [
+    'name',
+    'formatted_address',
+    'place_id',
+    'geometry',
+    'opening_hours',
+    'utc_offset_minutes',
+    'reviews',
+    'formatted_phone_number',
+    'website'
+  ]
 };
 
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
@@ -97,6 +124,9 @@ function App() {
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const informationWindow = useSelector((state) => state.informationWindow);
 
+  const loginToast = useSelector((state) => state.loginToast);
+  const logOutToast = useSelector((state) => state.logOutToast);
+
   const mapRef = useRef();
   const searchRef = useRef();
   // const markerRef = useRef()
@@ -110,8 +140,8 @@ function App() {
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
 
-  const [loginToast, setloginToast] = useState(false);
-  const [logOutToast, setlogOutToast] = useState(false);
+  // const [loginToast, setloginToast] = useState(false);
+  // const [logOutToast, setlogOutToast] = useState(false);
   const [memberPageShow, setMemberPageShow] = useState(false);
 
   const mapContainerStyle = {
@@ -196,23 +226,37 @@ function App() {
   useEffect(() => {
     let newPlaceArray = [];
     if (collectionMarks.length > 0) {
-      collectionMarks.forEach((placeMarkers) => {
-        const request = {
-          placeId: placeMarkers.place_id,
-          fields: ['geometry']
-        };
-        // console.log(placeMarkers);
-        const markerArray = new Promise((res, rej) => {
-          service.getDetails(request, (place, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-              const geometry = place.geometry;
+      const NewRes = [...collectionMarks];
 
-              res({ ...placeMarkers, geometry: geometry });
+      let removed = [];
+      const count = NewRes.length / 10;
+      const countNam = parseInt(count);
+
+      let rule = countNam === 0 ? 1 : countNam;
+
+      for (let i = 0; i < rule; i++) {
+        let newArray = NewRes.slice(0, 10);
+
+        newArray.forEach((placeMarkers) => {
+          const markerArray = new Promise((res, rej) => {
+            const request = {
+              placeId: placeMarkers.place_id,
+              fields: ['geometry']
+            };
+            service.getDetails(request, callback);
+            function callback(place, status) {
+              if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                const geometry = place.geometry;
+
+                res({ ...placeMarkers, geometry: geometry });
+              }
             }
           });
+          newPlaceArray.push(markerArray);
         });
-        newPlaceArray.push(markerArray);
-      });
+        removed = NewRes.splice(countNam * 10);
+      }
+
       Promise.all(newPlaceArray).then((res) => {
         res.forEach((view) => {
           if (view.geometry.viewport) {
@@ -247,9 +291,19 @@ function App() {
     mapRef.current.panTo({ lat, lng });
   }, []);
 
-  useEffect(() => {}, [storeData]);
+  useEffect(() => {
+    if (!userStatus) {
+      setMemberPageShow(false);
+    }
+  }, [storeData, userStatus]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
+
+  const defaultMapOptions = {
+    fullscreenControl: !isMobile ? true : false,
+    streetViewControl: !isMobile ? true : false,
+    mapTypeControl: false
+  };
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
@@ -259,6 +313,11 @@ function App() {
     setBounds(mapRef.current.getBounds());
   };
   const hanldePlacesChanged = () => {
+    dispatch({
+      type: 'setStoreHover',
+      data: null
+    });
+
     dispatch({
       type: 'setCollectionMarks',
       data: []
@@ -287,6 +346,7 @@ function App() {
     });
 
     const places = searchRef.current.getPlaces();
+    // console.log(places);
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
 
@@ -306,7 +366,7 @@ function App() {
       const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
         const a = await res.json();
 
-        return { ...place, deliver: a };
+        return { ...place, opening_hours: { isOpen: place.opening_hours.isOpen() }, deliver: a };
       });
 
       placePromises.push(placePromise);
@@ -367,6 +427,7 @@ function App() {
       });
     } catch (error) {
       console.log(error);
+      setAlgoliaStore([]);
     }
   };
 
@@ -408,44 +469,68 @@ function App() {
 
   return (
     <Frame>
-      {userStatus && memberPageShow && <MemberPage></MemberPage>}
+      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow}></MemberPage>}
 
       {isMobile && !informationWindow ? (
-        <ButtonPrimaryRound
+        <ButtonPrimaryRoundIcon
           style={{ position: 'fixed', right: '40%', bottom: '24px' }}
           onClick={closeInformation}
           zIndex={4}
+          src="/map.png"
         >
           關閉map
-        </ButtonPrimaryRound>
+        </ButtonPrimaryRoundIcon>
       ) : (
         isMobile &&
         informationWindow &&
         (storeListExist || storeDetailExist || collectionCheck || dishDetailExist) && (
-          <ButtonPrimaryRound
+          <ButtonPrimaryRoundIcon
             style={{ position: 'fixed', right: '40%', bottom: '24px' }}
             onClick={closeInformation}
             zIndex={6}
+            src="/map.png"
           >
             開啟map
-          </ButtonPrimaryRound>
+          </ButtonPrimaryRoundIcon>
         )
       )}
 
       {loginToast && userStatus && (
-        <Toast visible={loginToast} onCancel={() => setloginToast(!loginToast)}>
+        <Toast
+          visible={loginToast}
+          onCancel={() =>
+            dispatch({
+              type: 'setloginToast',
+              data: false
+            })
+          }
+        >
           成功登入
         </Toast>
       )}
+
       {logOutToast && !userStatus && (
-        <Toast visible={logOutToast} onCancel={() => setloginToast(!logOutToast)}>
+        <Toast
+          visible={logOutToast}
+          onCancel={() =>
+            dispatch({
+              type: 'setlogOutToast',
+              data: false
+            })
+          }
+        >
           成功登出
         </Toast>
       )}
 
       {show && userStatus && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
-      <StandaloneSearchBox onLoad={onSearchLoad} onPlacesChanged={hanldePlacesChanged} bounds={bounds}>
+      <StandaloneSearchBox
+        onLoad={onSearchLoad}
+        onPlacesChanged={hanldePlacesChanged}
+        bounds={bounds}
+        options={searchOption}
+      >
         <SearchBox
           onClick={() => {
             setMemberPageShow(false);
@@ -486,7 +571,11 @@ function App() {
         <ButtonPrimaryFlat
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
-            setloginToast(!loginToast);
+            // setloginToast(!loginToast);
+            dispatch({
+              type: 'setloginToast',
+              data: true
+            });
           }}
           style={
             !isMobile
@@ -506,7 +595,7 @@ function App() {
       <UserPositionCheck
         onClick={getCurrentLoction}
         panTo={panTo}
-        style={{ display: informationWindow && isMobile ? 'none' : 'flex' }}
+        // style={{ display: informationWindow && isMobile ? 'none' : 'flex' }}
       >
         <img src="/current.png" alt=""></img>
       </UserPositionCheck>
@@ -518,12 +607,15 @@ function App() {
             ? mapContainerStyle
             : smileStoreExist && !isMobile
             ? mapContainerStyleWithStore
+            : (storeDetailOnlyOneExist || collectionCheck) && !isMobile
+            ? mapContainerStyleWithSearch
             : mapContainerStyle
         }
         zoom={16}
         center={center}
         onLoad={onMapLoad}
         onBoundsChanged={onBoundsChanged}
+        options={defaultMapOptions}
         style={{ padding: 0 }}
         onClick={() => {
           setMemberPageShow(false);
@@ -531,22 +623,11 @@ function App() {
       >
         {collectionMarks.length === 0
           ? mapMarkers.map((marker, key) => (
-              <CollectionMarker
-                service={service}
-                marker={marker}
-                content={storeData}
-                key={key}
-                onLoad={markeronLoad}
-              ></CollectionMarker>
+              <Markers service={service} marker={marker} content={storeData} key={key} onLoad={markeronLoad}></Markers>
             ))
           : collectionCheck &&
             collectionMarks.map((marker, key) => (
-              <CollectionMarker
-                tag={collectionCheck}
-                marker={marker}
-                key={key}
-                onLoad={markeronLoad}
-              ></CollectionMarker>
+              <Markers tag={collectionCheck} marker={marker} key={key} onLoad={markeronLoad}></Markers>
             ))}
         {currentLoction && (
           <Marker

@@ -15,6 +15,8 @@ const Menu = styled.div`
   align-items: center;
   padding: 12px 20px;
 
+  cursor: pointer;
+
   &:hover {
     background: #f7f7f7;
   }
@@ -55,18 +57,6 @@ const NoImg = styled.div`
   }
 `;
 
-const MenuPrice = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #185ee6;
-  margin: 0;
-`;
 const InfoBox = styled.div`
   display: block;
   padding: 0px 8px 0 14px;

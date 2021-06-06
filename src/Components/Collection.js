@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 let CollectBox = styled.div`
   width: auto;
   height: auto;
-  // padding-right: 18px;
-  position: absolute;
+
+  position: relative;
   background: #fff;
-  top: 316px;
+  top: 300px;
   right: 20px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
   border-radius: 8px;

@@ -19,13 +19,13 @@ const Pagetitle = styled.div`
 const H3title = styled.div`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 20px;
-  font-weight: 500;
+  font-weight: ${({ fontWeight }) => (fontWeight ? fontWeight : 500)};
   font-stretch: normal;
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
-  color: black;
+  color: ${({ color }) => (color ? '#' + color : '#000000')};
 
   padding: ${({ padding }) => (padding ? padding : '10px 0px')};
 `;
@@ -136,9 +136,9 @@ function PageTitle(props) {
 }
 
 function H3Title(props) {
-  const { padding } = props;
+  const { padding, color, fontWeight } = props;
   return (
-    <H3title style={props.style} padding={padding}>
+    <H3title style={props.style} padding={padding} color={color} fontWeight={fontWeight}>
       {props.children}
     </H3title>
   );
@@ -182,7 +182,7 @@ function SubItemTitle(props) {
 function Content(props) {
   const { padding, fontWeight, color } = props;
   return (
-    <Contentbody padding={padding} fontWeight={fontWeight} color={color}>
+    <Contentbody padding={padding} fontWeight={fontWeight} color={color} style={props.style}>
       {props.children}
     </Contentbody>
   );

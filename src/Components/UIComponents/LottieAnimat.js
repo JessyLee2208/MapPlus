@@ -7,10 +7,11 @@ const Test = styled.div`
   width: auto;
   height: 150px;
 
-  margin-top: 25vh;
+  margin-top: ${({ marginTop }) => (marginTop ? marginTop : '25vh')};
 `;
 
-function Loading() {
+function Loading(props) {
+  const { marginTop } = props;
   useEffect(() => {
     lottie.loadAnimation({
       container: document.querySelector('#loading'),
@@ -20,7 +21,7 @@ function Loading() {
 
   return (
     <div>
-      <Test id="loading"></Test>
+      <Test id="loading" marginTop={marginTop}></Test>
     </div>
   );
 }

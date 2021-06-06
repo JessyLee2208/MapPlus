@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { getDishData } from '../Utils/firebase';
 import { useDispatch } from 'react-redux';
-import { ItemTitle, SubItemTitle } from './UIComponents/Typography';
+import { SubItemTitle } from './UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
 
 const Menu = styled.div`

@@ -143,6 +143,7 @@ const TabActive = styled.div`
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
+  display: block;
 
   cursor: pointer;
 `;
@@ -156,6 +157,7 @@ const Tab = styled.div`
   line-height: normal;
   letter-spacing: normal;
   text-align: left;
+  display: block;
 
   cursor: pointer;
 `;
@@ -174,7 +176,7 @@ function StoreDetail(props) {
   let starArry = [];
   let websitesURL = '';
   let deliverSite = '';
-  let deliverSiteTag = <div></div>;
+
   let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
   const deliverCheck = props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null;
 
@@ -377,7 +379,7 @@ function StoreDetail(props) {
         props.menu.length > 0 ? (
           props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
         ) : (
-          <Loading />
+          <Loading marginTop={'7vh'} />
         )
       ) : (
         <div></div>

@@ -4,8 +4,6 @@ import { useSelector } from 'react-redux';
 
 import StoreCardL from '../Components/StoreCardL';
 import { deviceSize } from '../responsive/responsive';
-// import { SearchBg } from '../Components/UIComponents/common';
-// import { ButtonGhostRoundIcon } from '../Components/UIComponents/Button';
 import SearchMenuCard from '../Components/SearchMenuCard';
 import FilterBox from '../Components/FilterBox';
 
@@ -45,14 +43,14 @@ const Box = styled.div`
 function SearchList(props) {
   const storeData = useSelector((state) => state.storeData);
   const searchMenu = useSelector((state) => state.searchMenu);
-  const [visible, setVisible] = useState(false);
+  const [visibleType, setVisibleType] = useState(false);
+  const [visibleOpt, setVisibleOpt] = useState(false);
   const [ratingType, setRatingType] = useState('upToDown');
   const [checkType, setCheckType] = useState('store');
 
   const [store, setStore] = useState(storeData);
   const [menu, setMenu] = useState(searchMenu);
   // const [ratingChronological, setRatingChronological] = useState('upToDown');
-  // console.log(searchMenu);
   // console.log('searchList', ratingType, checkType, storeData, searchMenu);
 
   useEffect(() => {
@@ -81,9 +79,10 @@ function SearchList(props) {
 
   function handleFilterSelecterClose() {
     // console.log(1);
-    if (visible) {
-      setVisible(false);
-      setRatingType(false);
+    if (visibleType || visibleOpt) {
+      setVisibleType(false);
+      setVisibleOpt(false);
+      // setRatingType(false);
     }
   }
 
@@ -117,20 +116,23 @@ function SearchList(props) {
           valueTwo={'依菜品顯示'}
           setType={setCheckType}
           // setTypeVisible={setVisible}
-          // visible={visible}
+          visible={setVisibleType}
+          visibleCheck={visibleType}
         ></FilterBox>
         <FilterBox
-          top={90}
+          top={86}
           width={100}
           typeOne={'upToDown'}
           valueOne={'評分高至低'}
           tpyeTwo={'downToUp'}
           valueTwo={'評分低至高'}
           tpyeThree={'qtyUpToDown'}
-          valueThree={'評分人數高至低'}
+          valueThree={'評分人數多至少'}
           tpyeFour={'qtyDownToUp'}
-          valueFour={'評分人數低至高'}
+          valueFour={'評分人數少至多'}
           setType={setRatingType}
+          visible={setVisibleOpt}
+          visibleCheck={visibleOpt}
           // setTypeVisible={setVisible}
           // visible={visible}
         ></FilterBox>

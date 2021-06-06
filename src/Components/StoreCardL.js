@@ -56,7 +56,7 @@ const WithoutImg = styled.div`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px 10px 10px 10px;
+  margin: 10px 18px 10px 10px;
   text-align: right;
   flex-shrink: 1;
   background: #f0f0f0;
@@ -97,6 +97,7 @@ const CheckIcon = styled.img`
 `;
 
 function StoreCard(props) {
+  // console.log(props.product);
   let starArry = [];
   let priceLevel = [];
   let typesCheck = props.product.types.includes('food');
@@ -207,6 +208,7 @@ function StoreCard(props) {
   }
 
   function handleHoverEvent() {
+    // console.log(props.product);
     dispatch({
       type: 'setStoreHover',
       data: props.product
@@ -215,7 +217,7 @@ function StoreCard(props) {
   function handleHoverOutEvent() {
     dispatch({
       type: 'setStoreHover',
-      data: props.product
+      data: null
     });
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Modal from './Modal';
@@ -69,6 +69,10 @@ function ReminderModal() {
           style={{ margin: '16px' }}
           onClick={(e) => {
             googleAccountSignIn(e, dispatch);
+            dispatch({
+              type: 'setlogOutToast',
+              data: true
+            });
             handleClose();
           }}
         >

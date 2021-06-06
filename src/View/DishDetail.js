@@ -5,7 +5,7 @@ import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
 import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
 import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents/Button';
-import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
+import { PageTitle, SubTitle, SubItemTitle, H3Title } from '../Components/UIComponents/Typography';
 
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 import { deviceSize } from '../responsive/responsive';
@@ -48,21 +48,6 @@ const WithoutDishImg = styled.div`
   text-align: right;
   flex-shrink: 1;
   object-fit: cover;
-`;
-
-const DishPrice = styled.p`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 20px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  letter-spacing: normal;
-  line-height: normal;
-  text-align: left;
-  color: #185ee6;
-  margin: 1px;
-
-  padding-right: 20px;
 `;
 
 const RatingDiv = styled.div`
@@ -151,7 +136,13 @@ const NoComment = styled.p`
 const CollectIcon = styled.img`
   // width: 30px;
   height: 30px;
-  padding-right: 18px;
+  margin-right: 16px;
+  padding: 6px;
+  border-radius: 50%;
+
+  &:hover {
+    box-shadow: 0 0px 6px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const InfoBold = styled.p`
@@ -394,9 +385,13 @@ function DishDetail(props) {
           <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
 
           <RatingDiv>
-            <DishPrice>NT${selectedDish.price}</DishPrice>
+            <H3Title color={'185ee6'} padding={'0 20px 0 0'}>
+              NT${selectedDish.price}
+            </H3Title>
             <Icon src="/active_star.png" alt=""></Icon>
-            <Info>{newRating}</Info>
+            <H3Title padding={' 0'} fontWeight={400} color={797979}>
+              {newRating}
+            </H3Title>
           </RatingDiv>
         </DishBox>
         {collectData.length > 0 ? (

@@ -80,7 +80,7 @@ const ButtonprimaryRound = styled.button`
   background: #4285f4;
   color: #fff;
 
-  padding: 0.3em 1.2em;
+  padding: 0.5em 1.2em;
   font-size: 15px;
   border-radius: 25px;
 
@@ -173,6 +173,46 @@ const ButtonghostRoundWithIcon = styled.button`
   }
 `;
 
+const ButtongprimaryRoundWithIcon = styled.button`
+  border: none;
+  outline: none;
+
+  background: #4285f4;
+  color: #fff;
+
+  padding: 0.6em 1.2em;
+  font-size: 15px;
+  border-radius: 25px;
+
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+
+  font-size: 15px;
+  border-radius: 25px;
+
+  display: flex;
+  align-items: center;
+
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+
+  margin: ${({ margin }) => (margin ? margin : 0)};
+  z-index: ${({ zIndex }) => (zIndex ? zIndex : 1)};
+
+  &:focus {
+    outline: none;
+  }
+  @media screen and (max-width: ${deviceSize.mobileS}px) {
+    font-size: 13px;
+    padding: 0.3em 1em;
+  }
+
+  img {
+    width: 14px;
+    margin-left: 4px;
+  }
+`;
+
 function ButtonPrimaryRound(props) {
   const { zIndex } = props;
   return (
@@ -224,11 +264,22 @@ function ButtonGhostRoundIcon(props) {
   );
 }
 
+function ButtonPrimaryRoundIcon(props) {
+  const { src, margin, zIndex } = props;
+  return (
+    <ButtongprimaryRoundWithIcon onClick={props.onClick} style={props.style} margin={margin} zIndex={zIndex}>
+      {props.children}
+      <img src={src} alt=""></img>
+    </ButtongprimaryRoundWithIcon>
+  );
+}
+
 export {
   ButtonPrimaryRound,
   ButtonGhostRound,
   ButtonPrimaryFlat,
   ButtonSecondaryFlat,
   ButtonDisableFlat,
-  ButtonGhostRoundIcon
+  ButtonGhostRoundIcon,
+  ButtonPrimaryRoundIcon
 };
