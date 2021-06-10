@@ -56,7 +56,7 @@ const WithoutImg = styled.div`
   width: 90px;
   height: 90px;
   border-radius: 8px;
-  margin: 10px 10px 10px 10px;
+  margin: 10px 18px 10px 10px;
   text-align: right;
   flex-shrink: 1;
   background: #f0f0f0;
@@ -215,7 +215,7 @@ function StoreCard(props) {
   function handleHoverOutEvent() {
     dispatch({
       type: 'setStoreHover',
-      data: props.product
+      data: null
     });
   }
 

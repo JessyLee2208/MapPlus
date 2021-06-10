@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 let CollectBox = styled.div`
   width: auto;
   height: auto;
-  // padding-right: 18px;
-  position: absolute;
+
+  position: relative;
   background: #fff;
-  top: 316px;
+  top: 300px;
   right: 20px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
   border-radius: 8px;
@@ -33,6 +33,11 @@ const CollectListBox = styled.div`
   margin: 0;
   padding: 8px 16px 10px 12px;
   align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    background: #f7f7f7;
+  }
 `;
 
 const CollectListBoxSelect = styled.div`
@@ -51,6 +56,7 @@ const Icon = styled.img`
 `;
 
 const CollectTitle = styled.p`
+  width: 100%;
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 16px;
   font-weight: 400;
@@ -93,7 +99,7 @@ function Collection(props) {
 
       position: absolute;
       background: #fff;
-      top: 316px;
+      top: 294px;
       right: 20px;
       box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
       border-radius: 8px;
@@ -101,7 +107,11 @@ function Collection(props) {
   }
 
   function handleCollectListClick(e) {
-    const selectedCollect = e.target.innerHTML;
+    let selectedCollect = e.target.innerHTML;
+
+    if (e.target.nodeName === 'IMG') {
+      selectedCollect = e.target.alt;
+    }
 
     if (e.target.id === 'collect') {
       addDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
@@ -178,36 +188,36 @@ function Collection(props) {
       </InfoBold>
       {want ? (
         <CollectListBoxSelect id="removeCollection">
-          <Icon src="/falg_select.png"></Icon>
+          <Icon src="/falg_select.png" id="removeCollection" alt="想去的地點"></Icon>
           <CollectTitle id="removeCollection">想去的地點</CollectTitle>
         </CollectListBoxSelect>
       ) : (
-        <CollectListBox id="collect">
-          <Icon src="/falg.png"></Icon>
+        <CollectListBox>
+          <Icon src="/falg.png" id="collect" alt="想去的地點"></Icon>
           <CollectTitle id="collect">想去的地點</CollectTitle>
         </CollectListBox>
       )}
       {like ? (
         <CollectListBoxSelect id="removeCollection">
-          <Icon src="/heart_select.png"></Icon>
+          <Icon src="/heart_select.png" id="removeCollection" alt="喜愛的地點"></Icon>
           <CollectTitle id="removeCollection">喜愛的地點</CollectTitle>
         </CollectListBoxSelect>
       ) : (
-        <CollectListBox id="collect">
-          <Icon src="/heart.png"></Icon>
+        <CollectListBox>
+          <Icon src="/heart.png" id="collect" alt="喜愛的地點"></Icon>
           <CollectTitle id="collect">喜愛的地點</CollectTitle>
         </CollectListBox>
       )}
       {stare ? (
         <CollectListBoxSelect id="removeCollection">
-          <Icon src="/star_select.png"></Icon>
+          <Icon src="/star_select.png" id="removeCollection" alt="已加星號的地點"></Icon>
           <CollectTitle id="removeCollection" value="已加星號的地點">
             已加星號的地點
           </CollectTitle>
         </CollectListBoxSelect>
       ) : (
-        <CollectListBox id="collect">
-          <Icon src="/active_star.png"></Icon>
+        <CollectListBox>
+          <Icon src="/active_star.png" id="collect" alt="已加星號的地點"></Icon>
           <CollectTitle id="collect" value="已加星號的地點">
             已加星號的地點
           </CollectTitle>

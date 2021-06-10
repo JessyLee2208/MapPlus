@@ -8,7 +8,7 @@ let Filter = styled.div`
   // padding-right: 18px;
   position: relative;
   background: #fff;
-  top: ${({ top }) => (top ? top + 'px' : 49 + 'px')};
+  top: ${({ top }) => (top ? top + 'px' : 44 + 'px')};
   left: 16px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
   border-radius: 8px;
@@ -32,16 +32,12 @@ const FilterListBox = styled.div`
 
 function FilterBox(props) {
   const { top, width } = props;
-  const [showType, setShowType] = useState(false);
+
   const [checkType, setCheckType] = useState(props.typeOne);
 
   function handleFilterSelecter() {
-    if (!showType) {
-      // props.setTypeVisible(true);
-      setShowType(true);
-    } else {
-      // props.setTypeVisible(false);
-      setShowType(false);
+    if (!props.visibleCheck) {
+      props.visible(true);
     }
   }
 
@@ -49,29 +45,25 @@ function FilterBox(props) {
     if (e.target.id === props.typeOne) {
       setCheckType(props.typeOne);
       props.setType(props.typeOne);
-      // props.setTypeVisible(false);
-      setShowType(false);
+      props.visible(false);
     } else if (e.target.id === props.tpyeTwo) {
       setCheckType(props.tpyeTwo);
       props.setType(props.tpyeTwo);
-      // props.setTypeVisible(false);
-      setShowType(false);
+      props.visible(false);
     } else if (e.target.id === props.tpyeThree) {
       setCheckType(props.tpyeThree);
       props.setType(props.tpyeThree);
-      // props.setTypeVisible(false);
-      setShowType(false);
+      props.visible(false);
     } else if (e.target.id === props.tpyeFour) {
       setCheckType(props.tpyeFour);
       props.setType(props.tpyeFour);
-      // props.setTypeVisible(false);
-      setShowType(false);
+      props.visible(false);
     }
   }
 
   return (
     <div>
-      {showType && (
+      {props.visibleCheck && (
         <Filter top={top} width={width}>
           <FilterListBox onClick={handleChangeType} id={props.typeOne}>
             {props.valueOne}

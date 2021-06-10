@@ -4,13 +4,14 @@ import reactLogo from '../../static/loading.json';
 import styled from 'styled-components';
 
 const Test = styled.div`
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  margin-right: 12px;
+  width: auto;
+  height: 150px;
+
+  margin-top: ${({ marginTop }) => (marginTop ? marginTop : '25vh')};
 `;
 
-function Loading() {
+function Loading(props) {
+  const { marginTop } = props;
   useEffect(() => {
     lottie.loadAnimation({
       container: document.querySelector('#loading'),
@@ -20,7 +21,7 @@ function Loading() {
 
   return (
     <div>
-      <Test id="loading"></Test>
+      <Test id="loading" marginTop={marginTop}></Test>
     </div>
   );
 }

@@ -8,7 +8,8 @@ import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typogr
 import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
 import useMediaQuery from '../Utils/useMediaQuery';
 import { deviceSize } from '../responsive/responsive';
-import Toast from './Toast';
+
+import toast from 'react-hot-toast';
 
 const Separator = styled.div`
   width: auto;
@@ -18,10 +19,10 @@ const Separator = styled.div`
 `;
 
 const Textarea = styled.textarea`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-family: Roboto, Noto Sans TC, Arial, sans-serif;
   font-size: 16px;
   resize: none;
-  border: ' 1px solid #efefef';
+
   width: calc(100% - 20px);
   height: 120px;
   outline: none;
@@ -34,6 +35,32 @@ const RatingDiv = styled.div`
   margin: 0;
   align-items: center;
   padding: 6px 0 0 0;
+`;
+
+const Div = styled.div`
+  display: flex;
+  margin: 0;
+  align-items: center;
+  // padding: 6px 0 0 0;
+  position: relative;
+`;
+
+const Delete = styled.div`
+  background: #fff;
+  opacity: 0.8;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  top: -24px;
+  right: -67px;
+  border-radius: 20px;
+  box-shadow: 0 0px 5px rgb(0 0 0 / 26%);
+
+  z-index: 2;
+  text-align: center;
+  line-height: 18px;
+
+  cursor: pointer;
 `;
 
 const Footer = styled.div`
@@ -76,7 +103,7 @@ const Img = styled.img`
   width: 60px;
   height: 60px;
   border-radius: 8px;
-  margin: 0px 0px 0px 12px;
+  // margin: 0px 0px 0px 12px;
 
   flex-shrink: 1;
 `;
@@ -99,7 +126,7 @@ function CommentModal({ show }) {
   const [commentValue, setCommentValue] = React.useState('');
   const [imgUrl, setImgUrl] = React.useState([]);
 
-  const [commentToast, setCommentToast] = React.useState(false);
+  // const [commentToast, setCommentToast] = React.useState(false);
   // const [buttonStatu, setButtonStatu] = useState(false);
 
   function handleClose() {
@@ -125,10 +152,21 @@ function CommentModal({ show }) {
     }
   }
 
+  function handlePhotoDelete(e) {
+    const target = e.target.id;
+    let newPhotoArray = [...imgUrl];
+
+    newPhotoArray.splice(target, 1);
+
+    setImgUrl(newPhotoArray);
+  }
+
   const bindUploadPhotoBtn = async (e) => {
     const url = upLoadPhotoToFirebase(e);
     Promise.all(url).then((res) => {
-      setImgUrl(res);
+      let newPhotoArray = [...imgUrl];
+      newPhotoArray.push(...res);
+      setImgUrl(newPhotoArray);
     });
   };
 
@@ -154,10 +192,26 @@ function CommentModal({ show }) {
           type: 'upDateSelectMenuData',
           data: res
         });
-        setCommentToast(!commentToast);
+        dispatch({
+          type: 'upDateSearchMenu',
+          data: res
+        });
+        notify();
       });
     } else {
-      userReviewEdit(userReviewSet, ReviewData);
+      let oldRating = userReviewSet.rating;
+      userReviewEdit(userReviewSet, ReviewData, oldRating).then((res) => {
+        dispatch({
+          type: 'upDateSelectMenuData',
+          data: res
+        });
+
+        dispatch({
+          type: 'upDateSearchMenu',
+          data: res
+        });
+        notifyEdit();
+      });
     }
 
     handleClose();
@@ -172,14 +226,25 @@ function CommentModal({ show }) {
     ref.current.click();
   }
 
+  const notify = () =>
+    toast('評論成功', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
+  const notifyEdit = () =>
+    toast('評論編輯成功', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
+
   return (
     <>
-      {commentToast && (
-        <Toast visible={commentToast} onCancel={() => setCommentToast(!commentToast)}>
-          評論送出成功
-        </Toast>
-      )}
-
       <Modal visible={modalShow} onCancel={handleClose}>
         <ModalContent>
           <PageTitle padding={'0'}>{DishData.name}</PageTitle>
@@ -209,7 +274,18 @@ function CommentModal({ show }) {
             <UpLoadImg style={{ borderRadius: '6px' }} onClick={handleInputClick}>
               <img src="/uploadbtn.png" alt=""></img>
             </UpLoadImg>
-            {imgUrl ? imgUrl.map((url) => <Img src={url} alt=""></Img>) : <></>}
+            {imgUrl ? (
+              imgUrl.map((url, index) => (
+                <Div>
+                  <Delete onClick={handlePhotoDelete} id={index}>
+                    ×
+                  </Delete>
+                  <Img src={url} alt=""></Img>
+                </Div>
+              ))
+            ) : (
+              <></>
+            )}
           </RatingDiv>
 
           <Footer>

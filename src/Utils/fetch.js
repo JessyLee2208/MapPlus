@@ -1,7 +1,5 @@
-import React from 'react';
-
-// const host_name = 'https://hsiaohan.cf';
-const host_name = 'http://localhost:5000';
+const host_name = 'https://hsiaohan.cf';
+// const host_name = 'http://localhost:5000';
 
 function getStoreMenu(deliver) {
   fetch(`${host_name}/getStoreProducts`, {

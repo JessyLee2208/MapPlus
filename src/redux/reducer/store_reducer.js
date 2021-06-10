@@ -15,7 +15,10 @@ const initState = {
   searchMenu: null,
   userReviewSet: null,
   informationWindow: true,
-  storeHover: null
+  storeHover: null,
+
+  loginToast: false,
+  markerHover: null
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -93,6 +96,18 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         searchMenu: data
+      };
+    }
+
+    case 'upDateSearchMenu': {
+      const index = preState.searchMenu.findIndex((data) => data.name === preState.selectedDish.name);
+      const newMenuData = [...preState.searchMenu];
+      const NewObj = { ...newMenuData[index], rating: data };
+
+      newMenuData[index] = NewObj;
+      return {
+        ...preState,
+        searchMenu: newMenuData
       };
     }
 
@@ -179,6 +194,20 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         storeHover: data
+      };
+    }
+
+    case 'setloginToast': {
+      return {
+        ...preState,
+        loginToast: data
+      };
+    }
+
+    case 'setMarkerHover': {
+      return {
+        ...preState,
+        markerHover: data
       };
     }
 

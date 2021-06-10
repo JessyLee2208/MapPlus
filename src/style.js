@@ -5,7 +5,7 @@ const SearchInput = styled.input`
   brackground: none;
   position: relative;
   height: 100%;
-  width: 80%;
+  width: 95%;
   padding: 0;
   border: none;
   outline: none;
@@ -20,6 +20,7 @@ const SearchBox = styled.div`
   height: 48px;
   padding: 0 12px;
   position: fixed;
+  display: flex;
 
   fontsize: 14px;
   textoverflow: ellipses;

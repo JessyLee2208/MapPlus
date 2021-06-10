@@ -140,6 +140,7 @@ function StoreCardS(props, key) {
     }
 
     getStoreMenu(props.product.deliver);
+
     getMorereDetail(props.product, props.service).then((res) => {
       dispatch({
         type: 'setSelectedStore',
@@ -162,16 +163,13 @@ function StoreCardS(props, key) {
     }
   }
 
-  function handleHoverEvent(e) {
+  function handleHoverEvent() {
     dispatch({
       type: 'setStoreHover',
       data: props.product
     });
-    e.stopPropagation();
-    props.icon(true);
 
-    //
-    // console.log(props.icon);
+    props.icon(true);
   }
   function handleHoverOutEvent() {
     dispatch({

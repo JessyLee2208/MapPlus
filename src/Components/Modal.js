@@ -69,7 +69,7 @@ function Modal(props) {
     contentRef.current.animate(contentAnimation, animationSettings);
     overlayRef.current.animate(overlayAnimation, animationSettings);
     setVisible(true);
-  }, [animationSettings, overlayAnimation, contentAnimation]);
+  }, [overlayAnimation, contentAnimation]);
 
   const animateOut = useCallback(async () => {
     await Promise.all([
