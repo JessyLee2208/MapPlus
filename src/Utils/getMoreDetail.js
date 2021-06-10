@@ -125,13 +125,12 @@ function getStoreDetail(place_id, service) {
   return new Promise((res, rej) => {
     service.getDetails(request, (place, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        const isOpenNow = place.opening_hours.isOpen();
         const opening_hours = {
-          isOpen: isOpenNow,
-          periods: place.opening_hours.periods,
-          weekday_text: place.opening_hours.weekday_text
+          isOpen: place.opening_hours && place.opening_hours.isOpen(),
+          periods: place.opening_hours && place.opening_hours.periods,
+          weekday_text: place.opening_hours && place.opening_hours.weekday_text
         };
-        const newData = { ...place, opening_hours: opening_hours };
+        const newData = { ...place, opening_hours: place.opening_hours ? opening_hours : '' };
         getStoreUrl(place.name, newData).then((data) => {
           res(data);
         });

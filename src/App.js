@@ -1,32 +1,30 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
-import useMediaQuery from './Utils/useMediaQuery';
-import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
-import { deviceSize } from './responsive/responsive';
 import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker, InfoWindow } from '@react-google-maps/api';
-import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 import toast, { Toaster } from 'react-hot-toast';
+import algoliasearch from 'algoliasearch';
+import { useDispatch, useSelector } from 'react-redux';
+import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
-import { getMenuData, googleAccountSignIn, getStoreData, googleAccountStateChanged } from './Utils/firebase';
-import { useDispatch, useSelector } from 'react-redux';
-
-import algoliasearch from 'algoliasearch';
-import CommentModal from './Components/CommentModal';
-import ReminderModal from './Components/ReminderModal';
-
-import CollectionList from './View/CollectionList';
-import Markers from './Components/Marker';
-
 import SearchList from './View/SearchList';
 import SearchListS from './View/SearchListS';
-import MapInforWindow from './Components/InfoWindow';
-import { Loading } from './Components/UIComponents/LottieAnimat';
 import MemberPage from './View/MemberPage';
-import { getStoreDetail } from './Utils/getMoreDetail';
+import CollectionList from './View/CollectionList';
+import NotFound from './View/NotFount';
 
-import Toast from './Components/Toast2';
+import { getMenuData, googleAccountSignIn, getStoreData, googleAccountStateChanged } from './Utils/firebase';
+import { getStoreDetail } from './Utils/getMoreDetail';
+import useMediaQuery from './Utils/useMediaQuery';
+
+import CommentModal from './Components/CommentModal';
+import ReminderModal from './Components/ReminderModal';
+import { Loading } from './Components/UIComponents/LottieAnimat';
+import MapInforWindow from './Components/InfoWindow';
+import Markers from './Components/Marker';
+import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
+import { deviceSize } from './responsive/responsive';
 
 const UserPositionCheck = styled.div`
   width: 40px;
@@ -164,6 +162,7 @@ function App() {
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [placrCheck, setPlacrCheck] = useState(false);
 
   const [memberPageShow, setMemberPageShow] = useState();
 
@@ -310,6 +309,13 @@ function App() {
     }
   }, [selectedStore]);
 
+  useEffect(() => {
+    let pathname = window.location.pathname;
+    if (pathname !== '/') {
+      window.location.pathname = '';
+    }
+  }, []);
+
   const panTo = useCallback(({ lat, lng }) => {
     mapRef.current.panTo({ lat, lng });
   }, []);
@@ -336,7 +342,7 @@ function App() {
     return googleAccountStateChanged(callback);
   }, []);
 
-  useEffect(() => {}, [markerHover]);
+  // useEffect(() => {}, [markerHover]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
@@ -387,6 +393,10 @@ function App() {
     });
 
     const places = searchRef.current.getPlaces();
+    // console.log(places);
+    if (places.length === 0) {
+      setPlacrCheck(true);
+    }
 
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
@@ -426,7 +436,7 @@ function App() {
       placePromises.push(placePromise);
     });
 
-    mapRef.current.fitBounds(bounds);
+    if (places.length > 0) mapRef.current.fitBounds(bounds);
 
     const callback = (data) => {
       dispatch({
@@ -457,10 +467,6 @@ function App() {
     });
   };
 
-  function handleSearchText(e) {
-    setSearchText(e.target.value);
-  }
-
   const handleSearch = async (queryText) => {
     try {
       await searchIndex.search(queryText).then(({ hits }) => {
@@ -474,7 +480,7 @@ function App() {
           const data = getStoreData(hit.storeCollectionID);
           algoliaSearchData.push(data);
         });
-        // setAlgoSearchData(algoliaSearchData);
+
         Promise.all(algoliaSearchData).then((res) => {
           setAlgoliaStore(res);
         });
@@ -551,6 +557,7 @@ function App() {
       data: null
     });
     setMapStore([]);
+    setPlacrCheck(false);
   }
 
   return (
@@ -562,8 +569,8 @@ function App() {
         !storeDetailOnlyOneExist &&
         searchMenu &&
         !isMobile && (
-          <div style={{ width: '435px' }}>
-            <Loading></Loading>
+          <div style={{ width: '435px', height: '100vh' }}>
+            {!placrCheck ? <Loading></Loading> : <NotFound searchText={searchText}></NotFound>}
           </div>
         )}
 
@@ -610,10 +617,10 @@ function App() {
           <SearchInput
             type="text"
             placeholder="搜尋 Google 地圖"
-            onChange={handleSearchText}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch(searchText);
+                setSearchText(e.target.value);
               }
             }}
             restriction={{
