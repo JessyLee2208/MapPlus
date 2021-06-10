@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import MenuCard from '../Components/MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
-import { PageTitle, Description, SubTitle, SubItemTitle } from '../Components/UIComponents/Typography';
+import { PageTitle, Description, SubTitle, SubItemTitle, ItemTitle } from '../Components/UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
@@ -130,6 +130,7 @@ const TabBox = styled.div`
   display: flex;
   margin-top: 10px;
   padding: 0 20px;
+  height: 36px;
 `;
 const TabActive = styled.div`
   margin: 10px 20px 0px 0;
@@ -144,6 +145,7 @@ const TabActive = styled.div`
   letter-spacing: normal;
   text-align: left;
   display: block;
+  height: 18px;
 
   cursor: pointer;
 `;
@@ -158,6 +160,7 @@ const Tab = styled.div`
   letter-spacing: normal;
   text-align: left;
   display: block;
+  height: 18px;
 
   cursor: pointer;
 `;
@@ -171,11 +174,18 @@ const WithoutDishImg = styled.div`
   object-fit: cover;
 `;
 
+const SearchCity = styled.span`
+  // padding-top: 10px;
+  color: #185ee6;
+`;
+
 function StoreDetail(props) {
   const storeData = useSelector((state) => state.storeData);
   let starArry = [];
   let websitesURL = '';
   let deliverSite = '';
+
+  const locationCheck = props.product.types[0].includes('administrative_area_level');
 
   let typesCheck = props.product.types.includes('food') || props.product.types.includes('cafe');
   const deliverCheck = props.product.deliver.foodPandaUrl !== null || props.product.deliver.uberEatUrl !== null;
@@ -229,6 +239,14 @@ function StoreDetail(props) {
   }
 
   function handleClickEvent(e) {
+    dispatch({
+      type: 'setUserReviewSet',
+      data: null
+    });
+    dispatch({
+      type: 'setCollectData',
+      data: []
+    });
     if (props.menu) {
       props.menu.forEach((dish) => {
         if (e.target.id === dish.name) {
@@ -260,8 +278,15 @@ function StoreDetail(props) {
     });
   }
 
+  function handle() {
+    dispatch({
+      type: 'setMarkerHover',
+      data: null
+    });
+  }
+
   return (
-    <Store onClick={handleClickEvent}>
+    <Store onClick={handleClickEvent} onMouseOver={handle}>
       {storeData.length > 1 && (
         <>
           <SearchSeparator></SearchSeparator>
@@ -283,106 +308,130 @@ function StoreDetail(props) {
       )}
 
       <PageTitle>{props.product.name}</PageTitle>
-      <RatingDiv>
-        <Description>{props.product.rating}</Description>
-        <StarBoxStore>{starArry}</StarBoxStore>
-        <Description>{props.product.user_ratings_total} 則評論</Description>
-      </RatingDiv>
-      <Separator></Separator>
-      {(props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) && (
-        <TabBox>
-          {tab === 'information' ? <TabActive id="information">資訊</TabActive> : <Tab id="information">資訊</Tab>}
-          {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
-        </TabBox>
-      )}
-
-      <Separator></Separator>
-      {tab === 'information' ? (
-        <div>
-          {typesCheck && (
-            <Box>
-              <CheckIcon src="/true.png"></CheckIcon>
-              <Description>內用</Description>
-              <Description>．</Description>
-              <CheckIcon src="/true.png"></CheckIcon>
-              <Description>外帶</Description>
-              <Description>．</Description>
-              {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
-                <CheckIcon src="/true.png"></CheckIcon>
-              ) : (
-                <CheckIcon src="/false.png"></CheckIcon>
-              )}
-              <Description>外送</Description>
-            </Box>
+      {!locationCheck ? (
+        <>
+          <RatingDiv>
+            <Description>{props.product.rating}</Description>
+            <StarBoxStore>{starArry}</StarBoxStore>
+            <Description>{props.product.user_ratings_total} 則評論</Description>
+          </RatingDiv>
+          <Separator></Separator>
+          {(props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) && (
+            <div>
+              <TabBox>
+                {tab === 'information' ? (
+                  <TabActive id="information">資訊</TabActive>
+                ) : (
+                  <Tab id="information">資訊</Tab>
+                )}
+                {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
+              </TabBox>
+            </div>
           )}
 
-          <InforList>
-            <InfoBox>
-              <Icon src="/location.png"></Icon>
-              <Description color={'000000'}>{props.product.formatted_address}</Description>
-            </InfoBox>
-            <InfoBox>
-              <Icon src="/time.png"></Icon>
-
-              {props.product.opening_hours !== undefined ? (
-                props.product.opening_hours.weekday_text ? (
-                  <Description color={'000000'}>營業中：{timestamp}</Description>
-                ) : (
-                  <Description color={'000000'} padding={'0 0 0 10px'}>
-                    營業中
-                  </Description>
-                )
-              ) : (
-                props.product.business_status === 'CLOSED_TEMPORARILY' && (
-                  <Description color={'000000'}>歇業中</Description>
-                )
-              )}
-            </InfoBox>
-
-            {deliverCheck && (
-              <InfoBox>
-                <Icon src="/car.png"></Icon>
-                <InfoLink
-                  href={
-                    props.product.deliver.uberEatUrl
-                      ? props.product.deliver.uberEatUrl
-                      : props.product.deliver.foodPandaUrl
-                  }
-                >
-                  {deliverSite[2]}
-                </InfoLink>
-              </InfoBox>
-            )}
-            {props.product.website && (
-              <InfoBox>
-                <Icon src="/earth.png"></Icon>
-                <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
-              </InfoBox>
-            )}
-            {props.product.formatted_phone_number && (
-              <InfoBox>
-                <Icon src="/phone.png"></Icon>
-                <Description color={'000000'}>{props.product.formatted_phone_number}</Description>
-              </InfoBox>
-            )}
-
-            <InfoBox>
-              <Icon src="/plusCode.png"></Icon>
-              <Description color={'000000'}>{props.product.plus_code.compound_code}</Description>
-            </InfoBox>
-          </InforList>
           <Separator></Separator>
-          <SubTitle>評論摘要</SubTitle>
-          {AllReviews}
-        </div>
-      ) : props.menu && props.menu !== null && tab === 'menu' ? (
-        props.menu.length > 0 ? (
-          props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
-        ) : (
-          <Loading marginTop={'7vh'} />
-        )
+          {tab === 'information' ? (
+            <div>
+              {typesCheck && (
+                <Box>
+                  <CheckIcon src="/true.png"></CheckIcon>
+                  <Description>內用</Description>
+                  <Description>．</Description>
+                  <CheckIcon src="/true.png"></CheckIcon>
+                  <Description>外帶</Description>
+                  <Description>．</Description>
+                  {props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl ? (
+                    <CheckIcon src="/true.png"></CheckIcon>
+                  ) : (
+                    <CheckIcon src="/false.png"></CheckIcon>
+                  )}
+                  <Description>外送</Description>
+                </Box>
+              )}
+
+              <InforList>
+                <InfoBox>
+                  <Icon src="/location.png"></Icon>
+                  <Description color={'000000'}>{props.product.formatted_address}</Description>
+                </InfoBox>
+                <InfoBox>
+                  <Icon src="/time.png"></Icon>
+
+                  {props.product.opening_hours !== undefined ? (
+                    props.product.opening_hours.weekday_text ? (
+                      <Description color={'000000'}>營業中：{timestamp}</Description>
+                    ) : (
+                      <Description color={'000000'} padding={'0 0 0 10px'}>
+                        營業中
+                      </Description>
+                    )
+                  ) : (
+                    props.product.business_status === 'CLOSED_TEMPORARILY' && (
+                      <Description color={'000000'}>歇業中</Description>
+                    )
+                  )}
+                </InfoBox>
+
+                {deliverCheck && (
+                  <InfoBox>
+                    <Icon src="/car.png"></Icon>
+                    <InfoLink
+                      href={
+                        props.product.deliver.uberEatUrl
+                          ? props.product.deliver.uberEatUrl
+                          : props.product.deliver.foodPandaUrl
+                      }
+                    >
+                      {deliverSite[2]}
+                    </InfoLink>
+                  </InfoBox>
+                )}
+                {props.product.website && (
+                  <InfoBox>
+                    <Icon src="/earth.png"></Icon>
+                    <InfoLink href={props.product.website}>{websitesURL[2]}</InfoLink>
+                  </InfoBox>
+                )}
+                {props.product.formatted_phone_number && (
+                  <InfoBox>
+                    <Icon src="/phone.png"></Icon>
+                    <Description color={'000000'}>{props.product.formatted_phone_number}</Description>
+                  </InfoBox>
+                )}
+
+                <InfoBox>
+                  <Icon src="/plusCode.png"></Icon>
+                  <Description color={'000000'}>
+                    {props.product.plus_code ? props.product.plus_code.compound_code : ''}
+                  </Description>
+                </InfoBox>
+              </InforList>
+              <Separator></Separator>
+              <SubTitle>評論摘要</SubTitle>
+              {AllReviews}
+            </div>
+          ) : props.menu && props.menu !== null && tab === 'menu' ? (
+            props.menu.length > 0 ? (
+              props.menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
+            ) : (
+              <Loading marginTop={'7vh'} />
+            )
+          ) : (
+            <div></div>
+          )}
+        </>
       ) : (
-        <div></div>
+        <>
+          <Description padding={'0px 0 0 20px'}>{props.product.formatted_address}</Description>
+
+          <ItemTitle textAlign={'center'} padding={'60px 0 8px 0 '}>
+            想要搜尋{props.input}美食嗎？{' '}
+          </ItemTitle>
+          <ItemTitle textAlign={'center'}>
+            立刻用<SearchCity>「 {props.input} + 食物 」</SearchCity>搜尋
+          </ItemTitle>
+          <div></div>
+        </>
       )}
     </Store>
   );

@@ -6,7 +6,7 @@ const ReviewerBox = styled.div`
   padding: 20px;
   align-items: center;
   flex-irection: 'column';
-  border-bottom: 1px solid #efefef;
+  border-bottom: ${({ borderBottom }) => (borderBottom ? borderBottom : '1px solid #efefef')};
 `;
 
 const AuthorBox = styled.div`
@@ -44,11 +44,12 @@ const MenuImg = styled.img`
 `;
 
 function ReviewCard(props) {
+  const { borderBottom } = props;
   let reviewRatingArray = [];
   let time = new Date(props.review.time).toISOString().split('T')[0];
 
   return (
-    <ReviewerBox>
+    <ReviewerBox borderBottom={borderBottom}>
       <AuthorBox>
         <AuthorImg src={props.review.userPhotoUrl}></AuthorImg>
         <Authortitle>

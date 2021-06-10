@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import renderStar from '../Utils/renderStar';
 import { getDishData } from '../Utils/firebase';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SubItemTitle } from './UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
 
@@ -90,6 +90,7 @@ const MenuImg = styled.img`
 `;
 
 function SearchMenuCard(props) {
+  const collectionCheck = useSelector((state) => state.collectionTitle);
   const dispatch = useDispatch();
   let starArry = [];
 
@@ -106,8 +107,13 @@ function SearchMenuCard(props) {
         data: false
       });
     });
+    if (collectionCheck) {
+      dispatch({
+        type: 'setStoreData',
+        data: []
+      });
+    }
   }
-  // console.
 
   return (
     <Menu onClick={click} id={props.content.name}>

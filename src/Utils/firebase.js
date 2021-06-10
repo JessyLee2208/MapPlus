@@ -52,6 +52,7 @@ function getDishData(dishName) {
     .then((data) => {
       const dishCollectionID = data.docs[0].id;
       let dataDocument = data.docs[0].data();
+
       const dishData = { ...dataDocument, dishCollectionID: dishCollectionID };
       return dishData;
     });
@@ -114,7 +115,6 @@ const upLoadReview = async (ReviewData, DishData) => {
     .where('dishCollectionID', '==', DishData.dishCollectionID)
     .get()
     .then((review) => {
-      // console.log(review.size);
       return review.size;
     });
 
@@ -181,9 +181,6 @@ function removeDishToCollectList(usermail, selectedDish, collectList) {
     );
 }
 
-//1. caollback
-// return => async awiat 接直
-
 function userDatasCheck(userStatus) {
   return db
     .collection('user')
@@ -194,9 +191,8 @@ function userDatasCheck(userStatus) {
     });
 }
 
-function userReviewEdit(reviewData, newData) {
-  return db
-    .collection('review')
+async function userReviewEdit(reviewData, newData, oldRating) {
+  db.collection('review')
     .where('email', '==', reviewData.email)
     .where('dishCollectionID', '==', reviewData.dishCollectionID)
     .limit(1)
@@ -208,6 +204,38 @@ function userReviewEdit(reviewData, newData) {
         imageUrl: newData.imageUrl,
         rating: newData.rating
       });
+    });
+
+  const reviewsCount = await db
+    .collection('review')
+    .where('dishCollectionID', '==', reviewData.dishCollectionID)
+    .get()
+    .then((review) => {
+      let dataDocument = review.docs[0].data();
+      return review.size;
+    });
+
+  const DishReviews = await db
+    .collection('menu')
+    .doc(reviewData.dishCollectionID)
+    .get()
+    .then((review) => {
+      let dataDocument = review.data();
+
+      return dataDocument.rating;
+    });
+
+  const averageRating = (DishReviews * reviewsCount + Number(newData.rating) - oldRating) / reviewsCount;
+
+  return db
+    .collection('menu')
+    .doc(reviewData.dishCollectionID)
+    .update({
+      rating: reviewsCount !== 0 ? averageRating : Number(reviewData.rating),
+      user_ratings_total: reviewsCount
+    })
+    .then(() => {
+      return reviewsCount !== 0 ? averageRating : Number(reviewData.rating);
     });
 }
 
@@ -226,14 +254,18 @@ function userReviewGet(storeName, newData) {
     });
 }
 
-function googleAccountSignIn(e, dispatch) {
+function googleAccountSignIn(e, dispatch, setMemberPageShow) {
   firebase
     .auth()
     .signInWithPopup(provider)
     .then((result) => {
-      // let credential = result.credential;
-      // let token = credential.accessToken;
-      let user = result.user;
+      let user = {
+        displayName: result.user.displayName,
+        email: result.user.email,
+        photoURL: result.user.photoURL,
+        uid: result.user.uid
+      };
+      setMemberPageShow(false);
 
       dispatch({
         type: 'setUserState',
@@ -253,9 +285,16 @@ function googleAccountSignIn(e, dispatch) {
     });
 }
 
-function googleAccountStateChanged() {
-  firebase.auth().onAuthStateChanged((firebaseUser) => {
+function googleAccountStateChanged(callback) {
+  return firebase.auth().onAuthStateChanged((firebaseUser) => {
     if (firebaseUser) {
+      let user = {
+        displayName: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photoURL: firebaseUser.photoURL,
+        uid: firebaseUser.uid
+      };
+      callback(user);
       return true;
     } else {
       return false;
@@ -268,7 +307,6 @@ function googleAccountLogOut(e, dispatch) {
     .auth()
     .signOut()
     .then(() => {
-      console.log('logout OK!!');
       dispatch({
         type: 'setUserState',
         data: null

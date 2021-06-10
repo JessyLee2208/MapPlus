@@ -6,6 +6,7 @@ import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typo
 import { userDatasCheck, googleAccountLogOut } from '../Utils/firebase';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
 import useMediaQuery from '../Utils/useMediaQuery';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Member = styled.div`
   position: fixed;
@@ -14,7 +15,7 @@ const Member = styled.div`
 
   background: #ffffff;
   width: 300px;
-  height: 60vh;
+  height: auto;
 
   display: flex;
   flex-direction: column;
@@ -56,6 +57,8 @@ const Separator = styled.div`
 const ItemBox = styled.div`
   width: 100%;
   padding: 4px 0;
+
+  cursor: pointer;
   &:hover {
     background: #f7f7f7;
   }
@@ -130,6 +133,15 @@ function MemberPage(props) {
     props.show(false);
   }
 
+  const notify = () =>
+    toast('成功登出', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
+
   return (
     <Member>
       {isMobile && (
@@ -172,13 +184,19 @@ function MemberPage(props) {
       <ButtonGhostRound
         onClick={(e) => {
           googleAccountLogOut(e, dispatch);
+
+          notify();
+
           dispatch({
-            type: 'setlogOutToast',
-            data: true
+            type: 'setCollectionTitle',
+            data: false
           });
-          //   setlogOutToast(!logOutToast);
+          dispatch({
+            type: 'setloginToast',
+            data: false
+          });
         }}
-        margin={'6px 0 0 0'}
+        margin={'6px 0 16px 0'}
       >
         登出
       </ButtonGhostRound>

@@ -289,7 +289,8 @@ function DishDetail(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: '15px',
-                    margin: '0px 18px 0 0'
+                    margin: '0px 18px 0 0',
+                    cursor: 'pointer'
                   }}
                   onClick={handleCollectionList}
                   id="想去的地點"
@@ -307,7 +308,8 @@ function DishDetail(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: '15px',
-                    margin: '0px 18px 0 0'
+                    margin: '0px 18px 0 0',
+                    cursor: 'pointer'
                   }}
                   onClick={handleCollectionList}
                   id="喜愛的地點"
@@ -325,7 +327,8 @@ function DishDetail(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: '15px',
-                    margin: '0px 18px 0 0'
+                    margin: '0px 18px 0 0',
+                    cursor: 'pointer'
                   }}
                   onClick={handleCollectionList}
                   id="已加星號的地點"
@@ -355,8 +358,15 @@ function DishDetail(props) {
     });
   }
 
+  function handle() {
+    dispatch({
+      type: 'setMarkerHover',
+      data: null
+    });
+  }
+
   return (
-    <Dish onClick={handleStatusCheck}>
+    <Dish onClick={handleStatusCheck} onMouseOver={handle}>
       <SearchSeparator></SearchSeparator>
       <Back>
         <SubItemTitle
@@ -380,26 +390,30 @@ function DishDetail(props) {
       ) : (
         <WithoutDishImg></WithoutDishImg>
       )}
-      <TopDiv>
-        <DishBox>
-          <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
+      <div>
+        <TopDiv>
+          <DishBox>
+            <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
 
-          <RatingDiv>
-            <H3Title color={'185ee6'} padding={'0 20px 0 0'}>
-              NT${selectedDish.price}
-            </H3Title>
-            <Icon src="/active_star.png" alt=""></Icon>
-            <H3Title padding={' 0'} fontWeight={400} color={797979}>
-              {newRating}
-            </H3Title>
-          </RatingDiv>
-        </DishBox>
-        {collectData.length > 0 ? (
-          <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
-        ) : (
-          <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
-        )}
-      </TopDiv>
+            <RatingDiv>
+              <H3Title color={'185ee6'} padding={'0 20px 0 0'}>
+                NT${selectedDish.price}
+              </H3Title>
+              <Icon src="/active_star.png" alt=""></Icon>
+              <H3Title padding={' 0'} fontWeight={400} color={797979}>
+                {newRating}
+              </H3Title>
+            </RatingDiv>
+          </DishBox>
+          <div>
+            {collectData.length > 0 ? (
+              <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+            ) : (
+              <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+            )}
+          </div>
+        </TopDiv>
+      </div>
 
       {collectData.length > 0 ? array : <></>}
 
@@ -408,7 +422,7 @@ function DishDetail(props) {
           <CommentDiv>
             <CommentTitle style={{ color: 'black', margin: '10px 0 10px 0' }}>你的評論</CommentTitle>
           </CommentDiv>
-          <ReviewCard review={userReviewSet}></ReviewCard>
+          <ReviewCard review={userReviewSet} borderBottom={'none'}></ReviewCard>
         </div>
       ) : (
         <></>

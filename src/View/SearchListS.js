@@ -67,8 +67,6 @@ function SearchListS(props) {
 
     setScrollXLeft(loction);
     setScrollXRight(loctionRight);
-
-    // console.log(offsetright);
   };
   const executeScrollLeft = () => {
     myRef.current.scrollBy({ left: -175, top: 0, behavior: 'smooth' });

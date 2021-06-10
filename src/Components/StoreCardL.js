@@ -97,7 +97,6 @@ const CheckIcon = styled.img`
 `;
 
 function StoreCard(props) {
-  // console.log(props.product);
   let starArry = [];
   let priceLevel = [];
   let typesCheck = props.product.types.includes('food');
@@ -208,7 +207,6 @@ function StoreCard(props) {
   }
 
   function handleHoverEvent() {
-    // console.log(props.product);
     dispatch({
       type: 'setStoreHover',
       data: props.product

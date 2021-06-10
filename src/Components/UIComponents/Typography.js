@@ -52,7 +52,7 @@ const Itemtitle = styled.div`
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  text-align: left;
+  text-align: ${({ textAlign }) => (textAlign ? textAlign : 'left')};
   color: ${({ color }) => (color ? '#' + color : '#000000')};
   margin: 0;
   padding: ${({ padding }) => (padding ? padding : '0')};
@@ -124,6 +124,10 @@ const LinkTag = styled.a`
 
   margin: 0px;
   flex-grow: 1;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 function PageTitle(props) {
@@ -163,9 +167,9 @@ function SubTitle(props) {
 }
 
 function ItemTitle(props) {
-  const { padding, color, id } = props;
+  const { padding, color, id, textAlign } = props;
   return (
-    <Itemtitle color={color} padding={padding} id={id}>
+    <Itemtitle color={color} padding={padding} id={id} textAlign={textAlign}>
       {props.children}
     </Itemtitle>
   );

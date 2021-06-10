@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import useMediaQuery from './Utils/useMediaQuery';
 import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
-import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker, InfoWindow } from '@react-google-maps/api';
 import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
+import toast, { Toaster } from 'react-hot-toast';
 
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
-import { getMenuData, googleAccountSignIn, getStoreData } from './Utils/firebase';
+import { getMenuData, googleAccountSignIn, getStoreData, googleAccountStateChanged } from './Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 import algoliasearch from 'algoliasearch';
@@ -21,7 +22,9 @@ import Markers from './Components/Marker';
 import SearchList from './View/SearchList';
 import SearchListS from './View/SearchListS';
 import MapInforWindow from './Components/InfoWindow';
+import { Loading } from './Components/UIComponents/LottieAnimat';
 import MemberPage from './View/MemberPage';
+import { getStoreDetail } from './Utils/getMoreDetail';
 
 import Toast from './Components/Toast2';
 
@@ -79,10 +82,31 @@ const AuthorImg = styled.img`
   }
 `;
 
+const Delete = styled.div`
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #757575;
+  font-size: 24px;
+  margin-bottom: 3px;
+
+  cursor: pointer;
+
+  &:hover {
+    color: #185ee6;
+  }
+`;
+
 const libraries = ['drawing', 'places'];
 const center = {
   lat: 25.020397,
   lng: 121.533053
+};
+
+const TAIWAN_BOUNDS = {
+  lat: 23.4696826,
+  lng: 117.8398831
 };
 
 const searchOption = {
@@ -102,8 +126,8 @@ const searchOption = {
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-const host_name = 'https://hsiaohan.cf';
-// const host_name = 'http://localhost:5000';
+// const host_name = 'https://hsiaohan.cf';
+const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -124,12 +148,13 @@ function App() {
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const informationWindow = useSelector((state) => state.informationWindow);
 
-  const loginToast = useSelector((state) => state.loginToast);
-  const logOutToast = useSelector((state) => state.logOutToast);
+  const markerHover = useSelector((state) => state.markerHover);
+  const searchMenu = useSelector((state) => state.searchMenu);
 
   const mapRef = useRef();
   const searchRef = useRef();
-  // const markerRef = useRef()
+
+  const textInput = useRef();
 
   const [bounds, setBounds] = useState(null);
   const [mapStore, setMapStore] = useState([]);
@@ -140,9 +165,7 @@ function App() {
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
 
-  // const [loginToast, setloginToast] = useState(false);
-  // const [logOutToast, setlogOutToast] = useState(false);
-  const [memberPageShow, setMemberPageShow] = useState(false);
+  const [memberPageShow, setMemberPageShow] = useState();
 
   const mapContainerStyle = {
     width: '100vw',
@@ -291,11 +314,29 @@ function App() {
     mapRef.current.panTo({ lat, lng });
   }, []);
 
+  const notify = () =>
+    toast('成功登入', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
+
   useEffect(() => {
-    if (!userStatus) {
-      setMemberPageShow(false);
+    function callback(user) {
+      dispatch({
+        type: 'setUserState',
+        data: user
+      });
     }
-  }, [storeData, userStatus]);
+
+    notify();
+
+    return googleAccountStateChanged(callback);
+  }, []);
+
+  useEffect(() => {}, [markerHover]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
@@ -346,12 +387,14 @@ function App() {
     });
 
     const places = searchRef.current.getPlaces();
-    // console.log(places);
+
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
 
     places.forEach(async (place) => {
-      let placeName = place.name.replaceAll('/', ' ');
+      let set = place.name.replaceAll('/', ' ');
+      let placeName = set.replaceAll('%', '%25');
+
       dispatch({
         type: 'setMapMarkers',
         data: place
@@ -368,7 +411,14 @@ function App() {
 
         return {
           ...place,
-          opening_hours: place.opening_hours ? { isOpen: place.opening_hours.isOpen() } : {},
+          opening_hours: place.opening_hours
+            ? {
+                isOpen: place.opening_hours.isOpen(),
+                weekday_text: place.weekday_text ? place.weekday_text : '',
+                periods: place.periods ? place.periods : ''
+              }
+            : { isOpen: null, weekday_text: null, periods: null },
+
           deliver: a
         };
       });
@@ -443,7 +493,7 @@ function App() {
           lng: position.coords.longitude
         };
         setcurrentLoction(pos);
-        // console.log(pos);
+
         panTo({
           lat: position.coords.latitude,
           lng: position.coords.longitude
@@ -467,12 +517,57 @@ function App() {
   }
 
   function handleUserProfile() {
-    // console.log(loginToast);
     setMemberPageShow(!memberPageShow);
+    dispatch({
+      type: 'setMarkerHover',
+      data: null
+    });
+  }
+
+  function handleSearchInput() {
+    textInput.current.value = '';
+    dispatch({
+      type: 'setStoreData',
+      data: []
+    });
+    dispatch({
+      type: 'initMapMarkers',
+      data: []
+    });
+    dispatch({
+      type: 'setSelectedStore',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setMenuData',
+      data: null
+    });
+    dispatch({
+      type: 'setSearchMenu',
+      data: null
+    });
+    setMapStore([]);
   }
 
   return (
     <Frame>
+      {!storeListExist &&
+        !storeDetailExist &&
+        !dishDetailExist &&
+        !collectionCheck &&
+        !storeDetailOnlyOneExist &&
+        searchMenu &&
+        !isMobile && (
+          <div style={{ width: '435px' }}>
+            <Loading></Loading>
+          </div>
+        )}
+
+      <Toaster />
       {userStatus && memberPageShow && <MemberPage show={setMemberPageShow}></MemberPage>}
 
       {isMobile && !informationWindow ? (
@@ -499,34 +594,6 @@ function App() {
         )
       )}
 
-      {loginToast && userStatus && (
-        <Toast
-          visible={loginToast}
-          onCancel={() =>
-            dispatch({
-              type: 'setloginToast',
-              data: false
-            })
-          }
-        >
-          成功登入
-        </Toast>
-      )}
-
-      {logOutToast && !userStatus && (
-        <Toast
-          visible={logOutToast}
-          onCancel={() =>
-            dispatch({
-              type: 'setlogOutToast',
-              data: false
-            })
-          }
-        >
-          成功登出
-        </Toast>
-      )}
-
       {show && userStatus && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
       <StandaloneSearchBox
@@ -549,7 +616,13 @@ function App() {
                 handleSearch(searchText);
               }
             }}
-          ></SearchInput>
+            restriction={{
+              latLngBounds: TAIWAN_BOUNDS,
+              strictBounds: false
+            }}
+            ref={textInput}
+          />
+          {searchText && <Delete onClick={handleSearchInput}>×</Delete>}
         </SearchBox>
       </StandaloneSearchBox>
       <SearchBoxShow></SearchBoxShow>
@@ -557,7 +630,7 @@ function App() {
         <SearchList markerLoad={markerLoad} service={service} panTo={panTo}></SearchList>
       ) : storeDetailOnlyOneExist ? (
         storeData.map((product, index) => (
-          <StoreDetail key={index} product={product} menu={menuData} service={service}></StoreDetail>
+          <StoreDetail key={index} product={product} menu={menuData} service={service} input={searchText}></StoreDetail>
         ))
       ) : storeDetailAndMenuExist ? (
         <StoreDetail product={selectedStore} menu={menuData}></StoreDetail>
@@ -574,7 +647,7 @@ function App() {
       {!userStatus ? (
         <ButtonPrimaryFlat
           onClick={(e) => {
-            googleAccountSignIn(e, dispatch);
+            googleAccountSignIn(e, dispatch, setMemberPageShow);
             // setloginToast(!loginToast);
             dispatch({
               type: 'setloginToast',
@@ -610,7 +683,7 @@ function App() {
       </UserPositionCheck>
       <GoogleMap
         mapContainerStyle={
-          storeListExist && !isMobile
+          (storeListExist && !isMobile) || (searchMenu && !isMobile)
             ? mapContainerStyleWithSearch
             : storeListExist && isMobile
             ? mapContainerStyle
@@ -626,8 +699,47 @@ function App() {
         onBoundsChanged={onBoundsChanged}
         options={defaultMapOptions}
         style={{ padding: 0 }}
-        onClick={() => {
+        onClick={(e) => {
+          e.stop();
+
+          dispatch({
+            type: 'setMarkerHover',
+            data: null
+          });
           setMemberPageShow(false);
+          getStoreDetail(e.placeId, service).then((res) => {
+            console.log(res);
+            dispatch({
+              type: 'setStoreData',
+              data: [res]
+            });
+            dispatch({
+              type: 'setSelectedDish',
+              data: null
+            });
+            dispatch({
+              type: 'setSelectedStore',
+              data: null
+            });
+            dispatch({
+              type: 'initMapMarkers',
+              data: [
+                {
+                  lat: res.geometry.location.lat(),
+                  lng: res.geometry.location.lng(),
+                  place_id: res.place_id,
+                  storename: res.name
+                }
+              ]
+            });
+
+            textInput.current.value = res.name;
+            setSearchText(res.name);
+          });
+        }}
+        restriction={{
+          latLngBounds: TAIWAN_BOUNDS,
+          strictBounds: false
         }}
       >
         {collectionMarks.length === 0
@@ -648,7 +760,8 @@ function App() {
           ></Marker>
         )}
 
-        {selectedStore && isMobile && <MapInforWindow></MapInforWindow>}
+        {selectedStore && isMobile && <MapInforWindow product={selectedStore} service={service}></MapInforWindow>}
+        {markerHover && !isMobile && <MapInforWindow product={markerHover} service={service}></MapInforWindow>}
       </GoogleMap>
     </Frame>
   );

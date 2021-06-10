@@ -1,4 +1,5 @@
 import { postStoreData } from './firebase';
+import { getStoreUrl } from './fetch';
 
 function getMorereDetail(product, service) {
   const request = {
@@ -15,13 +16,12 @@ function getMorereDetail(product, service) {
       'website'
     ]
   };
+
   return new Promise((res, rej) => {
     let moreDetail = {};
+
     service.getDetails(request, (place, status) => {
-      if (
-        status === window.google.maps.places.PlacesServiceStatus.OK &&
-        (place.opening_hours || place.opening_hours.weekday_text)
-      ) {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK && place.opening_hours) {
         moreDetail = {
           name: place.name,
           place_id: place.place_id,
@@ -46,7 +46,12 @@ function getMorereDetail(product, service) {
           formatted_address: place.formatted_address,
           reviews: place.reviews,
           formatted_phone_number: place.formatted_phone_number,
-          website: place.website
+          website: place.website,
+          opening_hours: {
+            isOpen: null,
+            weekday_text: null,
+            periods: null
+          }
         };
       }
 
@@ -94,4 +99,46 @@ function getMorereDetail(product, service) {
   });
 }
 
+function getStoreDetail(place_id, service) {
+  const request = {
+    placeId: place_id,
+    fields: [
+      'name',
+      'formatted_address',
+      'place_id',
+      'geometry',
+      'opening_hours',
+      'utc_offset_minutes',
+      'reviews',
+      'formatted_phone_number',
+      'website',
+      'plus_code',
+      'photos',
+      'user_ratings_total',
+      'types',
+      'price_level',
+      'business_status',
+      'address_components',
+      'rating'
+    ]
+  };
+  return new Promise((res, rej) => {
+    service.getDetails(request, (place, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        const isOpenNow = place.opening_hours.isOpen();
+        const opening_hours = {
+          isOpen: isOpenNow,
+          periods: place.opening_hours.periods,
+          weekday_text: place.opening_hours.weekday_text
+        };
+        const newData = { ...place, opening_hours: opening_hours };
+        getStoreUrl(place.name, newData).then((data) => {
+          res(data);
+        });
+      }
+    });
+  });
+}
+
 export default getMorereDetail;
+export { getStoreDetail };

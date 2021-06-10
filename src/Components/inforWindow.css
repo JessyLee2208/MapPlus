@@ -1,0 +1,22 @@
+.gm-style .gm-style-iw {
+  font-size: 16px;
+  font-weight: bold;
+  font-family: sans-serif;
+  text-transform: uppercase;
+  padding: 0;
+  overflow: auto;
+  margin: -29px 0 0px 0;
+}
+
+.gm-style-iw-d {
+  padding: 0;
+  overflow: auto !important;
+}
+
+.gm-ui-hover-effect {
+  display: none !important;
+}
+
+.gm-style .gm-style-iw-t::after {
+  margin: -29px 0 0px 0;
+}

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
@@ -12,13 +12,9 @@ function Markers(props) {
   const storeHover = useSelector((state) => state.storeHover);
   const storeData = useSelector((state) => state.storeData);
 
-  // const [markerHover, setMarkerHover] = useState(false);
-
   const markerRef = useRef();
 
   let url = '';
-
-  // useEffect(() => {}, [storeHover, selectedStore]);
 
   const handleCollectionMarker = (marker) => {
     dispatch({
@@ -80,10 +76,6 @@ function Markers(props) {
   };
 
   const handleMapMarker = (marker) => {
-    // markerRef.current.setAnimation(window.google.maps.Animation.BOUNCE);
-
-    // timer();
-
     dispatch({
       type: 'setSelectedTab',
       data: 'information'
@@ -115,11 +107,16 @@ function Markers(props) {
     });
   };
 
-  // const handleMarkerHover = (marker) => {
-  //   // const markerLatLng = { lat: marker.latLng.lat(), lng: marker.latLng.lng() };
-  //   console.log(props.marker);
-  //   setMarkerHover(props.marker);
-  // };
+  const handleMarkerHover = (e) => {
+    props.content.forEach((product) => {
+      if (props.marker.place_id === product.place_id) {
+        dispatch({
+          type: 'setMarkerHover',
+          data: product
+        });
+      }
+    });
+  };
 
   if (props.tag === '想去的地點') {
     url = '/falg_marker.png';
@@ -131,8 +128,6 @@ function Markers(props) {
   const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;
   }, []);
-
-  // console.log(storeHover, props.marker);
 
   return collectionMarks.length !== 0 ? (
     <Marker
@@ -152,49 +147,51 @@ function Markers(props) {
       }}
     />
   ) : (
-    <Marker
-      position={{ lat: props.marker.lat, lng: props.marker.lng }}
-      onClick={handleMapMarker}
-      onLoad={(marker) => {
-        props.onLoad(marker, props.marker.storename);
-        markeronLoad(marker);
-      }}
-      // onMouseOver={handleMarkerHover}
-      icon={{
-        url:
-          selectedStore && storeHover
-            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
+    <>
+      <Marker
+        position={{ lat: props.marker.lat, lng: props.marker.lng }}
+        onClick={handleMapMarker}
+        onLoad={(marker) => {
+          props.onLoad(marker, props.marker.storename);
+          markeronLoad(marker);
+        }}
+        onMouseOver={handleMarkerHover}
+        icon={{
+          url:
+            selectedStore && storeHover
+              ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
+                ? '/Selectedmarker.png'
+                : '/marker.png'
+              : storeData.length === 1 && !selectedStore
               ? '/Selectedmarker.png'
-              : '/marker.png'
-            : storeData.length === 1 && !selectedStore
-            ? '/Selectedmarker.png'
-            : storeHover
-            ? storeHover.place_id === props.marker.place_id
-              ? '/Selectedmarker.png'
-              : '/marker.png'
-            : selectedStore
-            ? selectedStore.place_id === props.marker.place_id
-              ? '/Selectedmarker.png'
-              : '/marker.png'
-            : '/marker.png',
-        scaledSize:
-          selectedStore && storeHover
-            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
+              : storeHover
+              ? storeHover.place_id === props.marker.place_id
+                ? '/Selectedmarker.png'
+                : '/marker.png'
+              : selectedStore
+              ? selectedStore.place_id === props.marker.place_id
+                ? '/Selectedmarker.png'
+                : '/marker.png'
+              : '/marker.png',
+          scaledSize:
+            selectedStore && storeHover
+              ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
+                ? new window.google.maps.Size(26, 38)
+                : new window.google.maps.Size(20, 30)
+              : storeHover
+              ? storeHover.place_id === props.marker.place_id
+                ? new window.google.maps.Size(26, 38)
+                : new window.google.maps.Size(20, 30)
+              : selectedStore
+              ? selectedStore.place_id === props.marker.place_id
+                ? new window.google.maps.Size(26, 38)
+                : new window.google.maps.Size(20, 30)
+              : storeData.length === 1
               ? new window.google.maps.Size(26, 38)
               : new window.google.maps.Size(20, 30)
-            : storeHover
-            ? storeHover.place_id === props.marker.place_id
-              ? new window.google.maps.Size(26, 38)
-              : new window.google.maps.Size(20, 30)
-            : selectedStore
-            ? selectedStore.place_id === props.marker.place_id
-              ? new window.google.maps.Size(26, 38)
-              : new window.google.maps.Size(20, 30)
-            : storeData.length === 1
-            ? new window.google.maps.Size(26, 38)
-            : new window.google.maps.Size(20, 30)
-      }}
-    />
+        }}
+      />
+    </>
   );
 }
 
