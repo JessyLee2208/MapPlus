@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
@@ -173,8 +173,9 @@ function DishDetail(props) {
 
   const dispatch = useDispatch();
 
-  const [allDishReviews, setAllDishReviews] = React.useState(null);
-  const [select, selected] = React.useState(false);
+  const [allDishReviews, setAllDishReviews] = useState(null);
+  const [select, selected] = useState(false);
+  const [customList, setCustomList] = useState([]);
 
   let array = [];
   let newRating = selectedDish.rating.toFixed(1);
@@ -214,6 +215,12 @@ function DishDetail(props) {
                 data: null
               });
         }
+
+        if (data.collectionList) {
+          setCustomList(data.collectionList);
+        }
+
+        console.log(data.collectionList);
 
         if (data && data.collection && data.collection.length !== 0) {
           let collectionArray = [];
@@ -261,6 +268,7 @@ function DishDetail(props) {
         data: true
       });
     }
+    // props.check(true);
   }
 
   function handleStatusCheck() {
@@ -384,7 +392,7 @@ function DishDetail(props) {
         </SubItemTitle>
       </Back>
       <SearchBg></SearchBg>
-      {select && <Collection select={selected}></Collection>}
+      {select && <Collection select={selected} check={customList}></Collection>}
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
       ) : (

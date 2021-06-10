@@ -155,6 +155,22 @@ const upLoadReview = async (ReviewData, DishData) => {
     });
 };
 
+///////////////////////////////////////////////
+
+function addCollectList(usermail, collectName) {
+  // const newSelectDish = { ...selectedDish, collectName: collectList };
+  return db
+    .collection('user')
+    .doc(usermail)
+    .set(
+      {
+        collectionList: firebase.firestore.FieldValue.arrayUnion(collectName)
+      },
+      { merge: true }
+    );
+}
+////////////////////////////////////////////////
+
 function addDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
   return db
@@ -333,5 +349,6 @@ export {
   getStoreData,
   userReviewEdit,
   userReviewGet,
-  getDishData
+  getDishData,
+  addCollectList
 };

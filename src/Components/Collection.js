@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { addDishToCollectList, removeDishToCollectList, userDatasCheck } from '../Utils/firebase';
+import { addCollectList, addDishToCollectList, removeDishToCollectList, userDatasCheck } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 let CollectBox = styled.div`
@@ -75,9 +75,12 @@ function Collection(props) {
   const userStatus = useSelector((state) => state.userStatus);
   const collectData = useSelector((state) => state.collectData);
 
+  const [customCheck, setCustomCheck] = useState([]);
+
   let want = false;
   let like = false;
   let stare = false;
+  let check = false;
 
   if (selectedDish.imageUrl === '') {
     CollectBox = styled.div`
@@ -169,6 +172,7 @@ function Collection(props) {
   }
 
   if (collectData !== []) {
+    const listArray = [];
     collectData.forEach((check) => {
       if (check.collectName === '想去的地點') {
         want = true;
@@ -177,12 +181,21 @@ function Collection(props) {
       } else if (check.collectName === '已加星號的地點') {
         stare = true;
       } else if (check.collectName !== '') {
+        props.data.map((list) => check.collectName === list && listArray.push(list));
       }
+      setCustomCheck(listArray);
+    });
+  }
+  function callModal() {
+    props.check(true);
+    dispatch({
+      type: 'setModalShow',
+      data: true
     });
   }
 
   return (
-    <CollectBox onClick={handleCollectListClick} id="collect">
+    <CollectBox onClick={handleCollectListClick}>
       <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }} id="collect">
         儲存至清單中
       </InfoBold>
@@ -223,6 +236,32 @@ function Collection(props) {
           </CollectTitle>
         </CollectListBox>
       )}
+
+      {props.data.length > 0 &&
+        props.data.map((list, index) =>
+          customCheck[index] === list ? (
+            <CollectListBox key={index}>
+              <Icon src="/custom_selsct.png" id="removeCollection" alt={list}></Icon>
+              <CollectTitle id="collect" value={list}>
+                {list}
+              </CollectTitle>
+            </CollectListBox>
+          ) : (
+            <CollectListBox>
+              <Icon src="/custom.png" id="collect" alt={list}></Icon>
+              <CollectTitle id="collect" value={list}>
+                {list}
+              </CollectTitle>
+            </CollectListBox>
+          )
+        )}
+
+      <CollectListBox onClick={callModal}>
+        <Icon src="/add.png" id="add" alt="add"></Icon>
+        <CollectTitle id="add" value="add">
+          新增清單
+        </CollectTitle>
+      </CollectListBox>
     </CollectBox>
   );
 }

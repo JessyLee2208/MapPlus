@@ -26,6 +26,8 @@ import Markers from './Components/Marker';
 import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
 import { deviceSize } from './responsive/responsive';
 
+import AddCollectionModal from './Components/AddCollectionModal';
+
 const UserPositionCheck = styled.div`
   width: 40px;
   height: 40px;
@@ -102,11 +104,6 @@ const center = {
   lng: 121.533053
 };
 
-const TAIWAN_BOUNDS = {
-  lat: 23.4696826,
-  lng: 117.8398831
-};
-
 const searchOption = {
   fields: [
     'name',
@@ -163,6 +160,7 @@ function App() {
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [placrCheck, setPlacrCheck] = useState(false);
+  const [listCheck, setListCheck] = useState(false);
 
   const [memberPageShow, setMemberPageShow] = useState();
 
@@ -560,6 +558,8 @@ function App() {
     setPlacrCheck(false);
   }
 
+  console.log(listCheck);
+
   return (
     <Frame>
       {!storeListExist &&
@@ -601,8 +601,9 @@ function App() {
         )
       )}
 
-      {show && userStatus && <CommentModal show={show}></CommentModal>}
-      {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
+      {show && userStatus && listCheck && <AddCollectionModal show={show} check={setListCheck}></AddCollectionModal>}
+      {show && userStatus && !listCheck && <CommentModal show={show}></CommentModal>}
+      {show && !userStatus && !listCheck && <ReminderModal show={show}></ReminderModal>}
       <StandaloneSearchBox
         onLoad={onSearchLoad}
         onPlacesChanged={hanldePlacesChanged}
@@ -623,10 +624,6 @@ function App() {
                 setSearchText(e.target.value);
               }
             }}
-            restriction={{
-              latLngBounds: TAIWAN_BOUNDS,
-              strictBounds: false
-            }}
             ref={textInput}
           />
           {searchText && <Delete onClick={handleSearchInput}>×</Delete>}
@@ -644,7 +641,7 @@ function App() {
       ) : storeDetailExist ? (
         <StoreDetail product={selectedStore}></StoreDetail>
       ) : dishDetailExist ? (
-        <DishDetail dishdata={selectedDish} service={service}></DishDetail>
+        <DishDetail dishdata={selectedDish} service={service} check={setListCheck}></DishDetail>
       ) : collectionCheck ? (
         <CollectionList service={service} panTo={panTo}></CollectionList>
       ) : (
@@ -743,10 +740,6 @@ function App() {
             textInput.current.value = res.name;
             setSearchText(res.name);
           });
-        }}
-        restriction={{
-          latLngBounds: TAIWAN_BOUNDS,
-          strictBounds: false
         }}
       >
         {collectionMarks.length === 0
