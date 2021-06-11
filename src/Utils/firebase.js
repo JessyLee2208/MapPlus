@@ -275,18 +275,18 @@ function googleAccountSignIn(e, dispatch, setMemberPageShow) {
     .auth()
     .signInWithPopup(provider)
     .then((result) => {
-      let user = {
-        displayName: result.user.displayName,
-        email: result.user.email,
-        photoURL: result.user.photoURL,
-        uid: result.user.uid
-      };
+      // let user = {
+      //   displayName: result.user.displayName,
+      //   email: result.user.email,
+      //   photoURL: result.user.photoURL,
+      //   uid: result.user.uid
+      // };
       setMemberPageShow(false);
 
-      dispatch({
-        type: 'setUserState',
-        data: user
-      });
+      // dispatch({
+      //   type: 'setUserState',
+      //   data: user
+      // });
       return true;
     })
     .catch((error) => {
@@ -313,7 +313,7 @@ function googleAccountStateChanged(callback) {
       callback(user);
       return true;
     } else {
-      return false;
+      return null;
     }
   });
 }
@@ -323,10 +323,10 @@ function googleAccountLogOut(e, dispatch) {
     .auth()
     .signOut()
     .then(() => {
-      dispatch({
-        type: 'setUserState',
-        data: null
-      });
+      // dispatch({
+      //   type: 'setUserState',
+      //   data: null
+      // });
       return false;
     })
     .catch((error) => {

@@ -6,8 +6,8 @@ import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typo
 import { userDatasCheck, googleAccountLogOut } from '../Utils/firebase';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
 import useMediaQuery from '../Utils/useMediaQuery';
-import toast, { Toaster } from 'react-hot-toast';
-import { InfiniteLoading, Loading } from '../Components/UIComponents/LottieAnimat';
+import toast from 'react-hot-toast';
+import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
 
 const Member = styled.div`
   position: fixed;
@@ -97,6 +97,8 @@ const Icon = styled.img`
   margin-right: 14px;
 `;
 
+// const EditList
+
 function MemberPage(props) {
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
   const userStatus = useSelector((state) => state.userStatus);
@@ -108,66 +110,67 @@ function MemberPage(props) {
   const [likeList, setLikeList] = useState([]);
   const [starList, setStarList] = useState([]);
   const [customListCounts, setCustomListCount] = useState([]);
+  const [userData, setUserData] = useState([]);
 
   const checkAnimationLoader =
     wantList.length > 0 || likeList.length > 0 || starList.length > 0 || customListCounts.length > 0;
 
   useEffect(() => {
+    // let data = await userDatasCheck(userStatus);
     async function reviewData() {
       let data = await userDatasCheck(userStatus);
+      if (data !== undefined) {
+        setUserData(data);
+      } else {
+        setUserData([]);
+      }
+
+      if (data && data.collectionList && data.collectionList.length > 0) {
+        dispatch({
+          type: 'setCustomList',
+          data: data.collectionList
+        });
+      }
+    }
+    reviewData();
+  }, []);
+
+  useEffect(() => {
+    async function reviewData() {
       let want = [];
       let like = [];
       let star = [];
       let custom = [];
-      let customListCount = [];
-      console.log('data.collection', data.collection, 'data', data);
-      if (data && data.collection && data.collection.length !== 0) {
-        data.collection.forEach((collect) => {
-          if (collect.collectName === '想去的地點') {
-            want.push(collect);
-          } else if (collect.collectName === '喜愛的地點') {
-            like.push(collect);
-          } else if (collect.collectName === '已加星號的地點') {
-            star.push(collect);
-          } else if (
-            collect.collectName !== '已加星號的地點' &&
-            collect.collectName !== '已加星號的地點' &&
-            collect.collectName !== '想去的地點'
-          ) {
-            custom.push(collect);
-            // customList.map((list) => collect.collectName === list && custom.push(list));
+      let ListCount = [];
 
-            // const a = customList.filter((list) => collect.collectName === list);
-            // console.log(a);
-          }
-        });
-
-        // for (let i = 0; i < data.collectionList.length; i++) {
-        //   const title = String.fromCharCode(i + 65);
-        //   console.log(title);
-        //   // const [title, set] = useState([]);
-        //   let title = [];
-        // }
-
-        // console.log(custom);
-        customList.forEach((list, index) => {
-          console.log(index);
-
-          index = custom.filter((data) => data.collectName === list);
-          // const a = data.collection.filter((collect) => collect.name === list);
-          console.log(index, index.length);
-          customListCount.push(index.length);
-          // customList.filter((list) => collect.collectName === list);
-        });
-        console.log(customListCount);
-        setCustomListCount(customListCount);
-
-        if (data && data.collectionList.length > 0) {
-          dispatch({
-            type: 'setCustomList',
-            data: data.collectionList
+      if (userData) {
+        if (userData.collection && userData.collection.length !== 0) {
+          userData.collection.forEach((collect) => {
+            if (collect.collectName === '想去的地點') {
+              want.push(collect);
+            } else if (collect.collectName === '喜愛的地點') {
+              like.push(collect);
+            } else if (collect.collectName === '已加星號的地點') {
+              star.push(collect);
+            } else if (
+              collect.collectName !== '已加星號的地點' &&
+              collect.collectName !== '已加星號的地點' &&
+              collect.collectName !== '想去的地點'
+            ) {
+              custom.push(collect);
+            }
           });
         }
+
+        customList.forEach((list, index) => {
+          // console.log(index);
+
+          index = custom.filter((data) => data.collectName === list);
+
+          ListCount.push(index.length);
+        });
+
+        setCustomListCount(ListCount);
 
         setWantList(want);
         setLikeList(like);
@@ -175,7 +178,7 @@ function MemberPage(props) {
       }
     }
     reviewData();
-  }, []);
+  }, [customList, userData]);
 
   function handleCollectionList(e) {
     dispatch({
@@ -202,7 +205,14 @@ function MemberPage(props) {
       }
     });
 
-  console.log(!checkAnimationLoader, isMobile);
+  const listNotify = () =>
+    toast('目前此清單沒有任何品項', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
 
   return (
     <Member>
@@ -214,55 +224,62 @@ function MemberPage(props) {
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
       <Separator></Separator>
-      {checkAnimationLoader ? (
-        <CollectLists>
-          <ItemBox onClick={handleCollectionList}>
-            <CollectListBox id="想去的地點">
-              <Icon src={'/falg.png'} id="想去的地點"></Icon>
-              <ItemTitle id="想去的地點" padding={'0 10px 0 0}'}>
-                想去的地點
-              </ItemTitle>
-              <Description id="想去的地點">({wantList.length > 0 ? wantList.length : 0}) </Description>
-            </CollectListBox>
-          </ItemBox>
-          <ItemBox onClick={handleCollectionList}>
-            <CollectListBox id="喜愛的地點">
-              <Icon src={'/heart.png'} id="喜愛的地點"></Icon>
-              <ItemTitle id="喜愛的地點" padding={'0 10px 0 0}'}>
-                喜愛的地點
-              </ItemTitle>
-              <Description id="喜愛的地點">({likeList.length > 0 ? likeList.length : 0}) </Description>
-            </CollectListBox>
-          </ItemBox>
-          <ItemBox onClick={handleCollectionList}>
-            <CollectListBox id="已加星號的地點">
-              <Icon src={'/active_star.png'} id="已加星號的地點"></Icon>
-              <ItemTitle id="已加星號的地點" padding={'0 10px 0 0}'}>
-                已加星號的地點
-              </ItemTitle>
-              <Description id="已加星號的地點">({starList.length > 0 ? starList.length : 0}) </Description>
-            </CollectListBox>
-          </ItemBox>
-          {customList.length > 0 &&
-            customList.map((list, index) => (
-              <ItemBox onClick={handleCollectionList}>
-                <CollectListBox id={list}>
-                  <Icon src={'/custom.png'} id={list}></Icon>
-                  <ItemTitle
-                    id={list}
-                    padding={'0 10px 0 0}'}
-                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    {list}
-                  </ItemTitle>
-                  <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
-                </CollectListBox>
-              </ItemBox>
-            ))}
-        </CollectLists>
-      ) : (
+      {!userData ? (
         <InfiniteLoading marginTop={20}></InfiniteLoading>
-      )}
+      ) : userData ? (
+        checkAnimationLoader || userData.length === 0 ? (
+          <CollectLists>
+            <ItemBox onClick={wantList.length > 0 ? handleCollectionList : listNotify}>
+              <CollectListBox id="想去的地點">
+                <Icon src={'/falg.png'} id="想去的地點"></Icon>
+                <ItemTitle id="想去的地點" padding={'0 10px 0 0}'}>
+                  想去的地點
+                </ItemTitle>
+                <Description id="想去的地點">({wantList.length > 0 ? wantList.length : 0}) </Description>
+              </CollectListBox>
+            </ItemBox>
+            <ItemBox onClick={likeList.length ? handleCollectionList : listNotify}>
+              <CollectListBox id="喜愛的地點">
+                <Icon src={'/heart.png'} id="喜愛的地點"></Icon>
+                <ItemTitle id="喜愛的地點" padding={'0 10px 0 0}'}>
+                  喜愛的地點
+                </ItemTitle>
+                <Description id="喜愛的地點">({likeList.length > 0 ? likeList.length : 0}) </Description>
+              </CollectListBox>
+            </ItemBox>
+            <ItemBox onClick={starList.length > 0 ? handleCollectionList : listNotify}>
+              <CollectListBox id="已加星號的地點">
+                <Icon src={'/active_star.png'} id="已加星號的地點"></Icon>
+                <ItemTitle id="已加星號的地點" padding={'0 10px 0 0}'}>
+                  已加星號的地點
+                </ItemTitle>
+                <Description id="已加星號的地點">({starList.length > 0 ? starList.length : 0}) </Description>
+              </CollectListBox>
+            </ItemBox>
+            {customList.length > 0 &&
+              customList.map((list, index) => (
+                <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
+                  <CollectListBox id={list}>
+                    <Icon src={'/custom.png'} id={list}></Icon>
+                    <ItemTitle
+                      id={list}
+                      padding={'0 10px 0 0}'}
+                      style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
+                      {list}
+                    </ItemTitle>
+
+                    <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
+                    {/* <Icon src={'/custom.png'} id={list}></Icon> */}
+                  </CollectListBox>
+                </ItemBox>
+              ))}
+          </CollectLists>
+        ) : (
+          <InfiniteLoading marginTop={20}></InfiniteLoading>
+        )
+      ) : // checkAnimationLoader || userData === undefined ?(<></>):(<></>)
+      null}
 
       <Separator></Separator>
       <ButtonGhostRound
@@ -278,6 +295,14 @@ function MemberPage(props) {
           dispatch({
             type: 'setloginToast',
             data: false
+          });
+          dispatch({
+            type: 'setUserState',
+            data: null
+          });
+          dispatch({
+            type: 'setCustomList',
+            data: []
           });
         }}
         margin={'6px 0 16px 0'}

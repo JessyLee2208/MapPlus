@@ -4,12 +4,12 @@ import { addCollectList, addDishToCollectList, removeDishToCollectList, userData
 import { useDispatch, useSelector } from 'react-redux';
 
 let CollectBox = styled.div`
-  // width: 220px;
+  width: 220px;
   height: auto;
 
-  position: relative;
+  position: absolute;
   background: #fff;
-  top: 300px;
+  top: 294px;
   right: 20px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
   border-radius: 8px;
@@ -118,7 +118,7 @@ function Collection(props) {
 
   if (selectedDish.imageUrl === '') {
     CollectBox = styled.div`
-      width: 100%;
+      width: 220px;
       height: auto;
 
       position: absolute;
@@ -127,6 +127,8 @@ function Collection(props) {
       right: 20px;
       box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
       border-radius: 8px;
+      max-height: 360px;
+      overflow: overlay;
     `;
   }
   if (selectedDish.imageUrl !== '') {

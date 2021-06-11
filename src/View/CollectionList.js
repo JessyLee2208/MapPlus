@@ -78,6 +78,7 @@ function CollectionList(props) {
   const [searchMenu, setSearchMenu] = useState(null);
 
   useEffect(() => {
+    console.log(collectionList);
     if (userStatus) {
       async function reviewData() {
         let UserData = await userDatasCheck(userStatus);
@@ -119,8 +120,10 @@ function CollectionList(props) {
             let Data = getStoreData(collect.storeCollectionID);
             store.push(Data);
           });
+          console.log(store);
 
           Promise.all(store).then((res) => {
+            console.log(res);
             setStoreArray(res);
 
             dispatch({
@@ -238,6 +241,8 @@ function CollectionList(props) {
       data: null
     });
   }
+
+  console.log(collectionCheck, storeArray);
 
   // useEffect(() => {
   //   return () => {

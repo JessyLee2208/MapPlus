@@ -217,8 +217,8 @@ function DishDetail(props) {
                 data: null
               });
         }
-
-        if (data.collectionList) {
+        console.log(data);
+        if (data && data.collectionList !== undefined) {
           // setCustomList(data.collectionList);
           dispatch({
             type: 'setCustomList',
