@@ -579,7 +579,7 @@ function App() {
 
       {isMobile && !informationWindow ? (
         <ButtonPrimaryRoundIcon
-          style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+          style={{ position: 'fixed', right: '40%', bottom: '24px', boxShadow: '0px 0px 7px rgb(0 0 0 / 25%)' }}
           onClick={closeInformation}
           zIndex={4}
           src="/map.png"
@@ -591,7 +591,7 @@ function App() {
         informationWindow &&
         (storeListExist || storeDetailExist || collectionCheck || dishDetailExist) && (
           <ButtonPrimaryRoundIcon
-            style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+            style={{ position: 'fixed', right: '40%', bottom: '24px', boxShadow: '0px 0px 7px rgb(0 0 0 / 25%)' }}
             onClick={closeInformation}
             zIndex={6}
             src="/map.png"

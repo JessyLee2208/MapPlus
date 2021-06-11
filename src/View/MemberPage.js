@@ -28,12 +28,13 @@ const Member = styled.div`
   z-index: 3;
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: 100vw;
-    height: 101vh;
+    height: 100vh;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 8;
     border-radius: 0px;
+    max-height: 100vh;
   }
 `;
 
