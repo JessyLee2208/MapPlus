@@ -18,7 +18,8 @@ const initState = {
   storeHover: null,
 
   loginToast: false,
-  markerHover: null
+  markerHover: null,
+  customList: []
 };
 export default function storeReducer(preState = initState, action) {
   const { type, data } = action;
@@ -89,6 +90,13 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         collectData: data
+      };
+    }
+
+    case 'updateCollectData': {
+      return {
+        ...preState,
+        collectData: [...preState.collectData, data]
       };
     }
 
@@ -208,6 +216,20 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         markerHover: data
+      };
+    }
+
+    case 'setCustomList': {
+      return {
+        ...preState,
+        customList: data
+      };
+    }
+
+    case 'updateCustomList': {
+      return {
+        ...preState,
+        customList: [...preState.customList, data]
       };
     }
 

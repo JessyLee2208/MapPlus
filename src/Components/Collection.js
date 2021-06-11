@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { addCollectList, addDishToCollectList, removeDishToCollectList, userDatasCheck } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 
 let CollectBox = styled.div`
-  width: auto;
+  // width: 220px;
   height: auto;
 
   position: relative;
@@ -13,6 +13,8 @@ let CollectBox = styled.div`
   right: 20px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
   border-radius: 8px;
+  max-height: 360px;
+  overflow: overlay;
 `;
 
 const InfoBold = styled.p`
@@ -45,6 +47,7 @@ const CollectListBoxSelect = styled.div`
   margin: 0;
   padding: 8px 16px 8px 12px;
   align-items: center;
+  cursor: pointer;
 
   background: #d9edff;
 `;
@@ -67,6 +70,10 @@ const CollectTitle = styled.p`
   text-align: left;
   color: #black;
   margin: 0px 0 0 10px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 function Collection(props) {
@@ -74,17 +81,44 @@ function Collection(props) {
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
   const collectData = useSelector((state) => state.collectData);
+  const customList = useSelector((state) => state.customList);
 
   const [customCheck, setCustomCheck] = useState([]);
+  const [want, setWant] = useState(false);
+  const [like, setLike] = useState(false);
+  const [stare, setStare] = useState(false);
 
-  let want = false;
-  let like = false;
-  let stare = false;
-  let check = false;
+  // let want = false;
+  // let like = false;
+  // let stare = false;
+  // let result = [];
+
+  useEffect(() => {
+    const listArray = [];
+    if (collectData !== []) {
+      collectData.forEach((check) => {
+        if (check.collectName === '想去的地點') {
+          setWant(true);
+        } else if (check.collectName === '喜愛的地點') {
+          setLike(true);
+        } else if (check.collectName === '已加星號的地點') {
+          setStare(true);
+        } else if (check.collectName !== '') {
+          // console.log(customList.map((list) => check.collectName === list));
+          customList.map((list) => check.collectName === list && listArray.push(list));
+        }
+      });
+      let result = Array.from(new Set(listArray));
+      console.log(result, listArray);
+      setCustomCheck(result);
+    }
+  }, []);
+
+  console.log(collectData);
 
   if (selectedDish.imageUrl === '') {
     CollectBox = styled.div`
-      width: auto;
+      width: 100%;
       height: auto;
 
       position: absolute;
@@ -97,7 +131,7 @@ function Collection(props) {
   }
   if (selectedDish.imageUrl !== '') {
     CollectBox = styled.div`
-      width: auto;
+      width: 220px;
       height: auto;
 
       position: absolute;
@@ -106,6 +140,8 @@ function Collection(props) {
       right: 20px;
       box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
       border-radius: 8px;
+      max-height: 360px;
+      overflow: overlay;
     `;
   }
 
@@ -165,27 +201,18 @@ function Collection(props) {
               data: []
             });
           }
+        } else if (data.collection.length === 0) {
+          console.log(data.collection);
+          dispatch({
+            type: 'setCollectData',
+            data: []
+          });
         }
         props.select(false);
       });
     }
   }
 
-  if (collectData !== []) {
-    const listArray = [];
-    collectData.forEach((check) => {
-      if (check.collectName === '想去的地點') {
-        want = true;
-      } else if (check.collectName === '喜愛的地點') {
-        like = true;
-      } else if (check.collectName === '已加星號的地點') {
-        stare = true;
-      } else if (check.collectName !== '') {
-        props.data.map((list) => check.collectName === list && listArray.push(list));
-      }
-      setCustomCheck(listArray);
-    });
-  }
   function callModal() {
     props.check(true);
     dispatch({
@@ -194,11 +221,12 @@ function Collection(props) {
     });
   }
 
+  console.log('customList', ':', customList, 'customCheck', ':', customCheck);
+
   return (
     <CollectBox onClick={handleCollectListClick}>
-      <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }} id="collect">
-        儲存至清單中
-      </InfoBold>
+      <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }}>儲存至清單中</InfoBold>
+      {/* <CollectLists> */}
       {want ? (
         <CollectListBoxSelect id="removeCollection">
           <Icon src="/falg_select.png" id="removeCollection" alt="想去的地點"></Icon>
@@ -237,15 +265,15 @@ function Collection(props) {
         </CollectListBox>
       )}
 
-      {props.data.length > 0 &&
-        props.data.map((list, index) =>
-          customCheck[index] === list ? (
-            <CollectListBox key={index}>
-              <Icon src="/custom_selsct.png" id="removeCollection" alt={list}></Icon>
-              <CollectTitle id="collect" value={list}>
+      {customList.length > 0 &&
+        customList.map((list, index) =>
+          customCheck.find((check) => check === list) !== undefined ? (
+            <CollectListBoxSelect key={index} id="removeCollection">
+              <Icon src="/custom_select.png" id="removeCollection" alt={list}></Icon>
+              <CollectTitle id="removeCollection" value={list}>
                 {list}
               </CollectTitle>
-            </CollectListBox>
+            </CollectListBoxSelect>
           ) : (
             <CollectListBox>
               <Icon src="/custom.png" id="collect" alt={list}></Icon>
@@ -255,7 +283,7 @@ function Collection(props) {
             </CollectListBox>
           )
         )}
-
+      {/* </CollectLists> */}
       <CollectListBox onClick={callModal}>
         <Icon src="/add.png" id="add" alt="add"></Icon>
         <CollectTitle id="add" value="add">

@@ -170,14 +170,16 @@ function DishDetail(props) {
 
   const collectData = useSelector((state) => state.collectData);
   const userReviewSet = useSelector((state) => state.userReviewSet);
+  const customList = useSelector((state) => state.customList);
 
   const dispatch = useDispatch();
 
   const [allDishReviews, setAllDishReviews] = useState(null);
   const [select, selected] = useState(false);
-  const [customList, setCustomList] = useState([]);
+  const [custom, setCustom] = useState([]);
 
   let array = [];
+  let customArray = [];
   let newRating = selectedDish.rating.toFixed(1);
 
   useEffect(() => {
@@ -217,10 +219,12 @@ function DishDetail(props) {
         }
 
         if (data.collectionList) {
-          setCustomList(data.collectionList);
+          // setCustomList(data.collectionList);
+          dispatch({
+            type: 'setCustomList',
+            data: data.collectionList
+          });
         }
-
-        console.log(data.collectionList);
 
         if (data && data.collection && data.collection.length !== 0) {
           let collectionArray = [];
@@ -286,6 +290,10 @@ function DishDetail(props) {
 
   if (collectData.length > 0) {
     collectData.forEach((data, key) => {
+      let result = customList.find((check) => check === data.collectName);
+      // console.log(result, customList);
+      result !== undefined && customArray.push(result);
+
       let collect = (
         <RatingDiv key={key}>
           {data.collectName === '想去的地點' ? (
@@ -326,31 +334,38 @@ function DishDetail(props) {
                 </Info>
               </CollectionBox>
             </>
-          ) : data.collectName === '已加星號的地點' ? (
-            <>
-              <Icon src="/star_select.png"></Icon>
-              <CollectionBox>
-                <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-                <Info
-                  style={{
-                    fontWeight: '600',
-                    fontSize: '15px',
-                    margin: '0px 18px 0 0',
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleCollectionList}
-                  id="已加星號的地點"
-                >
-                  查看清單
-                </Info>
-              </CollectionBox>
-            </>
           ) : (
-            <></>
+            data.collectName === '已加星號的地點' && (
+              <>
+                <Icon src="/star_select.png"></Icon>
+                <CollectionBox>
+                  <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
+                  <Info
+                    style={{
+                      fontWeight: '600',
+                      fontSize: '15px',
+                      margin: '0px 18px 0 0',
+                      cursor: 'pointer'
+                    }}
+                    onClick={handleCollectionList}
+                    id="已加星號的地點"
+                  >
+                    查看清單
+                  </Info>
+                </CollectionBox>
+              </>
+            )
           )}
         </RatingDiv>
       );
-      array.push(collect);
+
+      if (
+        data.collectName === '想去的地點' ||
+        data.collectName === '喜愛的地點' ||
+        data.collectName === '已加星號的地點'
+      ) {
+        array.push(collect);
+      }
     });
   }
 
@@ -392,7 +407,7 @@ function DishDetail(props) {
         </SubItemTitle>
       </Back>
       <SearchBg></SearchBg>
-      {select && <Collection select={selected} check={customList}></Collection>}
+      {select && <Collection select={selected} check={props.check}></Collection>}
       {selectedDish.imageUrl ? (
         <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
       ) : (
@@ -422,8 +437,31 @@ function DishDetail(props) {
           </div>
         </TopDiv>
       </div>
-
-      {collectData.length > 0 ? array : <></>}
+      <div>
+        {collectData.length > 0 && array}
+        {collectData.length > 0 &&
+          customArray.length > 0 &&
+          customArray.map((list, key) => (
+            <RatingDiv key={key}>
+              <Icon src="/custom.png"></Icon>
+              <CollectionBox>
+                <Info style={{ fontSize: '15px' }}>已儲存於「{list}」</Info>
+                <Info
+                  style={{
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    margin: '0px 18px 0 0',
+                    cursor: 'pointer'
+                  }}
+                  onClick={handleCollectionList}
+                  id={list}
+                >
+                  查看清單
+                </Info>
+              </CollectionBox>
+            </RatingDiv>
+          ))}
+      </div>
 
       {userReviewSet ? (
         <div>

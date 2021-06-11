@@ -70,7 +70,17 @@ function ReminderModal(props) {
   function bindupLoadCollection() {
     console.log('???');
     addCollectList(userStatus.email, inputText).then(() => {
+      dispatch({
+        type: 'setModalShow',
+        data: false
+      });
       console.log('upload work!!!');
+      props.check(false);
+
+      dispatch({
+        type: 'updateCustomList',
+        data: inputText
+      });
     });
   }
 

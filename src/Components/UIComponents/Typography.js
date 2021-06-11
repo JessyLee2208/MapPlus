@@ -167,9 +167,9 @@ function SubTitle(props) {
 }
 
 function ItemTitle(props) {
-  const { padding, color, id, textAlign } = props;
+  const { padding, color, id, textAlign, style } = props;
   return (
-    <Itemtitle color={color} padding={padding} id={id} textAlign={textAlign}>
+    <Itemtitle color={color} padding={padding} id={id} textAlign={textAlign} style={style}>
       {props.children}
     </Itemtitle>
   );
