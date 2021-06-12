@@ -1,7 +1,8 @@
-const host_name = 'https://hsiaohan.cf';
-// const host_name = 'http://localhost:5000';
+// const host_name = 'https://hsiaohan.cf';
+const host_name = 'http://localhost:5000';
 
 function getStoreMenu(deliver) {
+  console.log('a');
   fetch(`${host_name}/getStoreProducts`, {
     method: 'post',
     body: JSON.stringify(deliver),

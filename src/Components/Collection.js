@@ -104,17 +104,14 @@ function Collection(props) {
         } else if (check.collectName === '已加星號的地點') {
           setStare(true);
         } else if (check.collectName !== '') {
-          // console.log(customList.map((list) => check.collectName === list));
           customList.map((list) => check.collectName === list && listArray.push(list));
         }
       });
       let result = Array.from(new Set(listArray));
-      console.log(result, listArray);
+
       setCustomCheck(result);
     }
   }, []);
-
-  console.log(collectData);
 
   if (selectedDish.imageUrl === '') {
     CollectBox = styled.div`
@@ -204,7 +201,6 @@ function Collection(props) {
             });
           }
         } else if (data.collection.length === 0) {
-          console.log(data.collection);
           dispatch({
             type: 'setCollectData',
             data: []

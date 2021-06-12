@@ -17,9 +17,11 @@ import NotFound from './View/NotFount';
 import { getMenuData, googleAccountSignIn, getStoreData, googleAccountStateChanged } from './Utils/firebase';
 import { getStoreDetail } from './Utils/getMoreDetail';
 import useMediaQuery from './Utils/useMediaQuery';
+import { getStoreMenu } from './Utils/fetch';
 
 import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
+import Confim from './Components/Confim';
 import { Loading } from './Components/UIComponents/LottieAnimat';
 import MapInforWindow from './Components/InfoWindow';
 import Markers from './Components/Marker';
@@ -121,8 +123,8 @@ const searchOption = {
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-const host_name = 'https://hsiaohan.cf';
-// const host_name = 'http://localhost:5000';
+// const host_name = 'https://hsiaohan.cf';
+const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -454,8 +456,8 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        console.log(res[0]);
-        console.log(res[0].photos[0].getUrl());
+        // console.log(res[0]);
+        // console.log(res[0].photos[0].getUrl());
 
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
@@ -564,6 +566,7 @@ function App() {
 
   return (
     <Frame>
+      {/* <Confim title={'刪除清單'} description={'確定要刪除這份清單嗎？'}></Confim> */}
       {!storeListExist &&
         !storeDetailExist &&
         !dishDetailExist &&
@@ -713,8 +716,8 @@ function App() {
             data: null
           });
           setMemberPageShow(false);
+
           getStoreDetail(e.placeId, service).then((res) => {
-            console.log(res);
             dispatch({
               type: 'setStoreData',
               data: [res]
@@ -738,6 +741,22 @@ function App() {
                 }
               ]
             });
+            // getStoreMenu(res.deliver);
+            if (res.deliver.uberEatUrl || res.deliver.foodPandaUrl) {
+              function setData(data) {
+                dispatch({
+                  type: 'setMenuData',
+                  data: data
+                });
+              }
+              getStoreMenu(res.deliver);
+              getMenuData(res.name, setData);
+            } else {
+              dispatch({
+                type: 'setMenuData',
+                data: null
+              });
+            }
 
             textInput.current.value = res.name;
             setSearchText(res.name);

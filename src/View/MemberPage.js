@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { deviceSize } from '../responsive/responsive';
 import { useDispatch, useSelector } from 'react-redux';
 import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typography';
-import { userDatasCheck, googleAccountLogOut } from '../Utils/firebase';
+import { userDatasCheck, googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../Utils/firebase';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
 import useMediaQuery from '../Utils/useMediaQuery';
 import toast from 'react-hot-toast';
 import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
+import Confim from '../Components/Confim';
 
 const Member = styled.div`
   position: fixed;
@@ -83,7 +84,7 @@ const CollectListBox = styled.div`
   display: flex;
   margin: 0;
   padding-left: 64px;
-  padding-right: 28px;
+  // padding-right: 12px;
   margin: 4px 0;
   align-items: center;
   @media screen and (max-width: ${deviceSize.mobile}px) {
@@ -97,12 +98,32 @@ const Icon = styled.img`
   margin-right: 14px;
 `;
 
-// const EditList
+const CloseButton = styled.a`
+  // display: none;
+  margin-right: 18px;
+  cursor: pointer;
+  font-size: 20px;
+  color: #afafaf;
+  &:hover {
+    color: #185ee6;
+  }
+`;
+
+const EditList = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
 
 function MemberPage(props) {
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
   const userStatus = useSelector((state) => state.userStatus);
   const customList = useSelector((state) => state.customList);
+  const collectData = useSelector((state) => state.collectData);
 
   const dispatch = useDispatch();
 
@@ -111,6 +132,9 @@ function MemberPage(props) {
   const [starList, setStarList] = useState([]);
   const [customListCounts, setCustomListCount] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState('');
+
+  const [comfimShow, setComfimShow] = useState(false);
 
   const checkAnimationLoader =
     wantList.length > 0 || likeList.length > 0 || starList.length > 0 || customListCounts.length > 0;
@@ -119,6 +143,7 @@ function MemberPage(props) {
     // let data = await userDatasCheck(userStatus);
     async function reviewData() {
       let data = await userDatasCheck(userStatus);
+
       if (data !== undefined) {
         setUserData(data);
       } else {
@@ -163,8 +188,6 @@ function MemberPage(props) {
         }
 
         customList.forEach((list, index) => {
-          // console.log(index);
-
           index = custom.filter((data) => data.collectName === list);
 
           ListCount.push(index.length);
@@ -214,12 +237,61 @@ function MemberPage(props) {
       }
     });
 
+  function handleDeleteList(e) {
+    removeCollectList(userStatus.email, deleteTarget.id).then(async () => {
+      let data = await userDatasCheck(userStatus);
+      console.log(data);
+      setUserData(data);
+      dispatch({
+        type: 'setCustomList',
+        data: data.collectionList
+      });
+
+      if (deleteTarget.name > 0) {
+        console.log('44444');
+        const deleteData = data.collection.filter((data) => data.collectName === deleteTarget.id);
+
+        deleteData.forEach((selectedDish) => {
+          removeDishToCollectList(userStatus.email, selectedDish, deleteTarget.id).then(async () => {
+            let data = await userDatasCheck(userStatus);
+            setUserData(data);
+
+            let collectDataCheck = [];
+            collectData.forEach((data) => {
+              if (data.collectName !== deleteTarget.id) {
+                collectDataCheck.push(data);
+              }
+            });
+
+            dispatch({
+              type: 'setCollectData',
+              data: collectDataCheck
+            });
+          });
+        });
+      }
+    });
+    setComfimShow(false);
+  }
+
+  function showConfim(e) {
+    setDeleteTarget(e.target);
+    setComfimShow(true);
+  }
+
   return (
     <Member>
+      <Confim
+        title={'刪除清單'}
+        description={'確定要刪除這份清單嗎？'}
+        onClick={handleDeleteList}
+        show={comfimShow}
+        control={setComfimShow}
+      ></Confim>
+      ;
       {isMobile && (
         <Icon src="/close_big.png" style={{ position: 'fixed', right: '0px', top: '10px' }} onClick={close}></Icon>
       )}
-
       <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
@@ -258,21 +330,30 @@ function MemberPage(props) {
             </ItemBox>
             {customList.length > 0 &&
               customList.map((list, index) => (
-                <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
-                  <CollectListBox id={list}>
-                    <Icon src={'/custom.png'} id={list}></Icon>
-                    <ItemTitle
-                      id={list}
-                      padding={'0 10px 0 0}'}
-                      style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
-                      {list}
-                    </ItemTitle>
+                <EditList>
+                  <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
+                    <CollectListBox id={list}>
+                      <Icon src={'/custom.png'} id={list}></Icon>
+                      <ItemTitle
+                        id={list}
+                        padding={'0 10px 0 0}'}
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '112px'
+                        }}
+                      >
+                        {list}
+                      </ItemTitle>
 
-                    <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
-                    {/* <Icon src={'/custom.png'} id={list}></Icon> */}
-                  </CollectListBox>
-                </ItemBox>
+                      <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
+                    </CollectListBox>
+                  </ItemBox>
+                  <CloseButton onClick={showConfim} id={list} name={customListCounts[index]}>
+                    ×
+                  </CloseButton>
+                </EditList>
               ))}
           </CollectLists>
         ) : (
@@ -280,7 +361,6 @@ function MemberPage(props) {
         )
       ) : // checkAnimationLoader || userData === undefined ?(<></>):(<></>)
       null}
-
       <Separator></Separator>
       <ButtonGhostRound
         onClick={(e) => {

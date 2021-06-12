@@ -169,6 +169,19 @@ function addCollectList(usermail, collectName) {
       { merge: true }
     );
 }
+
+function removeCollectList(usermail, collectName) {
+  // const newSelectDish = { ...selectedDish, collectName: collectList };
+  return db
+    .collection('user')
+    .doc(usermail)
+    .update(
+      {
+        collectionList: firebase.firestore.FieldValue.arrayRemove(collectName)
+      },
+      { merge: true }
+    );
+}
 ////////////////////////////////////////////////
 
 function addDishToCollectList(usermail, selectedDish, collectList) {
@@ -186,6 +199,7 @@ function addDishToCollectList(usermail, selectedDish, collectList) {
 
 function removeDishToCollectList(usermail, selectedDish, collectList) {
   const newSelectDish = { ...selectedDish, collectName: collectList };
+  console.log(newSelectDish);
   return db
     .collection('user')
     .doc(usermail)
@@ -350,5 +364,6 @@ export {
   userReviewEdit,
   userReviewGet,
   getDishData,
-  addCollectList
+  addCollectList,
+  removeCollectList
 };

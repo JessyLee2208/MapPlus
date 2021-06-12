@@ -217,7 +217,7 @@ function DishDetail(props) {
                 data: null
               });
         }
-        console.log(data);
+
         if (data && data.collectionList !== undefined) {
           // setCustomList(data.collectionList);
           dispatch({
@@ -251,6 +251,8 @@ function DishDetail(props) {
       });
     }
   }, [userStatus, allDishReviews]);
+
+  useEffect(() => {}, [collectData]);
 
   function callModal(e) {
     dispatch({
@@ -291,7 +293,7 @@ function DishDetail(props) {
   if (collectData.length > 0) {
     collectData.forEach((data, key) => {
       let result = customList.find((check) => check === data.collectName);
-      // console.log(result, customList);
+
       result !== undefined && customArray.push(result);
 
       let collect = (
@@ -430,6 +432,8 @@ function DishDetail(props) {
           </DishBox>
           <div>
             {collectData.length > 0 ? (
+              <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+            ) : collectData.length > 0 && customArray.length > 0 ? (
               <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
             ) : (
               <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
