@@ -62,7 +62,7 @@ const Itemtitle = styled.div`
   }
 `;
 
-const SubItemtitle = styled.div`
+const SubItemtitle = styled.pre`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -90,6 +90,20 @@ const DescriptionContent = styled.p`
   letter-spacing: normal;
   text-align: left;
   color: ${({ color }) => (color ? '#' + color : '#5d6267')};
+  padding: ${({ padding }) => (padding ? padding : '0')};
+  margin: 0px;
+`;
+
+const AlertDescription = styled.div`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #ff1b1b;
   padding: ${({ padding }) => (padding ? padding : '0')};
   margin: 0px;
 `;
@@ -156,6 +170,14 @@ function Description(props) {
     </DescriptionContent>
   );
 }
+function AlertText(props) {
+  const { color, padding } = props;
+  return (
+    <AlertDescription style={props.style} padding={padding}>
+      {props.children}
+    </AlertDescription>
+  );
+}
 
 function SubTitle(props) {
   const { padding, color, id, margin } = props;
@@ -200,4 +222,4 @@ function Link(props) {
     </LinkTag>
   );
 }
-export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title };
+export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title, AlertText };

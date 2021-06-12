@@ -229,7 +229,7 @@ export default function storeReducer(preState = initState, action) {
     case 'updateCustomList': {
       return {
         ...preState,
-        customList: [...preState.customList, data]
+        customList: [...preState.customList]
       };
     }
 

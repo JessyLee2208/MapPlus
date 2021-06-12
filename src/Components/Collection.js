@@ -213,10 +213,6 @@ function Collection(props) {
 
   function callModal() {
     props.check(true);
-    dispatch({
-      type: 'setModalShow',
-      data: true
-    });
   }
 
   console.log('customList', ':', customList, 'customCheck', ':', customCheck);

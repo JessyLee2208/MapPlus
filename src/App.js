@@ -566,7 +566,6 @@ function App() {
 
   return (
     <Frame>
-      {/* <Confim title={'刪除清單'} description={'確定要刪除這份清單嗎？'}></Confim> */}
       {!storeListExist &&
         !storeDetailExist &&
         !dishDetailExist &&
@@ -580,7 +579,7 @@ function App() {
         )}
 
       <Toaster />
-      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow}></MemberPage>}
+      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow} check={setListCheck}></MemberPage>}
 
       {isMobile && !informationWindow ? (
         <ButtonPrimaryRoundIcon
@@ -606,7 +605,7 @@ function App() {
         )
       )}
 
-      {show && userStatus && listCheck && <AddCollectionModal show={show} check={setListCheck}></AddCollectionModal>}
+      {userStatus && listCheck && <AddCollectionModal show={listCheck} check={setListCheck}></AddCollectionModal>}
       {show && userStatus && !listCheck && <CommentModal show={show}></CommentModal>}
       {show && !userStatus && !listCheck && <ReminderModal show={show}></ReminderModal>}
       <StandaloneSearchBox

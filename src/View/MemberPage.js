@@ -83,7 +83,7 @@ const CollectLists = styled.div`
 const CollectListBox = styled.div`
   display: flex;
   margin: 0;
-  padding-left: 64px;
+  padding-left: 42px;
   // padding-right: 12px;
   margin: 4px 0;
   align-items: center;
@@ -99,8 +99,7 @@ const Icon = styled.img`
 `;
 
 const CloseButton = styled.a`
-  // display: none;
-  margin-right: 18px;
+  margin-right: 22px;
   cursor: pointer;
   font-size: 20px;
   color: #afafaf;
@@ -279,6 +278,15 @@ function MemberPage(props) {
     setComfimShow(true);
   }
 
+  function callModal() {
+    props.check(true);
+
+    // dispatch({
+    //   type: 'setModalShow',
+    //   data: true
+    // });
+  }
+
   return (
     <Member>
       <Confim
@@ -288,14 +296,14 @@ function MemberPage(props) {
         show={comfimShow}
         control={setComfimShow}
       ></Confim>
-      ;
+
       {isMobile && (
         <Icon src="/close_big.png" style={{ position: 'fixed', right: '0px', top: '10px' }} onClick={close}></Icon>
       )}
       <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
-      <Separator></Separator>
+      <Separator style={{ width: '90%' }}></Separator>
       {!userData ? (
         <InfiniteLoading marginTop={20}></InfiniteLoading>
       ) : userData ? (
@@ -355,6 +363,15 @@ function MemberPage(props) {
                   </CloseButton>
                 </EditList>
               ))}
+
+            <ItemBox onClick={callModal}>
+              <CollectListBox id="已加星號的地點">
+                <Icon src="/add.png" id="add" alt="add"></Icon>
+                <ItemTitle id="add" padding={'0 10px 0 0}'}>
+                  新增清單
+                </ItemTitle>
+              </CollectListBox>
+            </ItemBox>
           </CollectLists>
         ) : (
           <InfiniteLoading marginTop={20}></InfiniteLoading>

@@ -92,6 +92,7 @@ function CollectionList(props) {
           });
           const set = new Set();
           let a = collection.filter((item) => (!set.has(item.storeName) ? set.add(item.storeName) : false));
+
           const NewRes = [...a];
 
           let removed = [];
@@ -114,6 +115,7 @@ function CollectionList(props) {
 
           removed.forEach(async (collect) => {
             let Data = getStoreData(collect.storeCollectionID);
+
             store.push(Data);
           });
 
@@ -243,6 +245,7 @@ function CollectionList(props) {
   // }, []);
   // console.log(props.check);
   // console.log(collectionCheck);
+
   return (
     collectionCheck && (
       <Collection>
