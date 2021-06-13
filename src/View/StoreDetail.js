@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import renderStar from '../Utils/renderStar';
+
+import StarRender from '../Utils/StarRender';
 import MenuCard from '../Components/MenuCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { PageTitle, Description, SubTitle, SubItemTitle, ItemTitle } from '../Components/UIComponents/Typography';
@@ -181,7 +182,7 @@ const SearchCity = styled.span`
 
 function StoreDetail(props) {
   const storeData = useSelector((state) => state.storeData);
-  let starArry = [];
+
   let websitesURL = '';
   let deliverSite = '';
 
@@ -194,7 +195,7 @@ function StoreDetail(props) {
   const tab = useSelector((state) => state.selectedTab);
   let timestamp = '';
 
-  renderStar(props.product.rating, starArry);
+  const star = StarRender(props.product.rating, { width: 16, height: 16 });
 
   if (props.product.opening_hours !== undefined) {
     const today = new Date().getDay();
@@ -217,16 +218,16 @@ function StoreDetail(props) {
   const AllReviews = [];
   if (props.product.reviews) {
     props.product.reviews.forEach((review, key) => {
-      let reviewArry = [];
+      const revirwStar = StarRender(review.rating, { width: 16, height: 16 });
+      // let reviewArry = [];
       let reviewer = (
         <ReviewerBox key={key}>
           <AuthorBox>
             <AuthorImg src={review.profile_photo_url}></AuthorImg>
             <div>{review.author_name}</div>
           </AuthorBox>
-          {renderStar(review.rating, reviewArry)}
           <StarBoxReview>
-            {reviewArry}
+            {revirwStar}
             <Description padding={'0 0 0 10px'}>{review.relative_time_description}</Description>
           </StarBoxReview>
           <Description color={'000000'} padding={'8px 0px'}>
@@ -312,7 +313,7 @@ function StoreDetail(props) {
         <>
           <RatingDiv>
             <Description>{props.product.rating}</Description>
-            <StarBoxStore>{starArry}</StarBoxStore>
+            <StarBoxStore>{star}</StarBoxStore>
             <Description>{props.product.user_ratings_total} 則評論</Description>
           </RatingDiv>
           <Separator></Separator>
@@ -359,7 +360,7 @@ function StoreDetail(props) {
 
                   {props.product.opening_hours !== undefined ? (
                     props.product.opening_hours.weekday_text ? (
-                      <Description color={'000000'}>營業中：{timestamp}</Description>
+                      <Description color={'000000'}>營業時間：{timestamp}</Description>
                     ) : (
                       <Description color={'000000'} padding={'0 0 0 10px'}>
                         營業中
@@ -416,9 +417,7 @@ function StoreDetail(props) {
             ) : (
               <Loading marginTop={'7vh'} />
             )
-          ) : (
-            <div></div>
-          )}
+          ) : null}
         </>
       ) : (
         <>
@@ -430,7 +429,6 @@ function StoreDetail(props) {
           <ItemTitle textAlign={'center'}>
             立刻用<SearchCity>「 {props.input} + 食物 」</SearchCity>搜尋
           </ItemTitle>
-          <div></div>
         </>
       )}
     </Store>

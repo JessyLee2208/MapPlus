@@ -26,10 +26,6 @@ const FilterListBox = styled.div`
   }
 `;
 
-// const Div = styled.div`
-// display: flex;
-// `
-
 function FilterBox(props) {
   const { top, width } = props;
 

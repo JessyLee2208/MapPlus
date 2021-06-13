@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { addCollectList, addDishToCollectList, removeDishToCollectList, userDatasCheck } from '../Utils/firebase';
+import { addDishToCollectList, removeDishToCollectList } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
-import useUserDataCheck from '../Utils/useUserDataCheck';
 
 let CollectBox = styled.div`
   width: 220px;

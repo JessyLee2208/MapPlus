@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
-import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
 import toast, { Toaster } from 'react-hot-toast';
 import algoliasearch from 'algoliasearch';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,7 +21,7 @@ import { getStoreMenu } from './Utils/fetch';
 
 import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
-import Confim from './Components/Confim';
+
 import { Loading } from './Components/UIComponents/LottieAnimat';
 import MapInforWindow from './Components/InfoWindow';
 import Markers from './Components/Marker';
@@ -337,8 +337,6 @@ function App() {
       });
     }
 
-    // notify();
-
     return googleAccountStateChanged(callback);
   }, []);
 
@@ -644,10 +642,8 @@ function App() {
         <StoreDetail product={selectedStore}></StoreDetail>
       ) : dishDetailExist ? (
         <DishDetail dishdata={selectedDish} service={service} check={setListCheck}></DishDetail>
-      ) : collectionCheck ? (
-        <CollectionList service={service} panTo={panTo}></CollectionList>
       ) : (
-        <></>
+        collectionCheck && <CollectionList service={service} panTo={panTo}></CollectionList>
       )}
       {smileStoreExist && !isMobile && <SearchListS service={service}></SearchListS>}
       {!userStatus ? (
@@ -738,7 +734,7 @@ function App() {
                 }
               ]
             });
-            // getStoreMenu(res.deliver);
+
             if (res.deliver.uberEatUrl || res.deliver.foodPandaUrl) {
               function setData(data) {
                 dispatch({

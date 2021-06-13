@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import { InfoWindow } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { SubTitle, Description } from './UIComponents/Typography';
-import renderStar from '../Utils/renderStar';
+
+import StarRender from '../Utils/StarRender';
 import getMorereDetail from '../Utils/getMoreDetail';
 import useMediaQuery from '../Utils/useMediaQuery';
 import { deviceSize } from '../responsive/responsive';
@@ -34,7 +35,7 @@ function MapInforWindow(props) {
   const informationWindow = useSelector((state) => state.informationWindow);
   const [position, setPosition] = useState(null);
   const dispatch = useDispatch();
-  let starArry = [];
+  // let starArry = [];
   const infoWindowRef = useRef();
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
@@ -58,22 +59,11 @@ function MapInforWindow(props) {
       }
     }
   }, [props.product]);
+  let star = 0;
 
-  if (props.product) renderStar(props.product.rating, starArry);
-
-  // function handleInfoWindow() {
-  //   if (informationWindow) {
-  //     dispatch({
-  //       type: 'setInformationWindow',
-  //       data: false
-  //     });
-  //   } else {
-  //     dispatch({
-  //       type: 'setInformationWindow',
-  //       data: true
-  //     });
-  //   }
-  // }
+  if (props.product) {
+    star = StarRender(props.product.rating, { width: 16, height: 16 });
+  }
 
   function handleInfoWindowClick() {
     if (isMobile) {
@@ -106,7 +96,7 @@ function MapInforWindow(props) {
           </SubTitle>
           <RatingDiv>
             <Description padding={'0px  4px 0  0'}>{props.product.rating}</Description>
-            {starArry}
+            {star}
             <Description padding={'0px  0px 0  6px'}>{props.product.user_ratings_total}</Description>
           </RatingDiv>
         </div>

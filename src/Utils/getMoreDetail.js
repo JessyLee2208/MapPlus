@@ -35,7 +35,7 @@ function getMorereDetail(product, service) {
               place.opening_hours.weekday_text && place.opening_hours.weekday_text !== undefined
                 ? place.opening_hours.weekday_text
                 : '',
-            periods: place.opening_hours.periods ? place.opening_hours.periods : ''
+            periods: place.opening_hours.periods || ''
           }
         };
       } else if (status === window.google.maps.places.PlacesServiceStatus.OK && place.opening_hours === undefined) {
