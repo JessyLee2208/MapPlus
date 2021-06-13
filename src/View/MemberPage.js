@@ -9,6 +9,7 @@ import useMediaQuery from '../Utils/useMediaQuery';
 import toast from 'react-hot-toast';
 import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
 import Confim from '../Components/Confim';
+import useUserDataCheck from '../Utils/useUserDataCheck';
 
 const Member = styled.div`
   position: fixed;
@@ -103,6 +104,7 @@ const CloseButton = styled.a`
   cursor: pointer;
   font-size: 20px;
   color: #afafaf;
+  transition: all 100ms ease-in-out;
   &:hover {
     color: #185ee6;
   }
@@ -130,7 +132,7 @@ function MemberPage(props) {
   const [likeList, setLikeList] = useState([]);
   const [starList, setStarList] = useState([]);
   const [customListCounts, setCustomListCount] = useState([]);
-  const [userData, setUserData] = useState([]);
+
   const [deleteTarget, setDeleteTarget] = useState('');
 
   const [comfimShow, setComfimShow] = useState(false);
@@ -138,68 +140,46 @@ function MemberPage(props) {
   const checkAnimationLoader =
     wantList.length > 0 || likeList.length > 0 || starList.length > 0 || customListCounts.length > 0;
 
-  useEffect(() => {
-    // let data = await userDatasCheck(userStatus);
-    async function reviewData() {
-      let data = await userDatasCheck(userStatus);
-
-      if (data !== undefined) {
-        setUserData(data);
-      } else {
-        setUserData([]);
-      }
-
-      if (data && data.collectionList && data.collectionList.length > 0) {
-        dispatch({
-          type: 'setCustomList',
-          data: data.collectionList
-        });
-      }
-    }
-    reviewData();
-  }, []);
+  const userData = useUserDataCheck();
 
   useEffect(() => {
-    async function reviewData() {
-      let want = [];
-      let like = [];
-      let star = [];
-      let custom = [];
-      let ListCount = [];
+    let want = [];
+    let like = [];
+    let star = [];
+    let custom = [];
+    let ListCount = [];
 
-      if (userData) {
-        if (userData.collection && userData.collection.length !== 0) {
-          userData.collection.forEach((collect) => {
-            if (collect.collectName === '想去的地點') {
-              want.push(collect);
-            } else if (collect.collectName === '喜愛的地點') {
-              like.push(collect);
-            } else if (collect.collectName === '已加星號的地點') {
-              star.push(collect);
-            } else if (
-              collect.collectName !== '已加星號的地點' &&
-              collect.collectName !== '已加星號的地點' &&
-              collect.collectName !== '想去的地點'
-            ) {
-              custom.push(collect);
-            }
-          });
-        }
-
-        customList.forEach((list, index) => {
-          index = custom.filter((data) => data.collectName === list);
-
-          ListCount.push(index.length);
+    if (userData) {
+      if (userData.collection && userData.collection.length !== 0) {
+        userData.collection.forEach((collect) => {
+          if (collect.collectName === '想去的地點') {
+            want.push(collect);
+          } else if (collect.collectName === '喜愛的地點') {
+            like.push(collect);
+          } else if (collect.collectName === '已加星號的地點') {
+            star.push(collect);
+          } else if (
+            collect.collectName !== '已加星號的地點' &&
+            collect.collectName !== '已加星號的地點' &&
+            collect.collectName !== '想去的地點'
+          ) {
+            custom.push(collect);
+          }
         });
-
-        setCustomListCount(ListCount);
-
-        setWantList(want);
-        setLikeList(like);
-        setStarList(star);
       }
+
+      customList.forEach((list, index) => {
+        index = custom.filter((data) => data.collectName === list);
+
+        ListCount.push(index.length);
+      });
+
+      setCustomListCount(ListCount);
+
+      setWantList(want);
+      setLikeList(like);
+      setStarList(star);
     }
-    reviewData();
   }, [customList, userData]);
 
   function handleCollectionList(e) {
@@ -238,35 +218,11 @@ function MemberPage(props) {
 
   function handleDeleteList(e) {
     removeCollectList(userStatus.email, deleteTarget.id).then(async () => {
-      let data = await userDatasCheck(userStatus);
-      console.log(data);
-      setUserData(data);
-      dispatch({
-        type: 'setCustomList',
-        data: data.collectionList
-      });
-
       if (deleteTarget.name > 0) {
-        console.log('44444');
-        const deleteData = data.collection.filter((data) => data.collectName === deleteTarget.id);
+        const deleteData = userData.collection.filter((data) => data.collectName === deleteTarget.id);
 
         deleteData.forEach((selectedDish) => {
-          removeDishToCollectList(userStatus.email, selectedDish, deleteTarget.id).then(async () => {
-            let data = await userDatasCheck(userStatus);
-            setUserData(data);
-
-            let collectDataCheck = [];
-            collectData.forEach((data) => {
-              if (data.collectName !== deleteTarget.id) {
-                collectDataCheck.push(data);
-              }
-            });
-
-            dispatch({
-              type: 'setCollectData',
-              data: collectDataCheck
-            });
-          });
+          removeDishToCollectList(userStatus.email, selectedDish, deleteTarget.id);
         });
       }
     });
@@ -280,11 +236,6 @@ function MemberPage(props) {
 
   function callModal() {
     props.check(true);
-
-    // dispatch({
-    //   type: 'setModalShow',
-    //   data: true
-    // });
   }
 
   return (
@@ -307,75 +258,71 @@ function MemberPage(props) {
       {!userData ? (
         <InfiniteLoading marginTop={20}></InfiniteLoading>
       ) : userData ? (
-        checkAnimationLoader || userData.length === 0 ? (
-          <CollectLists>
-            <ItemBox onClick={wantList.length > 0 ? handleCollectionList : listNotify}>
-              <CollectListBox id="想去的地點">
-                <Icon src={'/falg.png'} id="想去的地點"></Icon>
-                <ItemTitle id="想去的地點" padding={'0 10px 0 0}'}>
-                  想去的地點
-                </ItemTitle>
-                <Description id="想去的地點">({wantList.length > 0 ? wantList.length : 0}) </Description>
-              </CollectListBox>
-            </ItemBox>
-            <ItemBox onClick={likeList.length ? handleCollectionList : listNotify}>
-              <CollectListBox id="喜愛的地點">
-                <Icon src={'/heart.png'} id="喜愛的地點"></Icon>
-                <ItemTitle id="喜愛的地點" padding={'0 10px 0 0}'}>
-                  喜愛的地點
-                </ItemTitle>
-                <Description id="喜愛的地點">({likeList.length > 0 ? likeList.length : 0}) </Description>
-              </CollectListBox>
-            </ItemBox>
-            <ItemBox onClick={starList.length > 0 ? handleCollectionList : listNotify}>
-              <CollectListBox id="已加星號的地點">
-                <Icon src={'/active_star.png'} id="已加星號的地點"></Icon>
-                <ItemTitle id="已加星號的地點" padding={'0 10px 0 0}'}>
-                  已加星號的地點
-                </ItemTitle>
-                <Description id="已加星號的地點">({starList.length > 0 ? starList.length : 0}) </Description>
-              </CollectListBox>
-            </ItemBox>
-            {customList.length > 0 &&
-              customList.map((list, index) => (
-                <EditList>
-                  <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
-                    <CollectListBox id={list}>
-                      <Icon src={'/custom.png'} id={list}></Icon>
-                      <ItemTitle
-                        id={list}
-                        padding={'0 10px 0 0}'}
-                        style={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          maxWidth: '112px'
-                        }}
-                      >
-                        {list}
-                      </ItemTitle>
+        <CollectLists>
+          <ItemBox onClick={wantList.length > 0 ? handleCollectionList : listNotify}>
+            <CollectListBox id="想去的地點">
+              <Icon src={'/falg.png'} id="想去的地點"></Icon>
+              <ItemTitle id="想去的地點" padding={'0 10px 0 0}'}>
+                想去的地點
+              </ItemTitle>
+              <Description id="想去的地點">({wantList.length > 0 ? wantList.length : 0}) </Description>
+            </CollectListBox>
+          </ItemBox>
+          <ItemBox onClick={likeList.length ? handleCollectionList : listNotify}>
+            <CollectListBox id="喜愛的地點">
+              <Icon src={'/heart.png'} id="喜愛的地點"></Icon>
+              <ItemTitle id="喜愛的地點" padding={'0 10px 0 0}'}>
+                喜愛的地點
+              </ItemTitle>
+              <Description id="喜愛的地點">({likeList.length > 0 ? likeList.length : 0}) </Description>
+            </CollectListBox>
+          </ItemBox>
+          <ItemBox onClick={starList.length > 0 ? handleCollectionList : listNotify}>
+            <CollectListBox id="已加星號的地點">
+              <Icon src={'/active_star.png'} id="已加星號的地點"></Icon>
+              <ItemTitle id="已加星號的地點" padding={'0 10px 0 0}'}>
+                已加星號的地點
+              </ItemTitle>
+              <Description id="已加星號的地點">({starList.length > 0 ? starList.length : 0}) </Description>
+            </CollectListBox>
+          </ItemBox>
+          {customList.length > 0 &&
+            customList.map((list, index) => (
+              <EditList>
+                <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
+                  <CollectListBox id={list}>
+                    <Icon src={'/custom.png'} id={list}></Icon>
+                    <ItemTitle
+                      id={list}
+                      padding={'0 10px 0 0}'}
+                      style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '112px'
+                      }}
+                    >
+                      {list}
+                    </ItemTitle>
 
-                      <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
-                    </CollectListBox>
-                  </ItemBox>
-                  <CloseButton onClick={showConfim} id={list} name={customListCounts[index]}>
-                    ×
-                  </CloseButton>
-                </EditList>
-              ))}
+                    <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
+                  </CollectListBox>
+                </ItemBox>
+                <CloseButton onClick={showConfim} id={list} name={customListCounts[index]}>
+                  ×
+                </CloseButton>
+              </EditList>
+            ))}
 
-            <ItemBox onClick={callModal}>
-              <CollectListBox id="已加星號的地點">
-                <Icon src="/add.png" id="add" alt="add"></Icon>
-                <ItemTitle id="add" padding={'0 10px 0 0}'}>
-                  新增清單
-                </ItemTitle>
-              </CollectListBox>
-            </ItemBox>
-          </CollectLists>
-        ) : (
-          <InfiniteLoading marginTop={20}></InfiniteLoading>
-        )
+          <ItemBox onClick={callModal}>
+            <CollectListBox id="已加星號的地點">
+              <Icon src="/add.png" id="add" alt="add"></Icon>
+              <ItemTitle id="add" padding={'0 10px 0 0}'}>
+                新增清單
+              </ItemTitle>
+            </CollectListBox>
+          </ItemBox>
+        </CollectLists>
       ) : // checkAnimationLoader || userData === undefined ?(<></>):(<></>)
       null}
       <Separator></Separator>

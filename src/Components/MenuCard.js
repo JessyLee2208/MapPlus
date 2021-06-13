@@ -104,6 +104,7 @@ function MenuCard(props) {
 
   function callModal(e) {
     if (userDatasCheck) {
+      console.log(userDatasCheck);
       dispatch({
         type: 'setUserReviewSet',
         data: userDatasCheck

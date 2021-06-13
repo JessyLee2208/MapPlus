@@ -185,39 +185,79 @@ function removeCollectList(usermail, collectName) {
 ////////////////////////////////////////////////
 
 function addDishToCollectList(usermail, selectedDish, collectList) {
-  const newSelectDish = { ...selectedDish, collectName: collectList };
+  const { rating, user_ratings_total, ...newSelectDish } = selectedDish;
+  const updateSelectDish = { ...newSelectDish, collectName: collectList };
+  console.log(updateSelectDish);
   return db
     .collection('user')
     .doc(usermail)
     .set(
       {
-        collection: firebase.firestore.FieldValue.arrayUnion(newSelectDish)
+        collection: firebase.firestore.FieldValue.arrayUnion(updateSelectDish)
       },
       { merge: true }
-    );
+    )
+    .then(() => {
+      console.log('ok');
+    });
 }
 
 function removeDishToCollectList(usermail, selectedDish, collectList) {
-  const newSelectDish = { ...selectedDish, collectName: collectList };
+  const { rating, user_ratings_total, ...newSelectDish } = selectedDish;
+  const updateSelectDish = { ...newSelectDish, collectName: collectList };
   console.log(newSelectDish);
   return db
     .collection('user')
     .doc(usermail)
     .update(
       {
-        collection: firebase.firestore.FieldValue.arrayRemove(newSelectDish)
+        collection: firebase.firestore.FieldValue.arrayRemove(updateSelectDish)
       },
       { merge: true }
-    );
+    )
+    .then(() => {
+      console.log('remove ok');
+    });
 }
 
-function userDatasCheck(userStatus) {
+// function getAllDishReviews(DishData, callback) {
+//   return db
+//     .collection('review')
+//     .where('dishCollectionID', '==', DishData.dishCollectionID)
+
+//     .onSnapshot((querySnapshot) => {
+//       const promises = [];
+//       querySnapshot.forEach((doc) => {
+//         const data = doc.data();
+//         promises.push(data);
+//       });
+//       callback(promises);
+//     });
+// }
+
+// function userDatasCheck(userStatus) {
+//   return db
+//     .collection('user')
+//     .doc(userStatus.email)
+//     .get()
+//     .then((data) => {
+//       return data.data();
+//     });
+// }
+
+function userDatasCheck(userStatus, callback) {
   return db
     .collection('user')
     .doc(userStatus.email)
-    .get()
-    .then((data) => {
-      return data.data();
+    .onSnapshot((doc) => {
+      const data = doc.data();
+      // console.log(data);
+      // const promises = [];
+      // querySnapshot.forEach((doc) => {
+      //   const data = doc.data();
+      //   promises.push(data);
+      // });
+      callback(data);
     });
 }
 

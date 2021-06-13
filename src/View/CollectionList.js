@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { userDatasCheck, getStoreData } from '../Utils/firebase';
+import { getStoreData } from '../Utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
 import { deviceSize } from '../responsive/responsive';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
 import { ItemTitle } from '../Components/UIComponents/Typography';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
+import useUserDataCheck from '../Utils/useUserDataCheck';
 
 const Collection = styled.div`
   position: relative;
@@ -77,81 +78,81 @@ function CollectionList(props) {
   const [storeArray, setStoreArray] = useState(null);
   const [searchMenu, setSearchMenu] = useState(null);
 
+  const userData = useUserDataCheck();
+
   useEffect(() => {
     if (userStatus) {
-      async function reviewData() {
-        let UserData = await userDatasCheck(userStatus);
-        if (UserData && UserData.collection && UserData.collection.length > 0) {
-          let collection = [];
-          let store = [];
+      if (userData && userData.collection && userData.collection.length > 0) {
+        console.log(105, userData);
+        let collection = [];
+        let store = [];
 
-          UserData.collection.forEach(async (collect) => {
-            if (collect.collectName === collectionCheck) {
-              collection.push(collect);
-            }
-          });
-          const set = new Set();
-          let a = collection.filter((item) => (!set.has(item.storeName) ? set.add(item.storeName) : false));
-
-          const NewRes = [...a];
-
-          let removed = [];
-          const count = NewRes.length / 10;
-          const countNam = parseInt(count);
-
-          for (let i = 0; i < countNam; i++) {
-            let newArray = NewRes.slice(0, 10);
-
-            newArray.forEach(async (collect) => {
-              let Data = getStoreData(collect.storeCollectionID);
-              store.push(Data);
-            });
-            removed = NewRes.splice(countNam * 10);
+        userData.collection.forEach(async (collect) => {
+          if (collect.collectName === collectionCheck) {
+            collection.push(collect);
           }
+        });
+        const set = new Set();
+        let a = collection.filter((item) => (!set.has(item.storeName) ? set.add(item.storeName) : false));
+        console.log(a);
 
-          if (NewRes.length < 10) {
-            removed = NewRes;
-          }
+        const NewRes = [...a];
 
-          removed.forEach(async (collect) => {
+        let removed = [];
+        const count = NewRes.length / 10;
+        const countNam = parseInt(count);
+
+        for (let i = 0; i < countNam; i++) {
+          let newArray = NewRes.slice(0, 10);
+
+          newArray.forEach(async (collect) => {
             let Data = getStoreData(collect.storeCollectionID);
-
             store.push(Data);
           });
+          removed = NewRes.splice(countNam * 10);
+        }
 
-          Promise.all(store).then((res) => {
-            setStoreArray(res);
+        if (NewRes.length < 10) {
+          removed = NewRes;
+        }
 
-            dispatch({
-              type: 'setCollectionList',
-              data: res
-            });
-            let collectionMarks = [];
-            res.forEach((a) => {
-              let marks = {
-                lat: a.geometry.lat,
-                lng: a.geometry.lng,
-                storename: a.name,
-                place_id: a.place_id
-              };
-              collectionMarks.push(marks);
-            });
-            dispatch({
-              type: 'setCollectionMarks',
-              data: collectionMarks
-            });
-          });
+        removed.forEach(async (collect) => {
+          let Data = getStoreData(collect.storeCollectionID);
+
+          store.push(Data);
+        });
+
+        Promise.all(store).then((res) => {
+          setStoreArray(res);
 
           dispatch({
-            type: 'setSearchMenu',
-            data: collection
+            type: 'setCollectionList',
+            data: res
           });
-          setSearchMenu(collection);
-        }
+          let collectionMarks = [];
+          res.forEach((a) => {
+            let marks = {
+              lat: a.geometry.lat,
+              lng: a.geometry.lng,
+              storename: a.name,
+              place_id: a.place_id
+            };
+            collectionMarks.push(marks);
+          });
+          dispatch({
+            type: 'setCollectionMarks',
+            data: collectionMarks
+          });
+        });
+
+        dispatch({
+          type: 'setSearchMenu',
+          data: collection
+        });
+        setSearchMenu(collection);
       }
-      reviewData();
     }
-  }, [userStatus, collectionCheck]);
+  }, [userStatus, collectionCheck, userData]);
 
   function handleStoreListClick(e) {
     dispatch({

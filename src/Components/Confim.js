@@ -1,8 +1,8 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+
 import styled from 'styled-components';
 import Modal from './Modal';
-import { googleAccountSignIn } from '../Utils/firebase';
+
 import { ButtonPrimaryFlat, ButtonSecondaryFlat } from './UIComponents/Button';
 import toast from 'react-hot-toast';
 import { PageTitle, Description } from './UIComponents/Typography';
@@ -23,18 +23,11 @@ const ModalContent = styled.div`
 function Confim(props) {
   const { title, description } = props;
 
-  const dispatch = useDispatch();
-  const modalShow = useSelector((state) => state.modalShow);
-
   function handleClose() {
-    // dispatch({
-    //   type: 'setModalShow',
-    //   data: false
-    // });
     props.control(false);
   }
   const notify = () =>
-    toast('成功登出', {
+    toast('成功刪除清單', {
       style: {
         borderRadius: '4px',
         background: '#333',
@@ -52,7 +45,13 @@ function Confim(props) {
         <ButtonSecondaryFlat onClick={handleClose} style={{ margin: '16px 0' }}>
           取消
         </ButtonSecondaryFlat>
-        <ButtonPrimaryFlat style={{ margin: '16px' }} onClick={props.onClick}>
+        <ButtonPrimaryFlat
+          style={{ margin: '16px' }}
+          onClick={() => {
+            props.onClick();
+            notify();
+          }}
+        >
           刪除
         </ButtonPrimaryFlat>
       </ContentBackground>

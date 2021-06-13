@@ -98,7 +98,7 @@ function MapInforWindow(props) {
           {props.product.photos ? (
             <StoreImg alt="" src={props.product.photos[0].getUrl()}></StoreImg>
           ) : (
-            <StoreImg alt="" src={props.product.photo[0]}></StoreImg>
+            <StoreImg alt="" src={props.product.photo ? props.product.photo[0] : ''}></StoreImg>
           )}
 
           <SubTitle padding={'4px 10px'} margin={'0'} style={{ width: '160px' }}>

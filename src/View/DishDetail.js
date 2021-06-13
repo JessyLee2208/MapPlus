@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllDishReviews, userDatasCheck } from '../Utils/firebase';
+import { getAllDishReviews } from '../Utils/firebase';
 import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
 import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents/Button';
@@ -9,6 +9,7 @@ import { PageTitle, SubTitle, SubItemTitle, H3Title } from '../Components/UIComp
 
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 import { deviceSize } from '../responsive/responsive';
+import useUserDataCheck from '../Utils/useUserDataCheck';
 
 const Separator = styled.div`
   width: auto;
@@ -176,7 +177,6 @@ function DishDetail(props) {
 
   const [allDishReviews, setAllDishReviews] = useState(null);
   const [select, selected] = useState(false);
-  const [custom, setCustom] = useState([]);
 
   let array = [];
   let customArray = [];
@@ -194,52 +194,48 @@ function DishDetail(props) {
     };
   }, [selectedDish]);
 
+  const userData = useUserDataCheck();
+
   useEffect(() => {
     if (userStatus) {
-      async function reviewData() {
-        let data = await userDatasCheck(userStatus);
+      if (allDishReviews) {
+        const target = allDishReviews.find(
+          (data) =>
+            data.storeCollectionID === selectedDish.storeCollectionID &&
+            data.dishName === selectedDish.name &&
+            data.email === userStatus.email
+        );
 
-        if (allDishReviews) {
-          const target = allDishReviews.find(
-            (data) =>
-              data.storeCollectionID === selectedDish.storeCollectionID &&
-              data.dishName === selectedDish.name &&
-              data.email === userStatus.email
-          );
-
-          target
-            ? dispatch({
-                type: 'setUserReviewSet',
-                data: target
-              })
-            : dispatch({
-                type: 'setUserReviewSet',
-                data: null
-              });
-        }
-
-        if (data && data.collectionList !== undefined) {
-          // setCustomList(data.collectionList);
-          dispatch({
-            type: 'setCustomList',
-            data: data.collectionList
-          });
-        }
-
-        if (data && data.collection && data.collection.length !== 0) {
-          let collectionArray = [];
-          data.collection.forEach((collect) => {
-            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
-              collectionArray.push(collect);
-            }
-          });
-          dispatch({
-            type: 'setCollectData',
-            data: collectionArray
-          });
-        }
+        target
+          ? dispatch({
+              type: 'setUserReviewSet',
+              data: target
+            })
+          : dispatch({
+              type: 'setUserReviewSet',
+              data: null
+            });
       }
-      reviewData();
+
+      if (userData && userData.collection && userData.collection.length !== 0) {
+        let collectionArray = [];
+        userData.collection.forEach((collect) => {
+          if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
+            collectionArray.push(collect);
+          }
+        });
+
+        dispatch({
+          type: 'setCollectData',
+          data: collectionArray
+        });
+      } else {
+        console.log('comming', 259);
+        dispatch({
+          type: 'setCollectData',
+          data: []
+        });
+      }
     } else {
       dispatch({
         type: 'setCollectData',
@@ -250,9 +246,7 @@ function DishDetail(props) {
         data: null
       });
     }
-  }, [userStatus, allDishReviews]);
-
-  useEffect(() => {}, [collectData]);
+  }, [userStatus, allDishReviews, userData]);
 
   function callModal(e) {
     dispatch({
@@ -274,7 +268,6 @@ function DishDetail(props) {
         data: true
       });
     }
-    // props.check(true);
   }
 
   function handleStatusCheck() {
@@ -467,15 +460,13 @@ function DishDetail(props) {
           ))}
       </div>
 
-      {userReviewSet ? (
+      {userReviewSet && (
         <div>
           <CommentDiv>
             <CommentTitle style={{ color: 'black', margin: '10px 0 10px 0' }}>你的評論</CommentTitle>
           </CommentDiv>
           <ReviewCard review={userReviewSet} borderBottom={'none'}></ReviewCard>
         </div>
-      ) : (
-        <></>
       )}
 
       {!userReviewSet ? (

@@ -62,7 +62,7 @@ const Itemtitle = styled.div`
   }
 `;
 
-const SubItemtitle = styled.pre`
+const SubItemtitle = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -106,6 +106,7 @@ const AlertDescription = styled.div`
   color: #ff1b1b;
   padding: ${({ padding }) => (padding ? padding : '0')};
   margin: 0px;
+  transition: all 100ms ease-in-out;
 `;
 
 const Contentbody = styled.p`
@@ -171,7 +172,7 @@ function Description(props) {
   );
 }
 function AlertText(props) {
-  const { color, padding } = props;
+  const { padding } = props;
   return (
     <AlertDescription style={props.style} padding={padding}>
       {props.children}

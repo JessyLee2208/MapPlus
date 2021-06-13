@@ -94,17 +94,13 @@ function SearchListS(props) {
         <UserPositionCheck onClick={executeScrollRight} style={{ right: '8px', display: iconShow ? 'flex' : 'none' }}>
           <img src="/right.png" alt=""></img>
         </UserPositionCheck>
-      ) : (
-        <></>
-      )}
-      {/* {iconShow && */}
+      ) : null}
+
       {scrollXLeft && scrollXLeft > 0 ? (
         <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px', display: iconShow ? 'flex' : 'none' }}>
           <img src="/left.png" alt=""></img>
         </UserPositionCheck>
-      ) : (
-        <></>
-      )}
+      ) : null}
       <InformationBoxS id="smallCardList" ref={myRef}>
         {storeData.length > 1 &&
           storeData.map((product, key) => (

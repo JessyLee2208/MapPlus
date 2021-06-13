@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { addCollectList, addDishToCollectList, removeDishToCollectList, userDatasCheck } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
+import useUserDataCheck from '../Utils/useUserDataCheck';
 
 let CollectBox = styled.div`
   width: 220px;
@@ -15,6 +16,7 @@ let CollectBox = styled.div`
   border-radius: 8px;
   max-height: 360px;
   overflow: overlay;
+  z-index: 2;
 `;
 
 const InfoBold = styled.p`
@@ -88,10 +90,7 @@ function Collection(props) {
   const [like, setLike] = useState(false);
   const [stare, setStare] = useState(false);
 
-  // let want = false;
-  // let like = false;
-  // let stare = false;
-  // let result = [];
+  // const userData = useUserDataCheck();
 
   useEffect(() => {
     const listArray = [];
@@ -111,6 +110,7 @@ function Collection(props) {
 
       setCustomCheck(result);
     }
+    console.log(customList);
   }, []);
 
   if (selectedDish.imageUrl === '') {
@@ -153,59 +153,13 @@ function Collection(props) {
 
     if (e.target.id === 'collect') {
       addDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
-        let data = await userDatasCheck(userStatus);
+        console.log(selectedCollect);
 
-        if (data.collection.length !== 0) {
-          let collectionArray = [];
-          data.collection.forEach((collect) => {
-            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
-              collectionArray.push(collect);
-            }
-          });
-          if (collectionArray.length !== 0) {
-            dispatch({
-              type: 'setCollectData',
-              data: collectionArray
-            });
-          }
-        } else {
-          dispatch({
-            type: 'setCollectData',
-            data: []
-          });
-        }
         props.select(false);
       });
     }
     if (e.target.id === 'removeCollection') {
       removeDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
-        let data = await userDatasCheck(userStatus);
-
-        if (data.collection.length !== 0) {
-          let collectionArray = [];
-          data.collection.forEach((collect) => {
-            if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
-              collectionArray.push(collect);
-            }
-          });
-
-          if (collectionArray.length !== 0) {
-            dispatch({
-              type: 'setCollectData',
-              data: collectionArray
-            });
-          } else {
-            dispatch({
-              type: 'setCollectData',
-              data: []
-            });
-          }
-        } else if (data.collection.length === 0) {
-          dispatch({
-            type: 'setCollectData',
-            data: []
-          });
-        }
         props.select(false);
       });
     }
@@ -214,8 +168,6 @@ function Collection(props) {
   function callModal() {
     props.check(true);
   }
-
-  console.log('customList', ':', customList, 'customCheck', ':', customCheck);
 
   return (
     <CollectBox onClick={handleCollectListClick}>

@@ -37,7 +37,6 @@ function getMorereDetail(product, service) {
                 : '',
             periods: place.opening_hours.periods ? place.opening_hours.periods : ''
           }
-          // place.opening_hours
         };
       } else if (status === window.google.maps.places.PlacesServiceStatus.OK && place.opening_hours === undefined) {
         moreDetail = {
@@ -59,11 +58,11 @@ function getMorereDetail(product, service) {
       res(all);
 
       let upLoadDataToFirebaseData = {
-        address_components: all.address_components ? all.address_components : '',
-        business_status: all.business_status ? all.business_status : '',
+        address_components: all.address_components || '',
+        business_status: all.business_status || '',
         deliver: all.deliver,
-        formatted_address: all.formatted_address ? all.formatted_address : '',
-        formatted_phone_number: all.formatted_phone_number ? all.formatted_phone_number : '',
+        formatted_address: all.formatted_address || '',
+        formatted_phone_number: all.formatted_phone_number || '',
         geometry:
           all.geometry.lat && all.geometry.lng
             ? {
@@ -74,9 +73,9 @@ function getMorereDetail(product, service) {
                 lat: all.geometry.location.lat(),
                 lng: all.geometry.location.lng()
               },
-        icon: all.icon ? all.icon : '',
-        name: all.name ? all.name : '',
-        rating: all.rating ? all.rating : 0,
+        icon: all.icon || '',
+        name: all.name || '',
+        rating: all.rating || 0,
         opening_hours: all.opening_hours
           ? {
               weekday_text: all.opening_hours.weekday_text,
@@ -84,15 +83,15 @@ function getMorereDetail(product, service) {
             }
           : {},
 
-        place_id: all.place_id ? all.place_id : '',
-        plus_code: all.plus_code ? all.plus_code : '',
-        price_level: all.price_level ? all.price_level : '',
+        place_id: all.place_id || '',
+        plus_code: all.plus_code || '',
+        price_level: all.price_level || '',
 
         photo: all.photos ? [all.photos[0].getUrl()] : all.photo,
-        reviews: all.reviews ? all.reviews : [],
-        types: all.types ? all.types : [],
-        user_ratings_total: all.user_ratings_total ? all.user_ratings_total : '',
-        website: all.website ? all.website : ''
+        reviews: all.reviews || [],
+        types: all.types || [],
+        user_ratings_total: all.user_ratings_total || '',
+        website: all.website || ''
       };
       postStoreData(upLoadDataToFirebaseData);
     });
@@ -134,6 +133,8 @@ function getStoreDetail(place_id, service) {
         getStoreUrl(place.name, newData).then((data) => {
           res(data);
         });
+        console.log(newData);
+        // postStoreData(newData);
       }
     });
   });

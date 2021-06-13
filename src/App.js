@@ -351,8 +351,6 @@ function App() {
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
   const defaultMapOptions = {
-    fullscreenControl: !isMobile ? true : false,
-    streetViewControl: !isMobile ? true : false,
     mapTypeControl: false
   };
 
@@ -428,8 +426,8 @@ function App() {
           opening_hours: place.opening_hours
             ? {
                 isOpen: place.opening_hours.isOpen(),
-                weekday_text: place.weekday_text ? place.weekday_text : '',
-                periods: place.periods ? place.periods : ''
+                weekday_text: place.weekday_text || '',
+                periods: place.periods || ''
               }
             : { isOpen: null, weekday_text: null, periods: null },
 
@@ -456,8 +454,8 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        // console.log(res[0]);
-        // console.log(res[0].photos[0].getUrl());
+        console.log(res[0]);
+        console.log(res[0].photos[0].getUrl());
 
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);

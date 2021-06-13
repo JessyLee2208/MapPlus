@@ -5,9 +5,10 @@ import Modal from './Modal';
 import useMediaQuery from '../Utils/useMediaQuery';
 import { addCollectList } from '../Utils/firebase';
 import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
-import toast from 'react-hot-toast';
+
 import { PageTitle, Description, AlertText } from './UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
+import toast from 'react-hot-toast';
 
 const ContentBackground = styled.div`
   position: relative;
@@ -38,7 +39,7 @@ const Input = styled.input`
   resize: none;
 
   width: calc(100% - 20px);
-
+  transition: all 100ms ease-in-out;
   outline: none;
   padding: 8px;
   margin: 8px 0;
@@ -55,7 +56,7 @@ function AddCollectionModal(props) {
   const customList = useSelector((state) => state.customList);
 
   const [nameCheck, setNameCheck] = useState(false);
-  let text = '&nbsp;';
+  const [inputText, setInputText] = useState('');
 
   let listInputRef = null;
 
@@ -64,8 +65,6 @@ function AddCollectionModal(props) {
       listInputRef.focus();
     }
   }, [listInputRef]);
-
-  const [inputText, setInputText] = React.useState('');
 
   function handleClose() {
     props.check(false);
@@ -83,27 +82,32 @@ function AddCollectionModal(props) {
       let valeu = inputCheck.findIndex((check) => check === true);
 
       if (valeu !== -1) {
-        console.log(valeu);
         setNameCheck(true);
       } else {
         setNameCheck(false);
       }
     });
-    //
   }
-
-  console.log(customList);
 
   function bindupLoadCollection() {
     addCollectList(userStatus.email, inputText).then(() => {
-      props.check(false);
-
       dispatch({
         type: 'updateCustomList',
         data: inputText
       });
+      props.check(false);
+      notify();
     });
   }
+
+  const notify = () =>
+    toast('成功新增清單', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
 
   return (
     <Modal visible={props.show} onCancel={handleClose} style={{ padding: '0px' }} width={46} left={30}>
@@ -119,7 +123,7 @@ function AddCollectionModal(props) {
           type="text"
           maxLength="40"
           ref={(elem) => (listInputRef = elem)}
-          style={{ borderColor: nameCheck ? '#ff1b1b' : '#000000' }}
+          style={{ borderColor: nameCheck && '#ff1b1b' }}
         ></Input>
         <AlertText style={{ color: nameCheck ? '#ff1b1b' : '#fff' }}> 已有相同名稱的收藏清單 </AlertText>
         <AlertText> </AlertText>

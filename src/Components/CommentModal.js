@@ -126,9 +126,6 @@ function CommentModal({ show }) {
   const [commentValue, setCommentValue] = React.useState('');
   const [imgUrl, setImgUrl] = React.useState([]);
 
-  // const [commentToast, setCommentToast] = React.useState(false);
-  // const [buttonStatu, setButtonStatu] = useState(false);
-
   function handleClose() {
     dispatch({
       type: 'setModalShow',
