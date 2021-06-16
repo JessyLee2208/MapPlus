@@ -26,72 +26,68 @@ const FilterListBox = styled.div`
   }
 `;
 
-// const Div = styled.div`
-// display: flex;
-// `
-
 function FilterBox(props) {
-  const { top, width } = props;
+  const { top, width, option, visibleCheck, visible, setType } = props;
 
-  const [checkType, setCheckType] = useState(props.typeOne);
+  const [checkType, setCheckType] = useState(option.one.type);
 
   function handleFilterSelecter() {
-    if (!props.visibleCheck) {
-      props.visible(true);
+    if (!visibleCheck) {
+      visible(true);
     }
   }
 
   function handleChangeType(e) {
-    if (e.target.id === props.typeOne) {
-      setCheckType(props.typeOne);
-      props.setType(props.typeOne);
-      props.visible(false);
-    } else if (e.target.id === props.tpyeTwo) {
-      setCheckType(props.tpyeTwo);
-      props.setType(props.tpyeTwo);
-      props.visible(false);
-    } else if (e.target.id === props.tpyeThree) {
-      setCheckType(props.tpyeThree);
-      props.setType(props.tpyeThree);
-      props.visible(false);
-    } else if (e.target.id === props.tpyeFour) {
-      setCheckType(props.tpyeFour);
-      props.setType(props.tpyeFour);
-      props.visible(false);
+    if (e.target.id === option.one.type) {
+      setCheckType(option.one.type);
+      setType(option.one.type);
+      visible(false);
+    } else if (e.target.id === option.two.type) {
+      setCheckType(option.two.type);
+      setType(option.two.type);
+      visible(false);
+    } else if (e.target.id === option.three.type) {
+      setCheckType(option.three.type);
+      setType(option.three.type);
+      visible(false);
+    } else if (e.target.id === option.four.type) {
+      setCheckType(option.four.type);
+      setType(option.four.type);
+      visible(false);
     }
   }
 
   return (
     <div>
-      {props.visibleCheck && (
+      {visibleCheck && (
         <Filter top={top} width={width}>
-          <FilterListBox onClick={handleChangeType} id={props.typeOne}>
-            {props.valueOne}
+          <FilterListBox onClick={handleChangeType} id={option.one.type}>
+            {option.one.value}
           </FilterListBox>
-          <FilterListBox onClick={handleChangeType} id={props.tpyeTwo}>
-            {props.valueTwo}
+          <FilterListBox onClick={handleChangeType} id={option.two.type}>
+            {option.two.value}
           </FilterListBox>
-          {props.tpyeThree && (
-            <FilterListBox onClick={handleChangeType} id={props.tpyeThree}>
-              {props.valueThree}
+          {option.three !== undefined && (
+            <FilterListBox onClick={handleChangeType} id={option.three.type}>
+              {option.three.value}
             </FilterListBox>
           )}
-          {props.tpyeFour && (
-            <FilterListBox onClick={handleChangeType} id={props.tpyeFour}>
-              {props.valueFour}
+          {option.four !== undefined && (
+            <FilterListBox onClick={handleChangeType} id={option.four.type}>
+              {option.four.value}
             </FilterListBox>
           )}
         </Filter>
       )}
 
       <ButtonGhostRoundIcon src={'/down.png'} margin={'4px 0px 0 16px'} onClick={handleFilterSelecter}>
-        {checkType === props.typeOne
-          ? props.valueOne
-          : checkType === props.tpyeTwo
-          ? props.valueTwo
-          : checkType === props.tpyeThree
-          ? props.valueThree
-          : checkType === props.tpyeFour && props.valueFour}
+        {checkType === option.one.type
+          ? option.one.value
+          : checkType === option.two.type
+          ? option.two.value
+          : checkType === option.three.type
+          ? option.three.value
+          : checkType === option.four.type && option.four.value}
       </ButtonGhostRoundIcon>
     </div>
   );

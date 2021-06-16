@@ -62,7 +62,7 @@ const Itemtitle = styled.div`
   }
 `;
 
-const SubItemtitle = styled.div`
+const SubItemtitle = styled.p`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -92,6 +92,21 @@ const DescriptionContent = styled.p`
   color: ${({ color }) => (color ? '#' + color : '#5d6267')};
   padding: ${({ padding }) => (padding ? padding : '0')};
   margin: 0px;
+`;
+
+const AlertDescription = styled.div`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #ff1b1b;
+  padding: ${({ padding }) => (padding ? padding : '0')};
+  margin: 0px;
+  transition: all 100ms ease-in-out;
 `;
 
 const Contentbody = styled.p`
@@ -156,6 +171,14 @@ function Description(props) {
     </DescriptionContent>
   );
 }
+function AlertText(props) {
+  const { padding } = props;
+  return (
+    <AlertDescription style={props.style} padding={padding}>
+      {props.children}
+    </AlertDescription>
+  );
+}
 
 function SubTitle(props) {
   const { padding, color, id, margin } = props;
@@ -167,9 +190,9 @@ function SubTitle(props) {
 }
 
 function ItemTitle(props) {
-  const { padding, color, id, textAlign } = props;
+  const { padding, color, id, textAlign, style } = props;
   return (
-    <Itemtitle color={color} padding={padding} id={id} textAlign={textAlign}>
+    <Itemtitle color={color} padding={padding} id={id} textAlign={textAlign} style={style}>
       {props.children}
     </Itemtitle>
   );
@@ -200,4 +223,4 @@ function Link(props) {
     </LinkTag>
   );
 }
-export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title };
+export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title, AlertText };

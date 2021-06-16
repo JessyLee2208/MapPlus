@@ -124,6 +124,8 @@ function Markers(props) {
     url = '/heart_marker.png';
   } else if (props.tag === '已加星號的地點') {
     url = '/star_marker.png';
+  } else if (props.tag !== '想去的地點' || props.tag !== '喜愛的地點' || props.tag !== '已加星號的地點') {
+    url = '/custom_marker.png';
   }
   const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;

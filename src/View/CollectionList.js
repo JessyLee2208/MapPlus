@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { userDatasCheck, getStoreData } from '../Utils/firebase';
+import { getStoreData, getDishData } from '../Utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
 import { deviceSize } from '../responsive/responsive';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
 import { ItemTitle } from '../Components/UIComponents/Typography';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
+import useUserDataCheck from '../Utils/useUserDataCheck';
+
+import { getTopTenItemInArray } from '../Utils/utils';
 
 const Collection = styled.div`
   position: relative;
@@ -62,7 +65,7 @@ const Div = styled.div`
   flex-direction: column;
 `;
 
-let unsubscribe;
+// let unsubscribe;
 
 function CollectionList(props) {
   const dispatch = useDispatch();
@@ -72,87 +75,91 @@ function CollectionList(props) {
   const collectionList = useSelector((state) => state.collectionList);
   const collectionMarks = useSelector((state) => state.collectionMarks);
 
-  const storeData = useSelector((state) => state.storeData);
-
   const [storeArray, setStoreArray] = useState(null);
   const [searchMenu, setSearchMenu] = useState(null);
 
+  const userData = useUserDataCheck();
+
   useEffect(() => {
     if (userStatus) {
-      async function reviewData() {
-        let UserData = await userDatasCheck(userStatus);
-        if (UserData && UserData.collection && UserData.collection.length > 0) {
-          let collection = [];
-          let store = [];
+      if (userData && userData.collection && userData.collection.length > 0) {
+        let collection = [];
+        let store = [];
 
-          UserData.collection.forEach(async (collect) => {
-            if (collect.collectName === collectionCheck) {
-              collection.push(collect);
-
-              // let Data = getStoreData(collect.storeCollectionID);
-              // store.push(Data);
-            }
-          });
-          const set = new Set();
-          let a = collection.filter((item) => (!set.has(item.storeName) ? set.add(item.storeName) : false));
-          const NewRes = [...a];
-
-          let removed = [];
-          const count = NewRes.length / 10;
-          const countNam = parseInt(count);
-
-          for (let i = 0; i < countNam; i++) {
-            let newArray = NewRes.slice(0, 10);
-
-            newArray.forEach(async (collect) => {
-              let Data = getStoreData(collect.storeCollectionID);
-              store.push(Data);
-            });
-            removed = NewRes.splice(countNam * 10);
+        userData.collection.forEach(async (collect) => {
+          if (collect.collectName === collectionCheck) {
+            collection.push(collect);
           }
+        });
+        const set = new Set();
+        let collectionMarkDatas = collection.filter((item) =>
+          !set.has(item.storeName) ? set.add(item.storeName) : false
+        );
 
-          if (NewRes.length < 10) {
-            removed = NewRes;
-          }
+        const NewMarkDatas = [...collectionMarkDatas];
 
-          removed.forEach(async (collect) => {
-            let Data = getStoreData(collect.storeCollectionID);
-            store.push(Data);
-          });
+        let removed = [];
 
-          Promise.all(store).then((res) => {
-            setStoreArray(res);
+        function useApiGetData(collect) {
+          let Data = getStoreData(collect.storeCollectionID);
+          store.push(Data);
+        }
 
-            dispatch({
-              type: 'setCollectionList',
-              data: res
-            });
-            let collectionMarks = [];
-            res.forEach((a) => {
-              let marks = {
-                lat: a.geometry.lat,
-                lng: a.geometry.lng,
-                storename: a.name,
-                place_id: a.place_id
-              };
-              collectionMarks.push(marks);
-            });
-            dispatch({
-              type: 'setCollectionMarks',
-              data: collectionMarks
-            });
-          });
+        getTopTenItemInArray(NewMarkDatas, useApiGetData);
+
+        if (NewMarkDatas.length < 10) {
+          removed = NewMarkDatas;
+        }
+
+        removed.forEach(async (collect) => {
+          let Data = getStoreData(collect.storeCollectionID);
+          store.push(Data);
+        });
+
+        Promise.all(store).then((res) => {
+          console.log(res);
+          setStoreArray(res);
 
           dispatch({
-            type: 'setSearchMenu',
-            data: collection
+            type: 'setCollectionList',
+            data: res
           });
-          setSearchMenu(collection);
-        }
+          let collectionMarks = [];
+          res.forEach((a) => {
+            let marks = {
+              lat: a.geometry.lat,
+              lng: a.geometry.lng,
+              storename: a.name,
+              place_id: a.place_id
+            };
+            collectionMarks.push(marks);
+          });
+          dispatch({
+            type: 'setCollectionMarks',
+            data: collectionMarks
+          });
+        });
+
+        let menuArray = [];
+        collection.forEach((data) => {
+          let menus = getDishData(data.name);
+          menuArray.push(menus);
+        });
+
+        Promise.all(menuArray).then((res) => {
+          dispatch({
+            type: 'setSearchMenu',
+            data: res
+          });
+        });
+        dispatch({
+          type: 'setSearchMenu',
+          data: collection
+        });
+        setSearchMenu(collection);
       }
-      reviewData();
     }
-  }, [userStatus, collectionCheck]);
+  }, [userStatus, collectionCheck, userData, dispatch]);
 
   function handleStoreListClick(e) {
     dispatch({
@@ -206,6 +213,31 @@ function CollectionList(props) {
   }
 
   function handleBack() {
+    props.seachInput.current.value = '';
+    dispatch({
+      type: 'setStoreData',
+      data: []
+    });
+    dispatch({
+      type: 'initMapMarkers',
+      data: []
+    });
+    dispatch({
+      type: 'setSelectedStore',
+      data: null
+    });
+    dispatch({
+      type: 'setSelectedDish',
+      data: null
+    });
+    dispatch({
+      type: 'setMenuData',
+      data: null
+    });
+    dispatch({
+      type: 'setSearchMenu',
+      data: null
+    });
     dispatch({
       type: 'setCollectionTitle',
       data: false
@@ -214,13 +246,7 @@ function CollectionList(props) {
       type: 'setCollectionMarks',
       data: []
     });
-
-    if (storeData.length === 0 || !storeData) {
-      dispatch({
-        type: 'setSearchMenu',
-        data: null
-      });
-    }
+    props.setMapStore([]);
   }
 
   function handleExplore() {
@@ -239,13 +265,6 @@ function CollectionList(props) {
     });
   }
 
-  // useEffect(() => {
-  //   return () => {
-  //     unsubscribe();
-  //   };
-  // }, []);
-  // console.log(props.check);
-  // console.log(collectionCheck);
   return (
     collectionCheck && (
       <Collection>
@@ -264,7 +283,7 @@ function CollectionList(props) {
                 ) : (
                   <Div>
                     <ItemTitle textAlign={'center'} padding={'60px 0 20px 0'}>
-                      目前沒有收藏任何評論喔
+                      目前沒有收藏任何菜品喔
                     </ItemTitle>
                     <ButtonGhostRound onClick={handleExplore}>探索菜單</ButtonGhostRound>
                   </Div>

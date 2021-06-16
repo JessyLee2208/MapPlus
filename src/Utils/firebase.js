@@ -19,13 +19,7 @@ const db = firebase.firestore();
 let provider = new firebase.auth.GoogleAuthProvider();
 
 const postStoreData = (storeData) => {
-  return db
-    .collection('store')
-    .doc(storeData.place_id)
-    .set(storeData)
-    .then(() => {
-      console.log('successfully upload');
-    });
+  return db.collection('store').doc(storeData.place_id).set(storeData);
 };
 
 function getMenuData(selectedStoreName, callback) {
@@ -94,6 +88,13 @@ const upLoadPhotoToFirebase = (e, newPhotoArray) => {
   return promises;
 };
 
+// const deletePhotoAtFirebase = (e) => {
+//   let files = e.target;
+//   console.log(files);
+//   // let storageRef = firebase.storage().ref('img/' + file.name);
+//   // var desertRef = storageRef.child('images/desert.jpg');
+// };
+
 function getAllDishReviews(DishData, callback) {
   return db
     .collection('review')
@@ -155,39 +156,70 @@ const upLoadReview = async (ReviewData, DishData) => {
     });
 };
 
-function addDishToCollectList(usermail, selectedDish, collectList) {
-  const newSelectDish = { ...selectedDish, collectName: collectList };
+///////////////////////////////////////////////
+
+function addCollectList(usermail, collectName) {
+  // const newSelectDish = { ...selectedDish, collectName: collectList };
   return db
     .collection('user')
     .doc(usermail)
     .set(
       {
-        collection: firebase.firestore.FieldValue.arrayUnion(newSelectDish)
+        collectionList: firebase.firestore.FieldValue.arrayUnion(collectName)
+      },
+      { merge: true }
+    );
+}
+
+function removeCollectList(usermail, collectName) {
+  // const newSelectDish = { ...selectedDish, collectName: collectList };
+  return db
+    .collection('user')
+    .doc(usermail)
+    .update(
+      {
+        collectionList: firebase.firestore.FieldValue.arrayRemove(collectName)
+      },
+      { merge: true }
+    );
+}
+////////////////////////////////////////////////
+
+function addDishToCollectList(usermail, selectedDish, collectList) {
+  const { rating, user_ratings_total, ...newSelectDish } = selectedDish;
+  const updateSelectDish = { ...newSelectDish, collectName: collectList };
+  return db
+    .collection('user')
+    .doc(usermail)
+    .set(
+      {
+        collection: firebase.firestore.FieldValue.arrayUnion(updateSelectDish)
       },
       { merge: true }
     );
 }
 
 function removeDishToCollectList(usermail, selectedDish, collectList) {
-  const newSelectDish = { ...selectedDish, collectName: collectList };
+  const { rating, user_ratings_total, ...newSelectDish } = selectedDish;
+  const updateSelectDish = { ...newSelectDish, collectName: collectList };
   return db
     .collection('user')
     .doc(usermail)
     .update(
       {
-        collection: firebase.firestore.FieldValue.arrayRemove(newSelectDish)
+        collection: firebase.firestore.FieldValue.arrayRemove(updateSelectDish)
       },
       { merge: true }
     );
 }
 
-function userDatasCheck(userStatus) {
+function userDatasCheck(userStatus, callback) {
   return db
     .collection('user')
     .doc(userStatus.email)
-    .get()
-    .then((data) => {
-      return data.data();
+    .onSnapshot((doc) => {
+      const data = doc.data();
+      callback(data);
     });
 }
 
@@ -211,7 +243,7 @@ async function userReviewEdit(reviewData, newData, oldRating) {
     .where('dishCollectionID', '==', reviewData.dishCollectionID)
     .get()
     .then((review) => {
-      let dataDocument = review.docs[0].data();
+      review.docs[0].data();
       return review.size;
     });
 
@@ -259,18 +291,18 @@ function googleAccountSignIn(e, dispatch, setMemberPageShow) {
     .auth()
     .signInWithPopup(provider)
     .then((result) => {
-      let user = {
-        displayName: result.user.displayName,
-        email: result.user.email,
-        photoURL: result.user.photoURL,
-        uid: result.user.uid
-      };
+      // let user = {
+      //   displayName: result.user.displayName,
+      //   email: result.user.email,
+      //   photoURL: result.user.photoURL,
+      //   uid: result.user.uid
+      // };
       setMemberPageShow(false);
 
-      dispatch({
-        type: 'setUserState',
-        data: user
-      });
+      // dispatch({
+      //   type: 'setUserState',
+      //   data: user
+      // });
       return true;
     })
     .catch((error) => {
@@ -297,7 +329,7 @@ function googleAccountStateChanged(callback) {
       callback(user);
       return true;
     } else {
-      return false;
+      return null;
     }
   });
 }
@@ -307,10 +339,10 @@ function googleAccountLogOut(e, dispatch) {
     .auth()
     .signOut()
     .then(() => {
-      dispatch({
-        type: 'setUserState',
-        data: null
-      });
+      // dispatch({
+      //   type: 'setUserState',
+      //   data: null
+      // });
       return false;
     })
     .catch((error) => {
@@ -333,5 +365,7 @@ export {
   getStoreData,
   userReviewEdit,
   userReviewGet,
-  getDishData
+  getDishData,
+  addCollectList,
+  removeCollectList
 };
