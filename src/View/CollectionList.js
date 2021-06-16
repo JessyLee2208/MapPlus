@@ -271,7 +271,7 @@ function CollectionList(props) {
         {userStatus && storeArray ? (
           <>
             <BackBtn onClick={handleBack}>
-              <Icon src="/back.png"></Icon>
+              <Icon src="/back.png" />
               <Info>{collectionCheck}</Info>
             </BackBtn>
             <Collection>
@@ -292,7 +292,7 @@ function CollectionList(props) {
             </Collection>
           </>
         ) : (
-          <Loading></Loading>
+          <Loading />
         )}
       </Collection>
     )

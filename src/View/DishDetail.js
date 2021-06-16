@@ -179,13 +179,19 @@ function DishDetail(props) {
   let customArray = [];
   let newRating = selectedDish.rating.toFixed(1);
   let noImg = '/noImg.png';
-  // let userData = null
 
   const basicLists = [
     { collectName: '想去的地點', defaultIcon: '/falg.png', activeIcon: '/falg_select.png' },
     { collectName: '喜愛的地點', defaultIcon: '/heart.png', activeIcon: '/heart_select.png' },
     { collectName: '已加星號的地點', defaultIcon: '/active_star.png', activeIcon: '/star_select.png' }
   ];
+
+  const infoStyled = {
+    fontWeight: '600',
+    fontSize: '15px',
+    margin: '0px 18px 0 0',
+    cursor: 'pointer'
+  };
 
   useEffect(() => {
     const unsubscribe = getAllDishReviews(selectedDish, callback);
@@ -324,7 +330,7 @@ function DishDetail(props) {
 
   return (
     <Dish onClick={handleStatusCheck} onMouseOver={handle}>
-      <SearchSeparator></SearchSeparator>
+      <SearchSeparator />
       <Back>
         <SubItemTitle
           onClick={handleBack}
@@ -340,13 +346,13 @@ function DishDetail(props) {
           回到 {selectedDish.storeName}
         </SubItemTitle>
       </Back>
-      <SearchBg></SearchBg>
-      {select && <Collection select={selected} check={props.check}></Collection>}
+      <SearchBg />
+      {select && <Collection select={selected} check={props.check} />}
       <DishImg
         src={selectedDish.imageUrl || noImg}
         alt=""
         style={{ height: selectedDish.imageUrl ? '260px' : '112px' }}
-      ></DishImg>
+      />
       <TopDiv>
         <DishBox>
           <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
@@ -355,19 +361,17 @@ function DishDetail(props) {
             <H3Title color={'185ee6'} padding={'0 20px 0 0'}>
               NT${selectedDish.price}
             </H3Title>
-            <Icon src="/active_star.png" alt=""></Icon>
+            <Icon src="/active_star.png" alt="" />
             <H3Title padding={' 0'} fontWeight={400} color={797979}>
               {newRating}
             </H3Title>
           </RatingDiv>
         </DishBox>
         <div>
-          {collectData.length > 0 ? (
-            <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
-          ) : collectData.length > 0 && customArray.length > 0 ? (
-            <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+          {collectData.length > 0 || customArray.length > 0 ? (
+            <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick} />
           ) : (
-            <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+            <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick} />
           )}
         </div>
       </TopDiv>
@@ -380,19 +384,10 @@ function DishDetail(props) {
               (list) =>
                 data.collectName === list.collectName && (
                   <RatingDiv key={key}>
-                    <Icon src={list.activeIcon}></Icon>
+                    <Icon src={list.activeIcon} />
                     <CollectionBox>
                       <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-                      <Info
-                        style={{
-                          fontWeight: '600',
-                          fontSize: '15px',
-                          margin: '0px 18px 0 0',
-                          cursor: 'pointer'
-                        }}
-                        onClick={handleCollectionList}
-                        id={list.collectName}
-                      >
+                      <Info style={infoStyled} onClick={handleCollectionList} id={list.collectName}>
                         查看清單
                       </Info>
                     </CollectionBox>
@@ -405,19 +400,10 @@ function DishDetail(props) {
           customArray.length > 0 &&
           customArray.map((list, key) => (
             <RatingDiv key={key}>
-              <Icon src="/custom.png"></Icon>
+              <Icon src="/custom.png" />
               <CollectionBox>
                 <Info style={{ fontSize: '15px' }}>已儲存於「{list}」</Info>
-                <Info
-                  style={{
-                    fontWeight: '600',
-                    fontSize: '15px',
-                    margin: '0px 18px 0 0',
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleCollectionList}
-                  id={list}
-                >
+                <Info style={infoStyled} onClick={handleCollectionList} id={list}>
                   查看清單
                 </Info>
               </CollectionBox>
@@ -429,9 +415,9 @@ function DishDetail(props) {
         <div>
           <CommentDiv>
             <CommentTitle style={{ color: 'black', margin: '10px 0 0px 18px' }}>你的評論</CommentTitle>
-            <Separator></Separator>
+            <Separator />
           </CommentDiv>
-          <ReviewCard review={userReviewSet} borderBottom={'none'}></ReviewCard>
+          <ReviewCard review={userReviewSet} borderBottom={'none'} />
         </div>
       )}
 
@@ -449,9 +435,9 @@ function DishDetail(props) {
         <SubTitle padding={'0'}>評論</SubTitle>
         {allDishReviews ? <SubTitle padding={'0 0 0 8px'}>{allDishReviews.length}</SubTitle> : <InfoBold>0</InfoBold>}
       </Box>
-      <Separator></Separator>
+      <Separator />
       {allDishReviews ? (
-        allDishReviews.map((review, key) => <ReviewCard review={review} key={key}></ReviewCard>)
+        allDishReviews.map((review, key) => <ReviewCard review={review} key={key} />)
       ) : (
         <NoComment>目前沒有任何評論</NoComment>
       )}

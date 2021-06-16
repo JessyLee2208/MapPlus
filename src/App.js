@@ -629,12 +629,12 @@ function App() {
         searchMenu &&
         !isMobile && (
           <div style={{ width: '435px', height: '100vh' }}>
-            {!placrCheck ? <Loading></Loading> : <NotFound searchText={searchText}></NotFound>}
+            {!placrCheck ? <Loading /> : <NotFound searchText={searchText} />}
           </div>
         )}
 
       <Toaster />
-      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow} check={setListCheck}></MemberPage>}
+      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow} check={setListCheck} />}
 
       {isMobile && !informationWindow ? (
         <ButtonPrimaryRoundIcon
@@ -660,9 +660,9 @@ function App() {
         )
       )}
 
-      {userStatus && listCheck && <AddCollectionModal show={listCheck} check={setListCheck}></AddCollectionModal>}
-      {show && userStatus && !listCheck && <CommentModal show={show}></CommentModal>}
-      {show && !userStatus && !listCheck && <ReminderModal show={show}></ReminderModal>}
+      {userStatus && listCheck && <AddCollectionModal show={listCheck} check={setListCheck} />}
+      {show && userStatus && !listCheck && <CommentModal show={show} />}
+      {show && !userStatus && !listCheck && <ReminderModal show={show} />}
       <StandaloneSearchBox
         onLoad={onSearchLoad}
         onPlacesChanged={hanldePlacesChanged}
@@ -678,30 +678,25 @@ function App() {
           {searchText && <Delete onClick={handleSearchInput}>×</Delete>}
         </SearchBox>
       </StandaloneSearchBox>
-      <SearchBoxShow></SearchBoxShow>
+      <SearchBoxShow />
       {storeListExist ? (
-        <SearchList markerLoad={markerLoad} service={service} panTo={panTo}></SearchList>
+        <SearchList markerLoad={markerLoad} service={service} panTo={panTo} />
       ) : storeDetailOnlyOneExist ? (
         storeData.map((product, index) => (
-          <StoreDetail key={index} product={product} menu={menuData} service={service} input={searchText}></StoreDetail>
+          <StoreDetail key={index} product={product} menu={menuData} service={service} input={searchText} />
         ))
       ) : storeDetailAndMenuExist ? (
-        <StoreDetail product={selectedStore} menu={menuData}></StoreDetail>
+        <StoreDetail product={selectedStore} menu={menuData} />
       ) : storeDetailExist ? (
-        <StoreDetail product={selectedStore}></StoreDetail>
+        <StoreDetail product={selectedStore} />
       ) : dishDetailExist ? (
-        <DishDetail dishdata={selectedDish} service={service} check={setListCheck}></DishDetail>
+        <DishDetail dishdata={selectedDish} service={service} check={setListCheck} />
       ) : (
         collectionCheck && (
-          <CollectionList
-            service={service}
-            panTo={panTo}
-            seachInput={textInput}
-            setMapStore={setMapStore}
-          ></CollectionList>
+          <CollectionList service={service} panTo={panTo} seachInput={textInput} setMapStore={setMapStore} />
         )
       )}
-      {smileStoreExist && !isMobile && <SearchListS service={service}></SearchListS>}
+      {smileStoreExist && !isMobile && <SearchListS service={service} />}
       {!userStatus ? (
         <ButtonPrimaryFlat
           onClick={handleLoginButtonCilck}
@@ -710,7 +705,7 @@ function App() {
           登入
         </ButtonPrimaryFlat>
       ) : (
-        <AuthorImg src={userStatus.photoURL} alt="" onClick={handleUserProfile}></AuthorImg>
+        <AuthorImg src={userStatus.photoURL} alt="" onClick={handleUserProfile} />
       )}
       <UserPositionCheck
         onClick={getCurrentLoction}
@@ -746,11 +741,11 @@ function App() {
       >
         {collectionMarks.length === 0
           ? mapMarkers.map((marker, key) => (
-              <Markers service={service} marker={marker} content={storeData} key={key} onLoad={markeronLoad}></Markers>
+              <Markers service={service} marker={marker} content={storeData} key={key} onLoad={markeronLoad} />
             ))
           : collectionCheck &&
             collectionMarks.map((marker, key) => (
-              <Markers tag={collectionCheck} marker={marker} key={key} onLoad={markeronLoad}></Markers>
+              <Markers tag={collectionCheck} marker={marker} key={key} onLoad={markeronLoad} />
             ))}
         {currentLoction && (
           <Marker
@@ -759,11 +754,11 @@ function App() {
               url: '/loction.png',
               scaledSize: new window.google.maps.Size(44, 44)
             }}
-          ></Marker>
+          />
         )}
 
-        {selectedStore && isMobile && <MapInforWindow product={selectedStore} service={service}></MapInforWindow>}
-        {markerHover && !isMobile && <MapInforWindow product={markerHover} service={service}></MapInforWindow>}
+        {selectedStore && isMobile && <MapInforWindow product={selectedStore} service={service} />}
+        {markerHover && !isMobile && <MapInforWindow product={markerHover} service={service} />}
       </GoogleMap>
     </Frame>
   );

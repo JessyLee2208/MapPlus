@@ -66,6 +66,9 @@ function SearchList({ service }) {
 
   const dispatch = useDispatch();
 
+  // let listRequirements = Object.values(requirement);
+  // let listSpecies = Object.values(species);
+
   useEffect(() => {
     if (checkType === species.one.type && ratingType === requirement.one.type) {
       chronologicalUpToDown(storeData, 'rating', setStore);
@@ -126,12 +129,7 @@ function SearchList({ service }) {
   return (
     <div onClick={handleFilterSelecterClose} onMouseOver={handle}>
       <Box>
-        <FilterBox
-          option={species}
-          setType={setCheckType}
-          visible={setVisibleType}
-          visibleCheck={visibleType}
-        ></FilterBox>
+        <FilterBox option={species} setType={setCheckType} visible={setVisibleType} visibleCheck={visibleType} />
         <FilterBox
           top={86}
           width={100}
@@ -139,7 +137,7 @@ function SearchList({ service }) {
           setType={setRatingType}
           visible={setVisibleOpt}
           visibleCheck={visibleOpt}
-        ></FilterBox>
+        />
       </Box>
       <InformationBox>
         {checkType === species.one.type
@@ -148,7 +146,7 @@ function SearchList({ service }) {
             ))
           : checkType === species.two.type &&
             (menu.length > 0 ? (
-              menu.map((data, key) => <SearchMenuCard key={key} content={data}></SearchMenuCard>)
+              menu.map((data, key) => <SearchMenuCard key={key} content={data} />)
             ) : (
               <ItemTitle padding={'50px 0 0 0'} textAlign={'center'}>
                 沒有搜尋到任何菜單喔

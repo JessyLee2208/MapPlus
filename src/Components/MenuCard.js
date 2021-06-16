@@ -73,23 +73,23 @@ const RatingDiv = styled.div`
   padding-bottom: 12px;
 `;
 
-function MenuCard(props) {
+function MenuCard({ data }) {
   // let starArry = [];
   const [userDatasCheck, setuserDatasCheck] = React.useState(null);
 
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.userStatus);
 
-  let newRating = props.data.rating.toFixed(1);
+  let newRating = data.rating.toFixed(1);
 
   useEffect(() => {
     if (userStatus) {
       async function reviewData() {
-        let userdata = await userReviewGet(props.data.storeName, userStatus);
+        let userDatas = await userReviewGet(data.storeName, userStatus);
 
-        if (userdata) {
-          const target = userdata.find(
-            (data) => data.storeCollectionID === props.data.storeCollectionID && data.dishName === props.data.name
+        if (userDatas) {
+          const target = userDatas.find(
+            (userData) => userData.storeCollectionID === data.storeCollectionID && userData.dishName === data.name
           );
 
           target ? setuserDatasCheck(target) : setuserDatasCheck(null);
@@ -99,9 +99,9 @@ function MenuCard(props) {
       }
       reviewData();
     }
-  }, [userStatus, props.data]);
+  }, [userStatus, data]);
 
-  const star = StarRender(props.data.rating, { width: 16, height: 16 });
+  const star = StarRender(data.rating, { width: 16, height: 16 });
 
   function callModal(e) {
     if (userDatasCheck) {
@@ -123,32 +123,28 @@ function MenuCard(props) {
 
     dispatch({
       type: 'setSelectedDish',
-      data: props.data
+      data: data
     });
   }
 
   return (
-    <Menu id={props.data.name}>
-      {props.data.imageUrl !== '' ? (
-        <MenuImg alt="" src={props.data.imageUrl} id={props.data.name}></MenuImg>
-      ) : (
-        <NoImg id={props.data.name}></NoImg>
-      )}
+    <Menu id={data.name}>
+      {data.imageUrl !== '' ? <MenuImg alt="" src={data.imageUrl} id={data.name} /> : <NoImg id={data.name} />}
 
-      <InfoBox id={props.data.name}>
-        <div id={props.data.name}>
-          <ItemTitle id={props.data.name} padding={'0 0 6px 0'}>
-            {props.data.name}
+      <InfoBox id={data.name}>
+        <div id={data.name}>
+          <ItemTitle id={data.name} padding={'0 0 6px 0'}>
+            {data.name}
           </ItemTitle>
-          <RatingDiv id={props.data.name}>
-            <Description padding={'0 6px 0 0'} id={props.data.name}>
+          <RatingDiv id={data.name}>
+            <Description padding={'0 6px 0 0'} id={data.name}>
               {newRating}
             </Description>
             {star}
           </RatingDiv>
         </div>
-        <ItemTitle id={props.data.name} color={'185ee6'}>
-          NT$ {props.data.price}
+        <ItemTitle id={data.name} color={'185ee6'}>
+          NT$ {data.price}
         </ItemTitle>
       </InfoBox>
       {!userDatasCheck ? (

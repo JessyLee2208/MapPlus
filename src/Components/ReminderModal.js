@@ -55,31 +55,30 @@ function ReminderModal() {
     });
   }
 
+  const onClickHandler = (e) => {
+    googleAccountSignIn(e, dispatch);
+    dispatch({
+      type: 'setlogOutToast',
+      data: true
+    });
+    dispatch({
+      type: 'setloginToast',
+      data: true
+    });
+    handleClose();
+  };
+
   return (
     <Modal visible={modalShow} onCancel={handleClose} style={{ padding: '0px' }}>
       <TopBackground>
-        <Img src="/profile.png" alt=""></Img>
+        <Img src="/profile.png" alt="" />
         <Title>登入GOOGLE帳戶即可發表評論</Title>
       </TopBackground>
       <ContentBackground>
         <ButtonSecondaryFlat onClick={handleClose} style={{ margin: '16px 0' }}>
           取消
         </ButtonSecondaryFlat>
-        <ButtonPrimaryFlat
-          style={{ margin: '16px' }}
-          onClick={(e) => {
-            googleAccountSignIn(e, dispatch);
-            dispatch({
-              type: 'setlogOutToast',
-              data: true
-            });
-            dispatch({
-              type: 'setloginToast',
-              data: true
-            });
-            handleClose();
-          }}
-        >
+        <ButtonPrimaryFlat style={{ margin: '16px' }} onClick={onClickHandler}>
           登入
         </ButtonPrimaryFlat>
       </ContentBackground>
