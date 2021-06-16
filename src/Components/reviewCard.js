@@ -65,8 +65,12 @@ function ReviewCard(props) {
         {star}
         <Description padding={'0 0 0 8px'}>{props.review.rating}</Description>
       </StarBoxReview>
-      <Content padding={'8px 0 12px 0'}>{props.review.comment}</Content>
-      {props.review.imageUrl.length > 0 ? props.review.imageUrl.map((url) => <MenuImg src={url}></MenuImg>) : <></>}
+      {props.review.comment !== '' && <Content padding={'8px 0 12px 0'}>{props.review.comment}</Content>}
+      {props.review.imageUrl.length > 0 ? (
+        props.review.imageUrl.map((url, index) => <MenuImg src={url} key={index}></MenuImg>)
+      ) : (
+        <></>
+      )}
     </ReviewerBox>
   );
 }

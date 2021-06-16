@@ -19,13 +19,7 @@ const db = firebase.firestore();
 let provider = new firebase.auth.GoogleAuthProvider();
 
 const postStoreData = (storeData) => {
-  return db
-    .collection('store')
-    .doc(storeData.place_id)
-    .set(storeData)
-    .then(() => {
-      console.log('successfully upload');
-    });
+  return db.collection('store').doc(storeData.place_id).set(storeData);
 };
 
 function getMenuData(selectedStoreName, callback) {
@@ -93,6 +87,13 @@ const upLoadPhotoToFirebase = (e, newPhotoArray) => {
   });
   return promises;
 };
+
+// const deletePhotoAtFirebase = (e) => {
+//   let files = e.target;
+//   console.log(files);
+//   // let storageRef = firebase.storage().ref('img/' + file.name);
+//   // var desertRef = storageRef.child('images/desert.jpg');
+// };
 
 function getAllDishReviews(DishData, callback) {
   return db
@@ -187,7 +188,6 @@ function removeCollectList(usermail, collectName) {
 function addDishToCollectList(usermail, selectedDish, collectList) {
   const { rating, user_ratings_total, ...newSelectDish } = selectedDish;
   const updateSelectDish = { ...newSelectDish, collectName: collectList };
-  console.log(updateSelectDish);
   return db
     .collection('user')
     .doc(usermail)
@@ -196,16 +196,12 @@ function addDishToCollectList(usermail, selectedDish, collectList) {
         collection: firebase.firestore.FieldValue.arrayUnion(updateSelectDish)
       },
       { merge: true }
-    )
-    .then(() => {
-      console.log('ok');
-    });
+    );
 }
 
 function removeDishToCollectList(usermail, selectedDish, collectList) {
   const { rating, user_ratings_total, ...newSelectDish } = selectedDish;
   const updateSelectDish = { ...newSelectDish, collectName: collectList };
-  console.log(newSelectDish);
   return db
     .collection('user')
     .doc(usermail)
@@ -214,36 +210,8 @@ function removeDishToCollectList(usermail, selectedDish, collectList) {
         collection: firebase.firestore.FieldValue.arrayRemove(updateSelectDish)
       },
       { merge: true }
-    )
-    .then(() => {
-      console.log('remove ok');
-    });
+    );
 }
-
-// function getAllDishReviews(DishData, callback) {
-//   return db
-//     .collection('review')
-//     .where('dishCollectionID', '==', DishData.dishCollectionID)
-
-//     .onSnapshot((querySnapshot) => {
-//       const promises = [];
-//       querySnapshot.forEach((doc) => {
-//         const data = doc.data();
-//         promises.push(data);
-//       });
-//       callback(promises);
-//     });
-// }
-
-// function userDatasCheck(userStatus) {
-//   return db
-//     .collection('user')
-//     .doc(userStatus.email)
-//     .get()
-//     .then((data) => {
-//       return data.data();
-//     });
-// }
 
 function userDatasCheck(userStatus, callback) {
   return db
@@ -251,12 +219,6 @@ function userDatasCheck(userStatus, callback) {
     .doc(userStatus.email)
     .onSnapshot((doc) => {
       const data = doc.data();
-      // console.log(data);
-      // const promises = [];
-      // querySnapshot.forEach((doc) => {
-      //   const data = doc.data();
-      //   promises.push(data);
-      // });
       callback(data);
     });
 }
@@ -281,7 +243,7 @@ async function userReviewEdit(reviewData, newData, oldRating) {
     .where('dishCollectionID', '==', reviewData.dishCollectionID)
     .get()
     .then((review) => {
-      let dataDocument = review.docs[0].data();
+      review.docs[0].data();
       return review.size;
     });
 

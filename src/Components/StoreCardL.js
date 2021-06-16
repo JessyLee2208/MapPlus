@@ -107,12 +107,12 @@ function StoreCard(props) {
   let typesCheck = props.product.types.includes('food');
 
   let timestamp = '';
-  let menuArray = [];
 
   const deliverCgeck = props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl;
 
   useEffect(() => {
     if (searchMenu) {
+      let menuArray = [];
       searchMenu.forEach((data) => {
         if (data.storeName === props.product.name) {
           menuArray.push(data);
@@ -120,7 +120,7 @@ function StoreCard(props) {
       });
       setmenu(menuArray);
     }
-  }, []);
+  }, [searchMenu, props.product]);
 
   const star = StarRender(props.product.rating, { width: 16, height: 16 });
 

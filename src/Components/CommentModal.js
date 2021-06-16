@@ -151,8 +151,8 @@ function CommentModal({ show }) {
 
   function handlePhotoDelete(e) {
     const target = e.target.id;
-    let newPhotoArray = [...imgUrl];
 
+    let newPhotoArray = [...imgUrl];
     newPhotoArray.splice(target, 1);
 
     setImgUrl(newPhotoArray);
@@ -160,8 +160,10 @@ function CommentModal({ show }) {
 
   const bindUploadPhotoBtn = async (e) => {
     const url = upLoadPhotoToFirebase(e);
+
     Promise.all(url).then((res) => {
       let newPhotoArray = [...imgUrl];
+
       newPhotoArray.push(...res);
       setImgUrl(newPhotoArray);
     });
@@ -251,13 +253,13 @@ function CommentModal({ show }) {
           <RatingDiv onClick={handleStarRating}>{star}</RatingDiv>
 
           <SubTitle padding={'0 0 6px 0'}>我要留言</SubTitle>
-          {!userReviewSet ? (
-            <Textarea rows={3} placeholder="分享你的心得或感想" onChange={handleInputChange}></Textarea>
-          ) : (
-            <Textarea rows={3} onChange={handleInputChange}>
-              {userReviewSet.comment}
-            </Textarea>
-          )}
+
+          <Textarea
+            rows={3}
+            placeholder="分享你的心得或感想"
+            onChange={handleInputChange}
+            value={commentValue}
+          ></Textarea>
 
           <input
             type="file"
@@ -273,7 +275,7 @@ function CommentModal({ show }) {
             </UpLoadImg>
             {imgUrl
               ? imgUrl.map((url, index) => (
-                  <Div>
+                  <Div key={index}>
                     <Delete onClick={handlePhotoDelete} id={index}>
                       ×
                     </Delete>

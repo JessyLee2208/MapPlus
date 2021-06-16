@@ -99,13 +99,12 @@ function MenuCard(props) {
       }
       reviewData();
     }
-  }, [userStatus]);
+  }, [userStatus, props.data]);
 
   const star = StarRender(props.data.rating, { width: 16, height: 16 });
 
   function callModal(e) {
     if (userDatasCheck) {
-      console.log(userDatasCheck);
       dispatch({
         type: 'setUserReviewSet',
         data: userDatasCheck

@@ -8,20 +8,22 @@ function useUserDataCheck() {
   const [userData, setUserData] = useState({ collection: [], collectionList: [], reviews: [] });
 
   useEffect(() => {
-    const unsubscribe = userDatasCheck(userStatus, callback);
+    if (userStatus) {
+      const unsubscribe = userDatasCheck(userStatus, callback);
 
-    function callback(data) {
-      setUserData(data || { collection: [], collectionList: [], reviews: [] });
-      dispatch({
-        type: 'setCustomList',
-        data: data ? data.collectionList : []
-      });
+      function callback(data) {
+        setUserData(data || { collection: [], collectionList: [], reviews: [] });
+        dispatch({
+          type: 'setCustomList',
+          data: data ? data.collectionList : []
+        });
+      }
+
+      return () => {
+        unsubscribe();
+      };
     }
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  }, [userStatus, dispatch]);
 
   return userData;
 }

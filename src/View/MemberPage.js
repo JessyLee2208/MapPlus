@@ -124,7 +124,6 @@ function MemberPage(props) {
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
   const userStatus = useSelector((state) => state.userStatus);
   const customList = useSelector((state) => state.customList);
-  const collectData = useSelector((state) => state.collectData);
 
   const dispatch = useDispatch();
 
@@ -137,9 +136,6 @@ function MemberPage(props) {
   const [deleteTarget, setDeleteTarget] = useState('');
 
   const [comfimShow, setComfimShow] = useState(false);
-
-  const checkAnimationLoader =
-    wantList.length > 0 || likeList.length > 0 || starList.length > 0 || customListCounts.length > 0;
 
   const basicLists = [
     { collectName: '想去的地點', defaultIcon: '/falg.png', click: wantList },
@@ -174,12 +170,13 @@ function MemberPage(props) {
           }
         });
       }
+      if (customList) {
+        customList.forEach((list, index) => {
+          index = custom.filter((data) => data.collectName === list);
 
-      customList.forEach((list, index) => {
-        index = custom.filter((data) => data.collectName === list);
-
-        ListCount.push(index.length);
-      });
+          ListCount.push(index.length);
+        });
+      }
 
       setCustomListCount(ListCount);
 
@@ -271,8 +268,8 @@ function MemberPage(props) {
         <InfiniteLoading marginTop={20}></InfiniteLoading>
       ) : (
         <CollectLists>
-          {basicLists.map((list) => (
-            <ItemBox onClick={list.click.length > 0 ? handleCollectionList : listNotify}>
+          {basicLists.map((list, index) => (
+            <ItemBox onClick={list.click.length > 0 ? handleCollectionList : listNotify} key={index}>
               <CollectListBox id={list.collectName}>
                 <Icon src={list.defaultIcon} id={list.collectName}></Icon>
                 <ItemTitle id={list.collectName} padding={'0 10px 0 0}'}>
@@ -282,9 +279,10 @@ function MemberPage(props) {
               </CollectListBox>
             </ItemBox>
           ))}
-          {customList.length > 0 &&
+          {customList &&
+            customList.length > 0 &&
             customList.map((list, index) => (
-              <EditList>
+              <EditList key={index}>
                 <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
                   <CollectListBox id={list}>
                     <Icon src={'/custom.png'} id={list}></Icon>
@@ -311,7 +309,7 @@ function MemberPage(props) {
             ))}
 
           <ItemBox onClick={callModal}>
-            <CollectListBox id="已加星號的地點">
+            <CollectListBox id="add">
               <Icon src="/add.png" id="add" alt="add"></Icon>
               <ItemTitle id="add" padding={'0 10px 0 0}'}>
                 新增清單
@@ -320,7 +318,7 @@ function MemberPage(props) {
           </ItemBox>
         </CollectLists>
       )}
-      {/* // checkAnimationLoader || userData === undefined ?(<></>):(<></>} */}
+
       <Separator></Separator>
       <ButtonGhostRound
         onClick={(e) => {

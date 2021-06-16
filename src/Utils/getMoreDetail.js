@@ -133,8 +133,6 @@ function getStoreDetail(place_id, service) {
         getStoreUrl(place.name, newData).then((data) => {
           res(data);
         });
-        console.log(newData);
-        // postStoreData(newData);
       }
     });
   });

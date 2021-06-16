@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { addDishToCollectList, removeDishToCollectList } from '../Utils/firebase';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-let CollectBox = styled.div`
+const CollectBox = styled.div`
   width: 220px;
   height: auto;
 
   position: absolute;
   background: #fff;
-  top: 294px;
+  top: ${(props) => props.top};
   right: 20px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
   border-radius: 8px;
@@ -78,7 +78,6 @@ const CollectTitle = styled.p`
 `;
 
 function Collection(props) {
-  const dispatch = useDispatch();
   const selectedDish = useSelector((state) => state.selectedDish);
   const userStatus = useSelector((state) => state.userStatus);
   const collectData = useSelector((state) => state.collectData);
@@ -89,7 +88,11 @@ function Collection(props) {
   const [like, setLike] = useState(false);
   const [stare, setStare] = useState(false);
 
-  // const userData = useUserDataCheck();
+  const basicLists = [
+    { collectName: '想去的地點', defaultIcon: '/falg.png', activeIcon: '/falg_select.png', check: want },
+    { collectName: '喜愛的地點', defaultIcon: '/heart.png', activeIcon: '/heart_select.png', check: like },
+    { collectName: '已加星號的地點', defaultIcon: '/active_star.png', activeIcon: '/star_select.png', check: stare }
+  ];
 
   useEffect(() => {
     const listArray = [];
@@ -109,39 +112,7 @@ function Collection(props) {
 
       setCustomCheck(result);
     }
-    console.log(customList);
-  }, []);
-
-  if (selectedDish.imageUrl === '') {
-    CollectBox = styled.div`
-      width: 220px;
-      height: auto;
-
-      position: absolute;
-      background: #fff;
-      top: 154px;
-      right: 20px;
-      box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
-      border-radius: 8px;
-      max-height: 360px;
-      overflow: overlay;
-    `;
-  }
-  if (selectedDish.imageUrl !== '') {
-    CollectBox = styled.div`
-      width: 220px;
-      height: auto;
-
-      position: absolute;
-      background: #fff;
-      top: 294px;
-      right: 20px;
-      box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 0px 10px rgb(0 0 0 / 10%);
-      border-radius: 8px;
-      max-height: 360px;
-      overflow: overlay;
-    `;
-  }
+  }, [collectData, customList]);
 
   function handleCollectListClick(e) {
     let selectedCollect = e.target.innerHTML;
@@ -152,8 +123,6 @@ function Collection(props) {
 
     if (e.target.id === 'collect') {
       addDishToCollectList(userStatus.email, selectedDish, selectedCollect).then(async () => {
-        console.log(selectedCollect);
-
         props.select(false);
       });
     }
@@ -169,48 +138,25 @@ function Collection(props) {
   }
 
   return (
-    <CollectBox onClick={handleCollectListClick}>
+    <CollectBox onClick={handleCollectListClick} top={selectedDish.imageUrl === '' ? '148px' : '294px'}>
       <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }}>儲存至清單中</InfoBold>
-      {/* <CollectLists> */}
-      {want ? (
-        <CollectListBoxSelect id="removeCollection">
-          <Icon src="/falg_select.png" id="removeCollection" alt="想去的地點"></Icon>
-          <CollectTitle id="removeCollection">想去的地點</CollectTitle>
-        </CollectListBoxSelect>
-      ) : (
-        <CollectListBox>
-          <Icon src="/falg.png" id="collect" alt="想去的地點"></Icon>
-          <CollectTitle id="collect">想去的地點</CollectTitle>
-        </CollectListBox>
-      )}
-      {like ? (
-        <CollectListBoxSelect id="removeCollection">
-          <Icon src="/heart_select.png" id="removeCollection" alt="喜愛的地點"></Icon>
-          <CollectTitle id="removeCollection">喜愛的地點</CollectTitle>
-        </CollectListBoxSelect>
-      ) : (
-        <CollectListBox>
-          <Icon src="/heart.png" id="collect" alt="喜愛的地點"></Icon>
-          <CollectTitle id="collect">喜愛的地點</CollectTitle>
-        </CollectListBox>
-      )}
-      {stare ? (
-        <CollectListBoxSelect id="removeCollection">
-          <Icon src="/star_select.png" id="removeCollection" alt="已加星號的地點"></Icon>
-          <CollectTitle id="removeCollection" value="已加星號的地點">
-            已加星號的地點
-          </CollectTitle>
-        </CollectListBoxSelect>
-      ) : (
-        <CollectListBox>
-          <Icon src="/active_star.png" id="collect" alt="已加星號的地點"></Icon>
-          <CollectTitle id="collect" value="已加星號的地點">
-            已加星號的地點
-          </CollectTitle>
-        </CollectListBox>
+
+      {basicLists.map((list, index) =>
+        list.check ? (
+          <CollectListBoxSelect id="removeCollection" key={index}>
+            <Icon src={list.activeIcon} id="removeCollection" alt={list.collectName}></Icon>
+            <CollectTitle id="removeCollection">{list.collectName}</CollectTitle>
+          </CollectListBoxSelect>
+        ) : (
+          <CollectListBox key={index}>
+            <Icon src={list.defaultIcon} id="collect" alt={list.collectName}></Icon>
+            <CollectTitle id="collect">{list.collectName}</CollectTitle>
+          </CollectListBox>
+        )
       )}
 
-      {customList.length > 0 &&
+      {customList &&
+        customList.length > 0 &&
         customList.map((list, index) =>
           customCheck.find((check) => check === list) !== undefined ? (
             <CollectListBoxSelect key={index} id="removeCollection">
@@ -220,7 +166,7 @@ function Collection(props) {
               </CollectTitle>
             </CollectListBoxSelect>
           ) : (
-            <CollectListBox>
+            <CollectListBox key={index}>
               <Icon src="/custom.png" id="collect" alt={list}></Icon>
               <CollectTitle id="collect" value={list}>
                 {list}
@@ -228,7 +174,7 @@ function Collection(props) {
             </CollectListBox>
           )
         )}
-      {/* </CollectLists> */}
+
       <CollectListBox onClick={callModal}>
         <Icon src="/add.png" id="add" alt="add"></Icon>
         <CollectTitle id="add" value="add">

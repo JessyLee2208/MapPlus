@@ -2,7 +2,6 @@
 const host_name = 'http://localhost:5000';
 
 function getStoreMenu(deliver) {
-  console.log('a');
   fetch(`${host_name}/getStoreProducts`, {
     method: 'post',
     body: JSON.stringify(deliver),
@@ -16,9 +15,20 @@ function getStoreMenu(deliver) {
 
 function getStoreUrl(placeName, place) {
   return fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
-    const a = await res.json();
+    const deliverData = await res.json();
 
-    return { ...place, deliver: a };
+    return {
+      ...place,
+      opening_hours: place.opening_hours
+        ? {
+            isOpen: place.opening_hours.isOpen(),
+            weekday_text: place.weekday_text || '',
+            periods: place.periods || ''
+          }
+        : { isOpen: null, weekday_text: null, periods: null },
+
+      deliver: deliverData
+    };
   });
 }
 

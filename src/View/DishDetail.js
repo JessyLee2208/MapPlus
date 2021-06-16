@@ -42,15 +42,6 @@ const DishImg = styled.img`
   object-fit: cover;
 `;
 
-const WithoutDishImg = styled.div`
-  width: 100%;
-  height: 112px;
-
-  text-align: right;
-  flex-shrink: 1;
-  object-fit: cover;
-`;
-
 const RatingDiv = styled.div`
   display: flex;
   margin: 0;
@@ -64,13 +55,13 @@ const Box = styled.div`
   display: flex;
 
   align-items: center;
-  padding: 18px 20px;
+  padding: 18px 0px 10px 20px;
 `;
 
 const CommentDiv = styled.div`
   display: flex;
   margin: 0;
-  padding: 0 0 0 18px;
+  // padding: 0 0 0 px;
   flex-direction: column;
 `;
 
@@ -98,7 +89,7 @@ const CommentTitle = styled.p`
   text-align: left;
   color: black;
   margin: 10px 0;
-  border-bottom: 1px solid #efefef;
+  // border-bottom: 1px solid #efefef;
   padding-bottom: 10px;
 `;
 
@@ -117,6 +108,13 @@ const DishBox = styled.div`
   display: flex;
 
   width: 380px;
+  flex-direction: column;
+`;
+
+const DivBox = styled.div`
+  display: flex;
+
+  width: 100%;
   flex-direction: column;
 `;
 
@@ -178,9 +176,16 @@ function DishDetail(props) {
   const [allDishReviews, setAllDishReviews] = useState(null);
   const [select, selected] = useState(false);
 
-  let array = [];
   let customArray = [];
   let newRating = selectedDish.rating.toFixed(1);
+  let noImg = '/noImg.png';
+  // let userData = null
+
+  const basicLists = [
+    { collectName: '想去的地點', defaultIcon: '/falg.png', activeIcon: '/falg_select.png' },
+    { collectName: '喜愛的地點', defaultIcon: '/heart.png', activeIcon: '/heart_select.png' },
+    { collectName: '已加星號的地點', defaultIcon: '/active_star.png', activeIcon: '/star_select.png' }
+  ];
 
   useEffect(() => {
     const unsubscribe = getAllDishReviews(selectedDish, callback);
@@ -230,7 +235,6 @@ function DishDetail(props) {
           data: collectionArray
         });
       } else {
-        console.log('comming', 259);
         dispatch({
           type: 'setCollectData',
           data: []
@@ -246,7 +250,7 @@ function DishDetail(props) {
         data: null
       });
     }
-  }, [userStatus, allDishReviews, userData]);
+  }, [userStatus, allDishReviews, userData, selectedDish, dispatch]);
 
   function callModal(e) {
     dispatch({
@@ -283,83 +287,18 @@ function DishDetail(props) {
     });
   }
 
-  if (collectData.length > 0) {
+  if (collectData && collectData.length > 0) {
     collectData.forEach((data, key) => {
-      let result = customList.find((check) => check === data.collectName);
-
-      result !== undefined && customArray.push(result);
-
-      let collect = (
-        <RatingDiv key={key}>
-          {data.collectName === '想去的地點' ? (
-            <>
-              <Icon src="/falg_select.png"></Icon>
-              <CollectionBox>
-                <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-                <Info
-                  style={{
-                    fontWeight: '600',
-                    fontSize: '15px',
-                    margin: '0px 18px 0 0',
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleCollectionList}
-                  id="想去的地點"
-                >
-                  查看清單
-                </Info>
-              </CollectionBox>
-            </>
-          ) : data.collectName === '喜愛的地點' ? (
-            <>
-              <Icon src="/heart_select.png"></Icon>
-              <CollectionBox>
-                <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-                <Info
-                  style={{
-                    fontWeight: '600',
-                    fontSize: '15px',
-                    margin: '0px 18px 0 0',
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleCollectionList}
-                  id="喜愛的地點"
-                >
-                  查看清單
-                </Info>
-              </CollectionBox>
-            </>
-          ) : (
-            data.collectName === '已加星號的地點' && (
-              <>
-                <Icon src="/star_select.png"></Icon>
-                <CollectionBox>
-                  <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-                  <Info
-                    style={{
-                      fontWeight: '600',
-                      fontSize: '15px',
-                      margin: '0px 18px 0 0',
-                      cursor: 'pointer'
-                    }}
-                    onClick={handleCollectionList}
-                    id="已加星號的地點"
-                  >
-                    查看清單
-                  </Info>
-                </CollectionBox>
-              </>
-            )
-          )}
-        </RatingDiv>
-      );
+      if (customList) {
+        let result = customList.find((check) => check === data.collectName);
+        result !== undefined && customArray.push(result);
+      }
 
       if (
         data.collectName === '想去的地點' ||
         data.collectName === '喜愛的地點' ||
         data.collectName === '已加星號的地點'
       ) {
-        array.push(collect);
       }
     });
   }
@@ -403,39 +342,65 @@ function DishDetail(props) {
       </Back>
       <SearchBg></SearchBg>
       {select && <Collection select={selected} check={props.check}></Collection>}
-      {selectedDish.imageUrl ? (
-        <DishImg src={selectedDish.imageUrl} alt=""></DishImg>
-      ) : (
-        <WithoutDishImg></WithoutDishImg>
-      )}
-      <div>
-        <TopDiv>
-          <DishBox>
-            <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
+      <DishImg
+        src={selectedDish.imageUrl || noImg}
+        alt=""
+        style={{ height: selectedDish.imageUrl ? '260px' : '112px' }}
+      ></DishImg>
+      <TopDiv>
+        <DishBox>
+          <PageTitle padding={'10px 0 10px 20px'}>{selectedDish.name}</PageTitle>
 
-            <RatingDiv>
-              <H3Title color={'185ee6'} padding={'0 20px 0 0'}>
-                NT${selectedDish.price}
-              </H3Title>
-              <Icon src="/active_star.png" alt=""></Icon>
-              <H3Title padding={' 0'} fontWeight={400} color={797979}>
-                {newRating}
-              </H3Title>
-            </RatingDiv>
-          </DishBox>
-          <div>
-            {collectData.length > 0 ? (
-              <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
-            ) : collectData.length > 0 && customArray.length > 0 ? (
-              <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
-            ) : (
-              <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
-            )}
-          </div>
-        </TopDiv>
-      </div>
-      <div>
-        {collectData.length > 0 && array}
+          <RatingDiv>
+            <H3Title color={'185ee6'} padding={'0 20px 0 0'}>
+              NT${selectedDish.price}
+            </H3Title>
+            <Icon src="/active_star.png" alt=""></Icon>
+            <H3Title padding={' 0'} fontWeight={400} color={797979}>
+              {newRating}
+            </H3Title>
+          </RatingDiv>
+        </DishBox>
+        <div>
+          {collectData.length > 0 ? (
+            <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+          ) : collectData.length > 0 && customArray.length > 0 ? (
+            <CollectIcon src="/collected.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+          ) : (
+            <CollectIcon src="/collect.png" id="collectIcon" onClick={handleCollectIconClick}></CollectIcon>
+          )}
+        </div>
+      </TopDiv>
+
+      <DivBox>
+        {collectData &&
+          collectData.length > 0 &&
+          collectData.map((data, key) =>
+            basicLists.map(
+              (list) =>
+                data.collectName === list.collectName && (
+                  <RatingDiv key={key}>
+                    <Icon src={list.activeIcon}></Icon>
+                    <CollectionBox>
+                      <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
+                      <Info
+                        style={{
+                          fontWeight: '600',
+                          fontSize: '15px',
+                          margin: '0px 18px 0 0',
+                          cursor: 'pointer'
+                        }}
+                        onClick={handleCollectionList}
+                        id={list.collectName}
+                      >
+                        查看清單
+                      </Info>
+                    </CollectionBox>
+                  </RatingDiv>
+                )
+            )
+          )}
+
         {collectData.length > 0 &&
           customArray.length > 0 &&
           customArray.map((list, key) => (
@@ -458,12 +423,13 @@ function DishDetail(props) {
               </CollectionBox>
             </RatingDiv>
           ))}
-      </div>
+      </DivBox>
 
       {userReviewSet && (
         <div>
           <CommentDiv>
-            <CommentTitle style={{ color: 'black', margin: '10px 0 10px 0' }}>你的評論</CommentTitle>
+            <CommentTitle style={{ color: 'black', margin: '10px 0 0px 18px' }}>你的評論</CommentTitle>
+            <Separator></Separator>
           </CommentDiv>
           <ReviewCard review={userReviewSet} borderBottom={'none'}></ReviewCard>
         </div>

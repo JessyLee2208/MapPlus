@@ -71,7 +71,7 @@ function Modal(props) {
     contentRef.current.animate(contentAnimation, animationSettings);
     overlayRef.current.animate(overlayAnimation, animationSettings);
     setVisible(true);
-  }, [overlayAnimation, contentAnimation]);
+  }, []);
 
   const animateOut = useCallback(async () => {
     await Promise.all([
@@ -79,7 +79,7 @@ function Modal(props) {
       overlayRef.current.animate(overlayAnimation, reverseAnimationSettings).finished
     ]);
     setVisible(false);
-  }, [contentAnimation, overlayAnimation, reverseAnimationSettings]);
+  }, []);
 
   const onCancel = () => {
     props.onCancel && props.onCancel();

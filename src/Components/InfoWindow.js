@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import styled from 'styled-components';
 import { InfoWindow } from '@react-google-maps/api';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { SubTitle, Description } from './UIComponents/Typography';
 
 import StarRender from '../Utils/StarRender';
@@ -32,7 +32,6 @@ const RatingDiv = styled.div`
 `;
 
 function MapInforWindow(props) {
-  const informationWindow = useSelector((state) => state.informationWindow);
   const [position, setPosition] = useState(null);
   const dispatch = useDispatch();
   // let starArry = [];

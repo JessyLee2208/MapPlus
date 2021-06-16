@@ -35,6 +35,11 @@ function Confim(props) {
       }
     });
 
+  const handleDeleteButton = () => {
+    props.onClick();
+    notify();
+  };
+
   return (
     <Modal visible={props.show} onCancel={handleClose} style={{ padding: '0px' }} width={38} left={33}>
       <ModalContent>
@@ -45,13 +50,7 @@ function Confim(props) {
         <ButtonSecondaryFlat onClick={handleClose} style={{ margin: '16px 0' }}>
           取消
         </ButtonSecondaryFlat>
-        <ButtonPrimaryFlat
-          style={{ margin: '16px' }}
-          onClick={() => {
-            props.onClick();
-            notify();
-          }}
-        >
+        <ButtonPrimaryFlat style={{ margin: '16px' }} onClick={handleDeleteButton}>
           刪除
         </ButtonPrimaryFlat>
       </ContentBackground>

@@ -13,12 +13,12 @@ const StoreInfo = styled.div`
 `;
 
 const StoreTitle = styled.div`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-family: Roboto, Noto Sans TC, Arial, sans-serif;
   font-size: 14px;
   font-weight: 400;
   font-stretch: normal;
   font-style: normal;
-  line-height: normal;
+  line-height: 18px;
   letter-spacing: normal;
   text-align: left;
   color: black;
@@ -69,6 +69,7 @@ const WithoutImg = styled.div`
 `;
 
 const Div = styled.div`
+  height: 20px;
   display: flex;
   margin: 0;
   align-items: center;
@@ -120,7 +121,7 @@ function StoreCardS(props, key) {
     if (selected) {
       setSelectedStyle({ border: '3px solid #1a73e8', borderRadius: '8px' });
     }
-  }, [selectedStore]);
+  }, [selectedStore, selected]);
 
   function handleStoreListClick(e) {
     dispatch({
@@ -186,18 +187,15 @@ function StoreCardS(props, key) {
       onMouseOver={handleHoverEvent}
       onMouseOut={handleHoverOutEvent}
     >
-      {props.product.photos && props.product.photos.length > 0 ? (
+      {(props.product.photos && props.product.photos.length > 0) || props.product.photo ? (
         <StoreImg
           id={props.id}
           alt=""
-          src={props.product.photos[0].getUrl()}
-          style={selected ? { borderRadius: '4px 4px 0 0' } : { borderRadius: '8px 8px 0 0' }}
-        ></StoreImg>
-      ) : props.product.photo ? (
-        <StoreImg
-          id={props.id}
-          alt=""
-          src={props.product.photo[0]}
+          src={
+            props.product.photos && props.product.photos.length > 0
+              ? props.product.photos[0].getUrl()
+              : props.product.photo && props.product.photo[0]
+          }
           style={selected ? { borderRadius: '4px 4px 0 0' } : { borderRadius: '8px 8px 0 0' }}
         ></StoreImg>
       ) : (
@@ -222,16 +220,10 @@ function StoreCardS(props, key) {
           {props.product.website && (props.product.deliver.foodPandaUrl || props.product.deliver.uberEatUrl) && (
             <Border>|</Border>
           )}
-          {props.product.deliver.foodPandaUrl ? (
+          {(props.product.deliver.foodPandaUrl || props.product.deliver.uberEatUrl) && (
             <Link id={props.id} name="menu">
               菜單
             </Link>
-          ) : (
-            props.product.deliver.uberEatUrl && (
-              <Link id={props.id} name="menu">
-                菜單
-              </Link>
-            )
           )}
         </LinkDiv>
       </StoreInfo>

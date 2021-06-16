@@ -73,20 +73,22 @@ function AddCollectionModal(props) {
   function handleInputCheck(e) {
     setInputText(e.target.value);
     let inputCheck = [];
-    customList.forEach((list) => {
-      if (e.target.value === list) {
-        inputCheck.push(true);
-      } else if (e.target.value !== list) {
-        inputCheck.push(false);
-      }
-      let valeu = inputCheck.findIndex((check) => check === true);
+    if (customList) {
+      customList.forEach((list) => {
+        if (e.target.value === list) {
+          inputCheck.push(true);
+        } else if (e.target.value !== list) {
+          inputCheck.push(false);
+        }
+        let valeu = inputCheck.findIndex((check) => check === true);
 
-      if (valeu !== -1) {
-        setNameCheck(true);
-      } else {
-        setNameCheck(false);
-      }
-    });
+        if (valeu !== -1) {
+          setNameCheck(true);
+        } else {
+          setNameCheck(false);
+        }
+      });
+    }
   }
 
   function bindupLoadCollection() {

@@ -41,7 +41,19 @@ const Box = styled.div`
   }
 `;
 
-function SearchList(props) {
+const requirement = {
+  one: { type: 'upToDown', value: '評分高至低' },
+  two: { type: 'downToUp', value: '評分低至高' },
+  three: { type: 'qtyUpToDown', value: '評分人數多至少' },
+  four: { type: 'qtyDownToUp', value: '評分人數少至多' }
+};
+
+const species = {
+  one: { type: 'store', value: '依店家顯示' },
+  two: { type: 'menu', value: '依菜品顯示' }
+};
+
+function SearchList({ service }) {
   const storeData = useSelector((state) => state.storeData);
   const searchMenu = useSelector((state) => state.searchMenu);
   const [visibleType, setVisibleType] = useState(false);
@@ -55,28 +67,28 @@ function SearchList(props) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (checkType === 'store' && ratingType === 'upToDown') {
+    if (checkType === species.one.type && ratingType === requirement.one.type) {
       chronologicalUpToDown(storeData, 'rating', setStore);
-    } else if (checkType === 'store' && ratingType === 'downToUp') {
+    } else if (checkType === species.one.type && ratingType === requirement.two.type) {
       chronologicalDownToUp(storeData, 'rating', setStore);
     }
-    if (checkType === 'menu' && ratingType === 'upToDown') {
+    if (checkType === species.two.type && ratingType === requirement.one.type) {
       chronologicalUpToDown(searchMenu, 'rating', setMenu);
-    } else if (checkType === 'menu' && ratingType === 'downToUp') {
+    } else if (checkType === species.two.type && ratingType === requirement.two.type) {
       chronologicalDownToUp(searchMenu, 'rating', setMenu);
     }
     ////////////////////////////
-    if (checkType === 'store' && ratingType === 'qtyUpToDown') {
+    if (checkType === species.one.type && ratingType === requirement.three.type) {
       chronologicalUpToDown(storeData, 'user_ratings_total', setStore);
-    } else if (checkType === 'store' && ratingType === 'qtyDownToUp') {
+    } else if (checkType === species.one.type && ratingType === requirement.four.type) {
       chronologicalDownToUp(storeData, 'user_ratings_total', setStore);
     }
-    if (checkType === 'menu' && ratingType === 'qtyUpToDown') {
+    if (checkType === species.two.type && ratingType === requirement.three.type) {
       chronologicalUpToDown(searchMenu, 'user_ratings_total', setMenu);
-    } else if (checkType === 'menu' && ratingType === 'qtyDownToUp') {
+    } else if (checkType === species.two.type && ratingType === requirement.four.type) {
       chronologicalDownToUp(searchMenu, 'user_ratings_total', setMenu);
     }
-  }, [checkType, ratingType]);
+  }, [checkType, ratingType, searchMenu, storeData]);
 
   function handleFilterSelecterClose() {
     if (visibleType || visibleOpt) {
@@ -111,16 +123,11 @@ function SearchList(props) {
     });
   }
 
-  useEffect(() => {}, [props.content]);
-
   return (
     <div onClick={handleFilterSelecterClose} onMouseOver={handle}>
       <Box>
         <FilterBox
-          typeOne={'store'}
-          tpyeTwo={'menu'}
-          valueOne={'依店家顯示'}
-          valueTwo={'依菜品顯示'}
+          option={species}
           setType={setCheckType}
           visible={setVisibleType}
           visibleCheck={visibleType}
@@ -128,25 +135,18 @@ function SearchList(props) {
         <FilterBox
           top={86}
           width={100}
-          typeOne={'upToDown'}
-          valueOne={'評分高至低'}
-          tpyeTwo={'downToUp'}
-          valueTwo={'評分低至高'}
-          tpyeThree={'qtyUpToDown'}
-          valueThree={'評分人數多至少'}
-          tpyeFour={'qtyDownToUp'}
-          valueFour={'評分人數少至多'}
+          option={requirement}
           setType={setRatingType}
           visible={setVisibleOpt}
           visibleCheck={visibleOpt}
         ></FilterBox>
       </Box>
       <InformationBox>
-        {checkType === 'store'
+        {checkType === species.one.type
           ? store.map((product) => (
-              <StoreCardL key={product.place_id} product={product} id={product.name} service={props.service} />
+              <StoreCardL key={product.place_id} product={product} id={product.name} service={service} />
             ))
-          : checkType === 'menu' &&
+          : checkType === species.two.type &&
             (menu.length > 0 ? (
               menu.map((data, key) => <SearchMenuCard key={key} content={data}></SearchMenuCard>)
             ) : (
