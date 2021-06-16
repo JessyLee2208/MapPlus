@@ -1,32 +1,35 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
-import useMediaQuery from './Utils/useMediaQuery';
-import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
-import { deviceSize } from './responsive/responsive';
-import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker, InfoWindow } from '@react-google-maps/api';
-import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
+import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
 import toast, { Toaster } from 'react-hot-toast';
+import algoliasearch from 'algoliasearch';
+import { useDispatch, useSelector } from 'react-redux';
+import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
-import { getMenuData, googleAccountSignIn, getStoreData, googleAccountStateChanged } from './Utils/firebase';
-import { useDispatch, useSelector } from 'react-redux';
+import SearchList from './View/SearchList';
+import SearchListS from './View/SearchListS';
+import MemberPage from './View/MemberPage';
+import CollectionList from './View/CollectionList';
+import NotFound from './View/NotFount';
 
-import algoliasearch from 'algoliasearch';
+import { getMenuData, googleAccountSignIn, getStoreData, googleAccountStateChanged } from './Utils/firebase';
+import { getStoreDetail } from './Utils/getMoreDetail';
+import useMediaQuery from './Utils/useMediaQuery';
+import { getStoreMenu, getStoreUrl } from './Utils/fetch';
+import { getTopTenItemInArray } from './Utils/utils';
+
 import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
 
-import CollectionList from './View/CollectionList';
-import Markers from './Components/Marker';
-
-import SearchList from './View/SearchList';
-import SearchListS from './View/SearchListS';
-import MapInforWindow from './Components/InfoWindow';
 import { Loading } from './Components/UIComponents/LottieAnimat';
-import MemberPage from './View/MemberPage';
-import { getStoreDetail } from './Utils/getMoreDetail';
+import MapInforWindow from './Components/InfoWindow';
+import Markers from './Components/Marker';
+import { ButtonPrimaryFlat, ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
+import { deviceSize } from './responsive/responsive';
 
-import Toast from './Components/Toast2';
+import AddCollectionModal from './Components/AddCollectionModal';
 
 const UserPositionCheck = styled.div`
   width: 40px;
@@ -104,11 +107,6 @@ const center = {
   lng: 121.533053
 };
 
-const TAIWAN_BOUNDS = {
-  lat: 23.4696826,
-  lng: 117.8398831
-};
-
 const searchOption = {
   fields: [
     'name',
@@ -123,11 +121,23 @@ const searchOption = {
   ]
 };
 
+const loginBtnStyle = {
+  mobileStyle: {
+    position: 'fixed',
+    right: '20px',
+    top: '18px',
+    zIndex: '4'
+  },
+  webStyle: {
+    position: 'fixed',
+    right: '62px',
+    top: '11px'
+  }
+};
+
 const searchClient = algoliasearch(process.env.REACT_APP_ALGOLIA_API_ID, process.env.REACT_APP_ALGOLIA_SEARCH_KEY);
 
 const searchIndex = searchClient.initIndex('googlemap_search');
-// const host_name = 'https://hsiaohan.cf';
-const host_name = 'http://localhost:5000';
 
 function App() {
   const { isLoaded, loadError } = useLoadScript({
@@ -153,54 +163,47 @@ function App() {
 
   const mapRef = useRef();
   const searchRef = useRef();
-
   const textInput = useRef();
 
   const [bounds, setBounds] = useState(null);
   const [mapStore, setMapStore] = useState([]);
   const [markerLoad, setMarkerLoad] = useState([]);
+  const [zoom, setZoom] = useState(16);
 
   const [currentLoction, setcurrentLoction] = useState(null);
 
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [placrCheck, setPlacrCheck] = useState(false);
+  const [listCheck, setListCheck] = useState(false);
 
   const [memberPageShow, setMemberPageShow] = useState();
 
-  const mapContainerStyle = {
-    width: '100vw',
-    height: '100vh',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    zIndex: informationWindow ? -10 : 3
-  };
-
-  const mapContainerStyleWithSearch = {
-    width: 'calc(100vw - 435px)',
-    height: '100vh',
-    position: 'absolute',
-    top: 0,
-    left: '435px',
-    zIndex: -10
-  };
-
-  const mapContainerStyleWithStore = {
-    width: 'calc(100vw - 435px)',
-    height: 'calc(100vh - 230px)',
-    position: 'absolute',
-    top: 0,
-    left: '435px',
-    zIndex: -10
-  };
-
-  // const style = ;
-
-  const mobileStyle = {
-    position: 'fixed',
-    right: '20px',
-    top: '18px',
-    zIndex: '4'
+  const mapStyle = {
+    mapContainerStyle: {
+      width: '100vw',
+      height: '100vh',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      zIndex: informationWindow ? -10 : 3
+    },
+    mapContainerStyleWithSearch: {
+      width: 'calc(100vw - 435px)',
+      height: '100vh',
+      position: 'absolute',
+      top: 0,
+      left: '435px',
+      zIndex: -10
+    },
+    mapContainerStyleWithStore: {
+      width: 'calc(100vw - 435px)',
+      height: 'calc(100vh - 230px)',
+      position: 'absolute',
+      top: 0,
+      left: '435px',
+      zIndex: -10
+    }
   };
 
   const storeListExist =
@@ -244,41 +247,32 @@ function App() {
         data: mapStore
       });
     }
-  }, [mapStore, algoliaStore]);
+  }, [mapStore, algoliaStore, dispatch]);
 
   useEffect(() => {
     let newPlaceArray = [];
     if (collectionMarks.length > 0) {
-      const NewRes = [...collectionMarks];
+      const NewCollections = [...collectionMarks];
 
-      let removed = [];
-      const count = NewRes.length / 10;
-      const countNam = parseInt(count);
+      function useApiGetData(placeMarkers) {
+        const markerArray = new Promise((res, rej) => {
+          const request = {
+            placeId: placeMarkers.place_id,
+            fields: ['geometry']
+          };
+          service.getDetails(request, callback);
+          function callback(place, status) {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+              const geometry = place.geometry;
 
-      let rule = countNam === 0 ? 1 : countNam;
-
-      for (let i = 0; i < rule; i++) {
-        let newArray = NewRes.slice(0, 10);
-
-        newArray.forEach((placeMarkers) => {
-          const markerArray = new Promise((res, rej) => {
-            const request = {
-              placeId: placeMarkers.place_id,
-              fields: ['geometry']
-            };
-            service.getDetails(request, callback);
-            function callback(place, status) {
-              if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                const geometry = place.geometry;
-
-                res({ ...placeMarkers, geometry: geometry });
-              }
+              res({ ...placeMarkers, geometry: geometry });
             }
-          });
-          newPlaceArray.push(markerArray);
+          }
         });
-        removed = NewRes.splice(countNam * 10);
+        newPlaceArray.push(markerArray);
       }
+
+      getTopTenItemInArray(NewCollections, useApiGetData);
 
       Promise.all(newPlaceArray).then((res) => {
         res.forEach((view) => {
@@ -291,7 +285,7 @@ function App() {
         mapRef.current.fitBounds(bounds);
       });
     }
-  }, [collectionMarks]);
+  }, [collectionMarks, bounds]);
 
   useEffect(() => {
     if (selectedStore) {
@@ -310,12 +304,28 @@ function App() {
     }
   }, [selectedStore]);
 
+  useEffect(() => {
+    let pathname = window.location.pathname;
+    if (pathname !== '/') {
+      window.location.pathname = '';
+    }
+  }, []);
+
   const panTo = useCallback(({ lat, lng }) => {
     mapRef.current.panTo({ lat, lng });
   }, []);
 
   const notify = () =>
     toast('成功登入', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
+
+  const customNotify = () =>
+    toast('正在定位中..請耐心等候', {
       style: {
         borderRadius: '4px',
         background: '#333',
@@ -331,18 +341,18 @@ function App() {
       });
     }
 
-    notify();
-
     return googleAccountStateChanged(callback);
-  }, []);
+  }, [dispatch]);
 
-  useEffect(() => {}, [markerHover]);
+  useEffect(() => {
+    if (userStatus) {
+      notify();
+    }
+  }, [userStatus]);
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
   const defaultMapOptions = {
-    fullscreenControl: !isMobile ? true : false,
-    streetViewControl: !isMobile ? true : false,
     mapTypeControl: false
   };
 
@@ -387,6 +397,9 @@ function App() {
     });
 
     const places = searchRef.current.getPlaces();
+    if (places.length === 0) {
+      setPlacrCheck(true);
+    }
 
     const bounds = new window.google.maps.LatLngBounds();
     const placePromises = [];
@@ -406,27 +419,11 @@ function App() {
         bounds.extend(place.geometry.location);
       }
 
-      const placePromise = fetch(`${host_name}/getStoreURL/${placeName}`).then(async (res) => {
-        const a = await res.json();
-
-        return {
-          ...place,
-          opening_hours: place.opening_hours
-            ? {
-                isOpen: place.opening_hours.isOpen(),
-                weekday_text: place.weekday_text ? place.weekday_text : '',
-                periods: place.periods ? place.periods : ''
-              }
-            : { isOpen: null, weekday_text: null, periods: null },
-
-          deliver: a
-        };
-      });
-
+      const placePromise = getStoreUrl(placeName, place);
       placePromises.push(placePromise);
     });
 
-    mapRef.current.fitBounds(bounds);
+    if (places.length > 0) mapRef.current.fitBounds(bounds);
 
     const callback = (data) => {
       dispatch({
@@ -442,8 +439,8 @@ function App() {
           type: 'setStoreData',
           data: res
         });
-        console.log(res[0]);
-        console.log(res[0].photos[0].getUrl());
+        // console.log(res[0]);
+        // console.log(res[0].photos[0].getUrl());
 
         if (res[0].deliver.uberEatUrl) {
           getMenuData(res[0].name, callback);
@@ -456,10 +453,6 @@ function App() {
       }
     });
   };
-
-  function handleSearchText(e) {
-    setSearchText(e.target.value);
-  }
 
   const handleSearch = async (queryText) => {
     try {
@@ -474,7 +467,7 @@ function App() {
           const data = getStoreData(hit.storeCollectionID);
           algoliaSearchData.push(data);
         });
-        // setAlgoSearchData(algoliaSearchData);
+
         Promise.all(algoliaSearchData).then((res) => {
           setAlgoliaStore(res);
         });
@@ -487,17 +480,19 @@ function App() {
 
   function getCurrentLoction() {
     if (navigator.geolocation) {
+      customNotify();
       navigator.geolocation.getCurrentPosition((position) => {
         const pos = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
         setcurrentLoction(pos);
-
-        panTo({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
+        panTo(pos);
+        if (zoom === 16) {
+          setZoom(17);
+        } else if (zoom === 17) {
+          setZoom(16);
+        }
       });
     }
   }
@@ -550,8 +545,79 @@ function App() {
       type: 'setSearchMenu',
       data: null
     });
+    // useInitMap();
     setMapStore([]);
+    setPlacrCheck(false);
   }
+
+  const handleMapIconClick = (e) => {
+    e.stop();
+
+    dispatch({
+      type: 'setMarkerHover',
+      data: null
+    });
+    setMemberPageShow(false);
+    getStoreDetail(e.placeId, service).then((res) => {
+      dispatch({
+        type: 'setStoreData',
+        data: [res]
+      });
+      dispatch({
+        type: 'setSelectedDish',
+        data: null
+      });
+      dispatch({
+        type: 'setSelectedStore',
+        data: null
+      });
+      dispatch({
+        type: 'initMapMarkers',
+        data: [
+          {
+            lat: res.geometry.location.lat(),
+            lng: res.geometry.location.lng(),
+            place_id: res.place_id,
+            storename: res.name
+          }
+        ]
+      });
+
+      if (res.deliver.uberEatUrl || res.deliver.foodPandaUrl) {
+        function setData(data) {
+          dispatch({
+            type: 'setMenuData',
+            data: data
+          });
+        }
+        getStoreMenu(res.deliver);
+        getMenuData(res.name, setData);
+      } else {
+        dispatch({
+          type: 'setMenuData',
+          data: null
+        });
+      }
+
+      textInput.current.value = res.name;
+      setSearchText(res.name);
+    });
+  };
+
+  const handleLoginButtonCilck = (e) => {
+    googleAccountSignIn(e, dispatch, setMemberPageShow);
+    dispatch({
+      type: 'setloginToast',
+      data: true
+    });
+  };
+
+  const handelSearchInput = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(searchText);
+      setSearchText(e.target.value);
+    }
+  };
 
   return (
     <Frame>
@@ -562,17 +628,17 @@ function App() {
         !storeDetailOnlyOneExist &&
         searchMenu &&
         !isMobile && (
-          <div style={{ width: '435px' }}>
-            <Loading></Loading>
+          <div style={{ width: '435px', height: '100vh' }}>
+            {!placrCheck ? <Loading></Loading> : <NotFound searchText={searchText}></NotFound>}
           </div>
         )}
 
       <Toaster />
-      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow}></MemberPage>}
+      {userStatus && memberPageShow && <MemberPage show={setMemberPageShow} check={setListCheck}></MemberPage>}
 
       {isMobile && !informationWindow ? (
         <ButtonPrimaryRoundIcon
-          style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+          style={{ position: 'fixed', right: '40%', bottom: '24px', boxShadow: '0px 0px 7px rgb(0 0 0 / 25%)' }}
           onClick={closeInformation}
           zIndex={4}
           src="/map.png"
@@ -584,7 +650,7 @@ function App() {
         informationWindow &&
         (storeListExist || storeDetailExist || collectionCheck || dishDetailExist) && (
           <ButtonPrimaryRoundIcon
-            style={{ position: 'fixed', right: '40%', bottom: '24px' }}
+            style={{ position: 'fixed', right: '40%', bottom: '24px', boxShadow: '0px 0px 7px rgb(0 0 0 / 25%)' }}
             onClick={closeInformation}
             zIndex={6}
             src="/map.png"
@@ -594,8 +660,9 @@ function App() {
         )
       )}
 
-      {show && userStatus && <CommentModal show={show}></CommentModal>}
-      {show && !userStatus && <ReminderModal show={show}></ReminderModal>}
+      {userStatus && listCheck && <AddCollectionModal show={listCheck} check={setListCheck}></AddCollectionModal>}
+      {show && userStatus && !listCheck && <CommentModal show={show}></CommentModal>}
+      {show && !userStatus && !listCheck && <ReminderModal show={show}></ReminderModal>}
       <StandaloneSearchBox
         onLoad={onSearchLoad}
         onPlacesChanged={hanldePlacesChanged}
@@ -607,21 +674,7 @@ function App() {
             setMemberPageShow(false);
           }}
         >
-          <SearchInput
-            type="text"
-            placeholder="搜尋 Google 地圖"
-            onChange={handleSearchText}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch(searchText);
-              }
-            }}
-            restriction={{
-              latLngBounds: TAIWAN_BOUNDS,
-              strictBounds: false
-            }}
-            ref={textInput}
-          />
+          <SearchInput type="text" placeholder="搜尋 Google 地圖" onKeyDown={handelSearchInput} ref={textInput} />
           {searchText && <Delete onClick={handleSearchInput}>×</Delete>}
         </SearchBox>
       </StandaloneSearchBox>
@@ -637,32 +690,22 @@ function App() {
       ) : storeDetailExist ? (
         <StoreDetail product={selectedStore}></StoreDetail>
       ) : dishDetailExist ? (
-        <DishDetail dishdata={selectedDish} service={service}></DishDetail>
-      ) : collectionCheck ? (
-        <CollectionList service={service} panTo={panTo}></CollectionList>
+        <DishDetail dishdata={selectedDish} service={service} check={setListCheck}></DishDetail>
       ) : (
-        <></>
+        collectionCheck && (
+          <CollectionList
+            service={service}
+            panTo={panTo}
+            seachInput={textInput}
+            setMapStore={setMapStore}
+          ></CollectionList>
+        )
       )}
       {smileStoreExist && !isMobile && <SearchListS service={service}></SearchListS>}
       {!userStatus ? (
         <ButtonPrimaryFlat
-          onClick={(e) => {
-            googleAccountSignIn(e, dispatch, setMemberPageShow);
-            // setloginToast(!loginToast);
-            dispatch({
-              type: 'setloginToast',
-              data: true
-            });
-          }}
-          style={
-            !isMobile
-              ? {
-                  position: 'fixed',
-                  right: '62px',
-                  top: '11px'
-                }
-              : mobileStyle
-          }
+          onClick={handleLoginButtonCilck}
+          style={!isMobile ? loginBtnStyle.webStyle : loginBtnStyle.mobileStyle}
         >
           登入
         </ButtonPrimaryFlat>
@@ -684,63 +727,22 @@ function App() {
       <GoogleMap
         mapContainerStyle={
           (storeListExist && !isMobile) || (searchMenu && !isMobile)
-            ? mapContainerStyleWithSearch
-            : storeListExist && isMobile
-            ? mapContainerStyle
-            : smileStoreExist && !isMobile
-            ? mapContainerStyleWithStore
+            ? mapStyle.mapContainerStyleWithSearch
+            : storeListExist && isMobile && !smileStoreExist
+            ? mapStyle.mapContainerStyle
+            : storeListExist && smileStoreExist && !isMobile
+            ? mapStyle.mapContainerStyleWithStore
             : (storeDetailOnlyOneExist || collectionCheck) && !isMobile
-            ? mapContainerStyleWithSearch
-            : mapContainerStyle
+            ? mapStyle.mapContainerStyleWithSearch
+            : mapStyle.mapContainerStyle
         }
-        zoom={16}
+        zoom={zoom}
         center={center}
         onLoad={onMapLoad}
         onBoundsChanged={onBoundsChanged}
         options={defaultMapOptions}
         style={{ padding: 0 }}
-        onClick={(e) => {
-          e.stop();
-
-          dispatch({
-            type: 'setMarkerHover',
-            data: null
-          });
-          setMemberPageShow(false);
-          getStoreDetail(e.placeId, service).then((res) => {
-            console.log(res);
-            dispatch({
-              type: 'setStoreData',
-              data: [res]
-            });
-            dispatch({
-              type: 'setSelectedDish',
-              data: null
-            });
-            dispatch({
-              type: 'setSelectedStore',
-              data: null
-            });
-            dispatch({
-              type: 'initMapMarkers',
-              data: [
-                {
-                  lat: res.geometry.location.lat(),
-                  lng: res.geometry.location.lng(),
-                  place_id: res.place_id,
-                  storename: res.name
-                }
-              ]
-            });
-
-            textInput.current.value = res.name;
-            setSearchText(res.name);
-          });
-        }}
-        restriction={{
-          latLngBounds: TAIWAN_BOUNDS,
-          strictBounds: false
-        }}
+        onClick={handleMapIconClick}
       >
         {collectionMarks.length === 0
           ? mapMarkers.map((marker, key) => (

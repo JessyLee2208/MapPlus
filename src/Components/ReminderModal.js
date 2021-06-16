@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import Modal from './Modal';
 import { googleAccountSignIn } from '../Utils/firebase';
 import { ButtonPrimaryFlat, ButtonSecondaryFlat } from './UIComponents/Button';
-import toast from 'react-hot-toast';
 
 const TopBackground = styled.div`
   position: relative;
@@ -55,14 +54,6 @@ function ReminderModal() {
       data: false
     });
   }
-  const notify = () =>
-    toast('成功登出', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
 
   return (
     <Modal visible={modalShow} onCancel={handleClose} style={{ padding: '0px' }}>

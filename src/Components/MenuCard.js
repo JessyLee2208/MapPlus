@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import renderStar from '../Utils/renderStar';
+
+import StarRender from '../Utils/StarRender';
 import { useDispatch, useSelector } from 'react-redux';
 import { userReviewGet } from '../Utils/firebase';
 import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
@@ -73,7 +74,7 @@ const RatingDiv = styled.div`
 `;
 
 function MenuCard(props) {
-  let starArry = [];
+  // let starArry = [];
   const [userDatasCheck, setuserDatasCheck] = React.useState(null);
 
   const dispatch = useDispatch();
@@ -98,9 +99,9 @@ function MenuCard(props) {
       }
       reviewData();
     }
-  }, [userStatus]);
+  }, [userStatus, props.data]);
 
-  renderStar(props.data.rating, starArry);
+  const star = StarRender(props.data.rating, { width: 16, height: 16 });
 
   function callModal(e) {
     if (userDatasCheck) {
@@ -143,7 +144,7 @@ function MenuCard(props) {
             <Description padding={'0 6px 0 0'} id={props.data.name}>
               {newRating}
             </Description>
-            {starArry}
+            {star}
           </RatingDiv>
         </div>
         <ItemTitle id={props.data.name} color={'185ee6'}>

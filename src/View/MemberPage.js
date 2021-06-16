@@ -3,10 +3,13 @@ import styled from 'styled-components';
 import { deviceSize } from '../responsive/responsive';
 import { useDispatch, useSelector } from 'react-redux';
 import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typography';
-import { userDatasCheck, googleAccountLogOut } from '../Utils/firebase';
+import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../Utils/firebase';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
 import useMediaQuery from '../Utils/useMediaQuery';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
+import Confim from '../Components/Confim';
+import useUserDataCheck from '../Utils/useUserDataCheck';
 
 const Member = styled.div`
   position: fixed;
@@ -16,7 +19,7 @@ const Member = styled.div`
   background: #ffffff;
   width: 300px;
   height: auto;
-
+  max-height: 560px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27,12 +30,13 @@ const Member = styled.div`
   z-index: 3;
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: 100vw;
-    height: 101vh;
+    height: 100vh;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 8;
     border-radius: 0px;
+    max-height: 100vh;
   }
 `;
 
@@ -64,10 +68,24 @@ const ItemBox = styled.div`
   }
 `;
 
+const CollectLists = styled.div`
+  width: 100%;
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+
+  @media screen and (max-width: ${deviceSize.mobile}px) {
+    padding-left: 80px;
+  }
+`;
+
 const CollectListBox = styled.div`
   display: flex;
   margin: 0;
-  padding-left: 64px;
+  padding-left: 42px;
+  // padding-right: 12px;
   margin: 4px 0;
   align-items: center;
   @media screen and (max-width: ${deviceSize.mobile}px) {
@@ -81,41 +99,97 @@ const Icon = styled.img`
   margin-right: 14px;
 `;
 
+const CloseButton = styled.a`
+  margin-right: 22px;
+  cursor: pointer;
+  font-size: 20px;
+  color: #afafaf;
+  transition: all 100ms ease-in-out;
+  &:hover {
+    color: #185ee6;
+  }
+`;
+
+const EditList = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
+
 function MemberPage(props) {
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
   const userStatus = useSelector((state) => state.userStatus);
+  const customList = useSelector((state) => state.customList);
 
   const dispatch = useDispatch();
 
   const [wantList, setWantList] = useState([]);
   const [likeList, setLikeList] = useState([]);
   const [starList, setStarList] = useState([]);
+  const [customListCounts, setCustomListCount] = useState([]);
+  // const [loading, setLoading] = useState(true);
+
+  const [deleteTarget, setDeleteTarget] = useState('');
+
+  const [comfimShow, setComfimShow] = useState(false);
+
+  const basicLists = [
+    { collectName: '想去的地點', defaultIcon: '/falg.png', click: wantList },
+    { collectName: '喜愛的地點', defaultIcon: '/heart.png', click: likeList },
+    { collectName: '已加星號的地點', defaultIcon: '/active_star.png', click: starList }
+  ];
+
+  const userData = useUserDataCheck();
 
   useEffect(() => {
-    async function reviewData() {
-      let data = await userDatasCheck(userStatus);
-      let want = [];
-      let like = [];
-      let star = [];
+    let want = [];
+    let like = [];
+    let star = [];
+    let custom = [];
+    let ListCount = [];
 
-      if (data && data.collection && data.collection.length !== 0) {
-        data.collection.forEach((collect) => {
+    if (userData) {
+      if (userData.collection && userData.collection.length !== 0) {
+        userData.collection.forEach((collect) => {
           if (collect.collectName === '想去的地點') {
             want.push(collect);
           } else if (collect.collectName === '喜愛的地點') {
             like.push(collect);
           } else if (collect.collectName === '已加星號的地點') {
             star.push(collect);
+          } else if (
+            collect.collectName !== '已加星號的地點' &&
+            collect.collectName !== '已加星號的地點' &&
+            collect.collectName !== '想去的地點'
+          ) {
+            custom.push(collect);
           }
         });
-
-        setWantList(want);
-        setLikeList(like);
-        setStarList(star);
       }
+      if (customList) {
+        customList.forEach((list, index) => {
+          index = custom.filter((data) => data.collectName === list);
+
+          ListCount.push(index.length);
+        });
+      }
+
+      setCustomListCount(ListCount);
+
+      setWantList(want);
+      setLikeList(like);
+      setStarList(star);
     }
-    reviewData();
-  }, []);
+  }, [customList, userData]);
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => setLoading(false), 300);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   function handleCollectionList(e) {
     dispatch({
@@ -142,44 +216,109 @@ function MemberPage(props) {
       }
     });
 
+  const listNotify = () =>
+    toast('目前此清單沒有任何品項', {
+      style: {
+        borderRadius: '4px',
+        background: '#333',
+        color: '#fff'
+      }
+    });
+
+  function handleDeleteList(e) {
+    removeCollectList(userStatus.email, deleteTarget.id).then(async () => {
+      if (deleteTarget.name > 0) {
+        const deleteData = userData.collection.filter((data) => data.collectName === deleteTarget.id);
+
+        deleteData.forEach((selectedDish) => {
+          removeDishToCollectList(userStatus.email, selectedDish, deleteTarget.id);
+        });
+      }
+    });
+    setComfimShow(false);
+  }
+
+  function showConfim(e) {
+    setDeleteTarget(e.target);
+    setComfimShow(true);
+  }
+
+  function callModal() {
+    props.check(true);
+  }
+
   return (
     <Member>
+      <Confim
+        title={'刪除清單'}
+        description={'確定要刪除這份清單嗎？'}
+        onClick={handleDeleteList}
+        show={comfimShow}
+        control={setComfimShow}
+      ></Confim>
+
       {isMobile && (
         <Icon src="/close_big.png" style={{ position: 'fixed', right: '0px', top: '10px' }} onClick={close}></Icon>
       )}
-
       <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
-      <Separator></Separator>
+      <Separator style={{ width: '90%' }}></Separator>
+      {!userData ? (
+        <InfiniteLoading marginTop={20}></InfiniteLoading>
+      ) : (
+        <CollectLists>
+          {basicLists.map((list, index) => (
+            <ItemBox onClick={list.click.length > 0 ? handleCollectionList : listNotify} key={index}>
+              <CollectListBox id={list.collectName}>
+                <Icon src={list.defaultIcon} id={list.collectName}></Icon>
+                <ItemTitle id={list.collectName} padding={'0 10px 0 0}'}>
+                  {list.collectName}
+                </ItemTitle>
+                <Description id={list.collectName}>({list.click.length > 0 ? list.click.length : 0}) </Description>
+              </CollectListBox>
+            </ItemBox>
+          ))}
+          {customList &&
+            customList.length > 0 &&
+            customList.map((list, index) => (
+              <EditList key={index}>
+                <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
+                  <CollectListBox id={list}>
+                    <Icon src={'/custom.png'} id={list}></Icon>
+                    <ItemTitle
+                      id={list}
+                      padding={'0 10px 0 0}'}
+                      style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '112px'
+                      }}
+                    >
+                      {list}
+                    </ItemTitle>
 
-      <ItemBox onClick={handleCollectionList}>
-        <CollectListBox id="想去的地點">
-          <Icon src={'/falg.png'} id="想去的地點"></Icon>
-          <ItemTitle id="想去的地點" padding={'0 10px 0 0}'}>
-            想去的地點
-          </ItemTitle>
-          <Description id="想去的地點">({wantList.length > 0 ? wantList.length : 0}) </Description>
-        </CollectListBox>
-      </ItemBox>
-      <ItemBox onClick={handleCollectionList}>
-        <CollectListBox id="喜愛的地點">
-          <Icon src={'/heart.png'} id="喜愛的地點"></Icon>
-          <ItemTitle id="喜愛的地點" padding={'0 10px 0 0}'}>
-            喜愛的地點
-          </ItemTitle>
-          <Description id="喜愛的地點">({likeList.length > 0 ? likeList.length : 0}) </Description>
-        </CollectListBox>
-      </ItemBox>
-      <ItemBox onClick={handleCollectionList}>
-        <CollectListBox id="已加星號的地點">
-          <Icon src={'/active_star.png'} id="已加星號的地點"></Icon>
-          <ItemTitle id="已加星號的地點" padding={'0 10px 0 0}'}>
-            已加星號的地點
-          </ItemTitle>
-          <Description id="已加星號的地點">({starList.length > 0 ? starList.length : 0}) </Description>
-        </CollectListBox>
-      </ItemBox>
+                    <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
+                  </CollectListBox>
+                </ItemBox>
+                <CloseButton onClick={showConfim} id={list} name={customListCounts[index]}>
+                  ×
+                </CloseButton>
+              </EditList>
+            ))}
+
+          <ItemBox onClick={callModal}>
+            <CollectListBox id="add">
+              <Icon src="/add.png" id="add" alt="add"></Icon>
+              <ItemTitle id="add" padding={'0 10px 0 0}'}>
+                新增清單
+              </ItemTitle>
+            </CollectListBox>
+          </ItemBox>
+        </CollectLists>
+      )}
+
       <Separator></Separator>
       <ButtonGhostRound
         onClick={(e) => {
@@ -194,6 +333,14 @@ function MemberPage(props) {
           dispatch({
             type: 'setloginToast',
             data: false
+          });
+          dispatch({
+            type: 'setUserState',
+            data: null
+          });
+          dispatch({
+            type: 'setCustomList',
+            data: []
           });
         }}
         margin={'6px 0 16px 0'}

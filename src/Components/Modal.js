@@ -22,10 +22,11 @@ const Overlay = styled.div`
 const ModalContent = styled.article`
   position: fixed;
   top: 50%;
-  left: 15%;
+  left: ${({ left }) => (left ? left + '%' : 15 + '%')};
+
   background-color: white;
   border-radius: 8px;
-  width: 70%;
+  width: ${({ width }) => (width ? width + '%' : 70 + '%')};
   max-height: 80%;
   // padding: 25px;
   box-sizing: border-box;
@@ -61,6 +62,7 @@ const reverseAnimationSettings = {
 };
 
 function Modal(props) {
+  const { width, left } = props;
   const [visible, setVisible] = useState(props.visible || false);
   const overlayRef = useRef(null);
   const contentRef = useRef(null);
@@ -69,7 +71,7 @@ function Modal(props) {
     contentRef.current.animate(contentAnimation, animationSettings);
     overlayRef.current.animate(overlayAnimation, animationSettings);
     setVisible(true);
-  }, [overlayAnimation, contentAnimation]);
+  }, []);
 
   const animateOut = useCallback(async () => {
     await Promise.all([
@@ -77,7 +79,7 @@ function Modal(props) {
       overlayRef.current.animate(overlayAnimation, reverseAnimationSettings).finished
     ]);
     setVisible(false);
-  }, [contentAnimation, overlayAnimation, reverseAnimationSettings]);
+  }, []);
 
   const onCancel = () => {
     props.onCancel && props.onCancel();
@@ -95,7 +97,7 @@ function Modal(props) {
     <ModalContainer>
       <div hidden={!visible}>
         <Overlay ref={overlayRef} onClick={onCancel} />
-        <ModalContent ref={contentRef}>
+        <ModalContent ref={contentRef} width={width} left={left}>
           {props.children}
           <CloseButton onClick={onCancel}>×</CloseButton>
         </ModalContent>

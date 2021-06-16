@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import renderStar from '../Utils/renderStar';
+
+import StarRender from '../Utils/StarRender';
 import Modal from './Modal';
 import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typography';
@@ -116,18 +117,17 @@ function CommentModal({ show }) {
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
 
   const dispatch = useDispatch();
-  let starArry = [];
+
   const userStatus = useSelector((state) => state.userStatus);
   const DishData = useSelector((state) => state.selectedDish);
   const userReviewSet = useSelector((state) => state.userReviewSet);
   const modalShow = useSelector((state) => state.modalShow);
 
-  const [starRating, setStarRating] = React.useState(0);
-  const [commentValue, setCommentValue] = React.useState('');
-  const [imgUrl, setImgUrl] = React.useState([]);
+  const [starRating, setStarRating] = useState(0);
+  const [commentValue, setCommentValue] = useState('');
+  const [imgUrl, setImgUrl] = useState([]);
 
-  // const [commentToast, setCommentToast] = React.useState(false);
-  // const [buttonStatu, setButtonStatu] = useState(false);
+  const star = StarRender(starRating, { width: 26, height: 26 });
 
   function handleClose() {
     dispatch({
@@ -143,19 +143,16 @@ function CommentModal({ show }) {
     }
   }, [userReviewSet]);
 
-  renderStar(starRating, starArry);
-
   function handleStarRating(e) {
     if (e.target.id !== '') {
       setStarRating(e.target.id);
-      // setButtonStatu(true);
     }
   }
 
   function handlePhotoDelete(e) {
     const target = e.target.id;
-    let newPhotoArray = [...imgUrl];
 
+    let newPhotoArray = [...imgUrl];
     newPhotoArray.splice(target, 1);
 
     setImgUrl(newPhotoArray);
@@ -163,8 +160,10 @@ function CommentModal({ show }) {
 
   const bindUploadPhotoBtn = async (e) => {
     const url = upLoadPhotoToFirebase(e);
+
     Promise.all(url).then((res) => {
       let newPhotoArray = [...imgUrl];
+
       newPhotoArray.push(...res);
       setImgUrl(newPhotoArray);
     });
@@ -251,16 +250,16 @@ function CommentModal({ show }) {
           <Description padding={'4px 0 0 0'}>店家：{DishData.storeName}</Description>
           <Separator></Separator>
           <Content>{userStatus.displayName}</Content>
-          <RatingDiv onClick={handleStarRating}>{starArry}</RatingDiv>
+          <RatingDiv onClick={handleStarRating}>{star}</RatingDiv>
 
           <SubTitle padding={'0 0 6px 0'}>我要留言</SubTitle>
-          {!userReviewSet ? (
-            <Textarea rows={3} placeholder="分享你的心得或感想" onChange={handleInputChange}></Textarea>
-          ) : (
-            <Textarea rows={3} onChange={handleInputChange}>
-              {userReviewSet.comment}
-            </Textarea>
-          )}
+
+          <Textarea
+            rows={3}
+            placeholder="分享你的心得或感想"
+            onChange={handleInputChange}
+            value={commentValue}
+          ></Textarea>
 
           <input
             type="file"
@@ -274,18 +273,16 @@ function CommentModal({ show }) {
             <UpLoadImg style={{ borderRadius: '6px' }} onClick={handleInputClick}>
               <img src="/uploadbtn.png" alt=""></img>
             </UpLoadImg>
-            {imgUrl ? (
-              imgUrl.map((url, index) => (
-                <Div>
-                  <Delete onClick={handlePhotoDelete} id={index}>
-                    ×
-                  </Delete>
-                  <Img src={url} alt=""></Img>
-                </Div>
-              ))
-            ) : (
-              <></>
-            )}
+            {imgUrl
+              ? imgUrl.map((url, index) => (
+                  <Div key={index}>
+                    <Delete onClick={handlePhotoDelete} id={index}>
+                      ×
+                    </Delete>
+                    <Img src={url} alt=""></Img>
+                  </Div>
+                ))
+              : null}
           </RatingDiv>
 
           <Footer>

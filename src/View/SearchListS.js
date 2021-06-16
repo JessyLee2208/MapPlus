@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import StoreCardS from '../Components/StoreCardS';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { deviceSize } from '../responsive/responsive';
 
 const UserPositionCheck = styled.div`
@@ -59,6 +59,7 @@ function SearchListS(props) {
   const [scrollXLeft, setScrollXLeft] = useState(null);
   const [scrollXRight, setScrollXRight] = useState(null);
   const [iconShow, setIconShow] = useState(false);
+  const dispatch = useDispatch();
 
   const executeScrollRight = () => {
     myRef.current.scrollBy({ left: 175, top: 0, behavior: 'smooth' });
@@ -81,6 +82,10 @@ function SearchListS(props) {
     if (!iconShow) {
       setIconShow(true);
     }
+    dispatch({
+      type: 'setMarkerHover',
+      data: null
+    });
   }
   function handleHoverOutEvent() {
     if (iconShow) {
@@ -94,17 +99,13 @@ function SearchListS(props) {
         <UserPositionCheck onClick={executeScrollRight} style={{ right: '8px', display: iconShow ? 'flex' : 'none' }}>
           <img src="/right.png" alt=""></img>
         </UserPositionCheck>
-      ) : (
-        <></>
-      )}
-      {/* {iconShow && */}
+      ) : null}
+
       {scrollXLeft && scrollXLeft > 0 ? (
         <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px', display: iconShow ? 'flex' : 'none' }}>
           <img src="/left.png" alt=""></img>
         </UserPositionCheck>
-      ) : (
-        <></>
-      )}
+      ) : null}
       <InformationBoxS id="smallCardList" ref={myRef}>
         {storeData.length > 1 &&
           storeData.map((product, key) => (

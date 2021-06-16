@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import renderStar from '../Utils/renderStar';
+
 import { useSelector, useDispatch } from 'react-redux';
 import SearchMenuCard from './SearchMenuCard';
 import { getStoreMenu } from '../Utils/fetch';
 import getMorereDetail from '../Utils/getMoreDetail';
 import { getMenuData } from '../Utils/firebase';
+
+import StarRender from '../Utils/StarRender';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -97,18 +99,20 @@ const CheckIcon = styled.img`
 `;
 
 function StoreCard(props) {
-  let starArry = [];
-  let priceLevel = [];
-  let typesCheck = props.product.types.includes('food');
-  let showType = <div></div>;
-  let OpenStatu = <div></div>;
   const searchMenu = useSelector((state) => state.searchMenu);
   const [menu, setmenu] = React.useState(null);
-  let menuArray = [];
   const dispatch = useDispatch();
+
+  let priceLevel = [];
+  let typesCheck = props.product.types.includes('food');
+
+  let timestamp = '';
+
+  const deliverCgeck = props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl;
 
   useEffect(() => {
     if (searchMenu) {
+      let menuArray = [];
       searchMenu.forEach((data) => {
         if (data.storeName === props.product.name) {
           menuArray.push(data);
@@ -116,33 +120,9 @@ function StoreCard(props) {
       });
       setmenu(menuArray);
     }
-  }, []);
+  }, [searchMenu, props.product]);
 
-  renderStar(props.product.rating, starArry);
-  // DeliverURLCheck(props.product.deliver.foodPandaUrl, props.product.deliver.uberEatUrl, deliverSite, deliverSiteTag);
-  if (typesCheck) {
-    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
-      showType = (
-        <RatingDiv id={props.id}>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-          <Info>．</Info>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-          <Info>．</Info>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>外送</Info>
-        </RatingDiv>
-      );
-    } else {
-      showType = (
-        <RatingDiv>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-          <Info>．</Info>
-          <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-          <Info>．</Info>
-          <CheckIcon src="/false.png"></CheckIcon> <Info>外送</Info>
-        </RatingDiv>
-      );
-    }
-  }
+  const star = StarRender(props.product.rating, { width: 16, height: 16 });
 
   if (props.product.price_level !== undefined) {
     for (let i = 0; i < props.product.price_level; i++) {
@@ -155,16 +135,10 @@ function StoreCard(props) {
     const today = new Date().getDay();
 
     if (props.product.peridos) {
-      const timestamp = props.product.peridos[today].close.time.substring(0, 2);
-      OpenStatu = <Info id={props.id}>營業至 下午{timestamp}:00</Info>;
+      timestamp = props.product.peridos[today].close.time.substring(0, 2);
     } else if (props.product.opening_hours.weekday_text) {
-      const timestamp = props.product.opening_hours.weekday_text[today].slice(5);
-      OpenStatu = <Info id={props.id}>營業中：{timestamp}</Info>;
-    } else {
-      OpenStatu = <Info id={props.id}>營業中</Info>;
+      timestamp = props.product.opening_hours.weekday_text[today].slice(5);
     }
-  } else {
-    OpenStatu = <Info></Info>;
   }
 
   function handleStoreListClick(e) {
@@ -226,20 +200,36 @@ function StoreCard(props) {
           <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
           <RatingDiv id={props.id}>
             <Info id={props.id}>{props.product.rating}</Info>
-            <StarBox id={props.id}>{starArry}</StarBox>
+
+            <StarBox id={props.id}>{star}</StarBox>
             <Info id={props.id}>({props.product.user_ratings_total})</Info>
             {props.product.price_level ? (
               <PriceLevel>
                 <Info>・</Info> {priceLevel}
               </PriceLevel>
-            ) : (
-              <div></div>
-            )}
+            ) : null}
           </RatingDiv>
           <Info id={props.id}>{props.product.formatted_address}</Info>
           <Info id={props.id}>{props.product.formatted_phone_number}</Info>
-          {OpenStatu}
-          {showType}
+          {props.product.opening_hours ? (
+            props.product.peridos ? (
+              <Info id={props.id}>營業至 下午{timestamp}:00</Info>
+            ) : props.product.opening_hours.weekday_text ? (
+              <Info id={props.id}>營業時間：{timestamp}</Info>
+            ) : (
+              <Info id={props.id}>營業中</Info>
+            )
+          ) : null}
+
+          {typesCheck && (
+            <RatingDiv id={props.id}>
+              <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
+              <Info>．</Info>
+              <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
+              <Info>．</Info>
+              <CheckIcon src={deliverCgeck ? '/true.png' : '/false.png'}></CheckIcon> <Info>外送</Info>
+            </RatingDiv>
+          )}
         </StoreInfo>
         {props.product.photos && props.product.photos.length > 0 ? (
           <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>

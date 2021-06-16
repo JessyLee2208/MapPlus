@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import renderStar from '../Utils/renderStar';
+
 import { getDishData } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { SubItemTitle } from './UIComponents/Typography';
 import { deviceSize } from '../responsive/responsive';
+import StarRender from '../Utils/StarRender';
 
 const Menu = styled.div`
   display: grid;
@@ -92,9 +93,8 @@ const MenuImg = styled.img`
 function SearchMenuCard(props) {
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const dispatch = useDispatch();
-  let starArry = [];
 
-  renderStar(props.content.rating, starArry);
+  const star = StarRender(props.content.rating, { width: 16, height: 16 });
 
   function click(e) {
     getDishData(props.content.name).then((res) => {
@@ -136,7 +136,7 @@ function SearchMenuCard(props) {
             /5
           </RatingTitle>
         </Box>
-        <RatingDiv id={props.content.name}>{starArry}</RatingDiv>
+        <RatingDiv id={props.content.name}>{star}</RatingDiv>
       </Box>
     </Menu>
   );
