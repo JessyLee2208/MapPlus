@@ -8,9 +8,8 @@ import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typography';
 import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
 import useMediaQuery from '../Utils/useMediaQuery';
-import { deviceSize } from '../responsive/responsive';
-
-import toast from 'react-hot-toast';
+import { deviceSize } from '../properties/properties';
+import { commentSuccessnNtify, editSuccessNotify } from '../Utils/toasts';
 
 const Separator = styled.div`
   width: auto;
@@ -195,7 +194,7 @@ function CommentModal({ show }) {
           type: 'upDateSearchMenu',
           data: res
         });
-        notify();
+        commentSuccessnNtify();
       });
     } else {
       let oldRating = userReviewSet.rating;
@@ -209,7 +208,7 @@ function CommentModal({ show }) {
           type: 'upDateSearchMenu',
           data: res
         });
-        notifyEdit();
+        editSuccessNotify();
       });
     }
 
@@ -224,23 +223,6 @@ function CommentModal({ show }) {
   function handleInputClick() {
     ref.current.click();
   }
-
-  const notify = () =>
-    toast('評論成功', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
-  const notifyEdit = () =>
-    toast('評論編輯成功', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
 
   return (
     <>

@@ -20,7 +20,7 @@ const FilterListBox = styled.div`
   margin: 0;
   padding: 8px 16px 10px 12px;
   align-items: center;
-
+  cursor: pointer;
   &:hover {
     background: #eef0f1;
   }

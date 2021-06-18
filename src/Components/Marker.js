@@ -3,6 +3,7 @@ import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMenuData } from '../Utils/firebase';
 import getMorereDetail from '../Utils/getMoreDetail';
+import { collectionBasicLists } from '../properties/properties';
 
 function Markers(props) {
   const dispatch = useDispatch();
@@ -118,18 +119,39 @@ function Markers(props) {
     });
   };
 
-  if (props.tag === '想去的地點') {
-    url = '/falg_marker.png';
-  } else if (props.tag === '喜愛的地點') {
-    url = '/heart_marker.png';
-  } else if (props.tag === '已加星號的地點') {
-    url = '/star_marker.png';
-  } else if (props.tag !== '想去的地點' || props.tag !== '喜愛的地點' || props.tag !== '已加星號的地點') {
+  if (props.tag === collectionBasicLists.want.collectName) {
+    url = collectionBasicLists.want.markerIcon;
+  } else if (props.tag === collectionBasicLists.like.collectName) {
+    url = collectionBasicLists.like.markerIcon;
+  } else if (props.tag === collectionBasicLists.star.collectName) {
+    url = collectionBasicLists.star.markerIcon;
+  } else {
     url = '/custom_marker.png';
   }
   const markeronLoad = useCallback((marker) => {
     markerRef.current = marker;
   }, []);
+
+  function checkMarkType() {
+    if (storeData.length === 1 && !selectedStore)
+      return { icon: '/Selectedmarker.png', size: new window.google.maps.Size(26, 38) };
+    if (selectedStore && selectedStore.place_id === props.marker.place_id)
+      return { icon: '/Selectedmarker.png', size: new window.google.maps.Size(26, 38) };
+    if (storeHover && storeHover.place_id === props.marker.place_id)
+      return { icon: '/Selectedmarker.png', size: new window.google.maps.Size(26, 38) };
+
+    return { icon: '/marker.png', size: new window.google.maps.Size(20, 30) };
+  }
+
+  const markerChangeable = checkMarkType();
+
+  if (collectionMarks.length !== 0) {
+  }
+
+  // function ponstionHandler() {
+
+  //   const markerPostion = { lat: props.marker.lat, lng: props.marker.lng };
+  // }
 
   return collectionMarks.length !== 0 ? (
     <Marker
@@ -158,38 +180,8 @@ function Markers(props) {
       }}
       onMouseOver={handleMarkerHover}
       icon={{
-        url:
-          selectedStore && storeHover
-            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
-              ? '/Selectedmarker.png'
-              : '/marker.png'
-            : storeData.length === 1 && !selectedStore
-            ? '/Selectedmarker.png'
-            : storeHover
-            ? storeHover.place_id === props.marker.place_id
-              ? '/Selectedmarker.png'
-              : '/marker.png'
-            : selectedStore
-            ? selectedStore.place_id === props.marker.place_id
-              ? '/Selectedmarker.png'
-              : '/marker.png'
-            : '/marker.png',
-        scaledSize:
-          selectedStore && storeHover
-            ? selectedStore.place_id === props.marker.place_id || storeHover.place_id === props.marker.place_id
-              ? new window.google.maps.Size(26, 38)
-              : new window.google.maps.Size(20, 30)
-            : storeHover
-            ? storeHover.place_id === props.marker.place_id
-              ? new window.google.maps.Size(26, 38)
-              : new window.google.maps.Size(20, 30)
-            : selectedStore
-            ? selectedStore.place_id === props.marker.place_id
-              ? new window.google.maps.Size(26, 38)
-              : new window.google.maps.Size(20, 30)
-            : storeData.length === 1
-            ? new window.google.maps.Size(26, 38)
-            : new window.google.maps.Size(20, 30)
+        url: markerChangeable.icon,
+        scaledSize: markerChangeable.size
       }}
     />
   );

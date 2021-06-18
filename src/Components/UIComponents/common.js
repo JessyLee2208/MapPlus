@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { deviceSize } from '../../responsive/responsive';
+import { deviceSize } from '../../properties/properties';
 
 const SearchBg = styled.div`
   background-image: linear-gradient(to bottom, rgb(19 19 19 / 50%), transparent 70%);

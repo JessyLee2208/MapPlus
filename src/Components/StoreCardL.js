@@ -8,6 +8,7 @@ import getMorereDetail from '../Utils/getMoreDetail';
 import { getMenuData } from '../Utils/firebase';
 
 import StarRender from '../Utils/StarRender';
+import { tagType } from '../properties/properties';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -100,6 +101,8 @@ const CheckIcon = styled.img`
 
 function StoreCard(props) {
   const searchMenu = useSelector((state) => state.searchMenu);
+  // const collectionMarks = useSelector((state) => state.collectionMarks);
+
   const [menu, setmenu] = React.useState(null);
   const dispatch = useDispatch();
 
@@ -108,7 +111,7 @@ function StoreCard(props) {
 
   let timestamp = '';
 
-  const deliverCgeck = props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl;
+  const deliverCheck = props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl;
 
   useEffect(() => {
     if (searchMenu) {
@@ -148,23 +151,32 @@ function StoreCard(props) {
     });
     dispatch({
       type: 'setSelectedTab',
-      data: 'information'
+      data: tagType.default
     });
 
-    if (e.target.name === 'menu') {
+    if (e.target.name === tagType.second) {
       dispatch({
         type: 'setSelectedTab',
-        data: 'menu'
+        data: tagType.second
       });
     }
-    getStoreMenu(props.product.deliver);
-    getMorereDetail(props.product, props.service).then((res) => {
+
+    if (!props.product.reviews && !props.product.deliver) {
+      getStoreMenu(props.product.deliver);
+      getMorereDetail(props.product, props.service).then((res) => {
+        dispatch({
+          type: 'setSelectedStore',
+          data: res
+        });
+      });
+    } else {
       dispatch({
         type: 'setSelectedStore',
-        data: res
+        data: props.product
       });
-    });
-    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
+    }
+
+    if (deliverCheck) {
       function setData(data) {
         dispatch({
           type: 'setMenuData',
@@ -203,43 +215,44 @@ function StoreCard(props) {
 
             <StarBox id={props.id}>{star}</StarBox>
             <Info id={props.id}>({props.product.user_ratings_total})</Info>
-            {props.product.price_level ? (
+            {props.product.price_level && (
               <PriceLevel>
                 <Info>・</Info> {priceLevel}
               </PriceLevel>
-            ) : null}
+            )}
           </RatingDiv>
           <Info id={props.id}>{props.product.formatted_address}</Info>
           <Info id={props.id}>{props.product.formatted_phone_number}</Info>
-          {props.product.opening_hours ? (
-            props.product.peridos ? (
+          {props.product.opening_hours &&
+            (props.product.peridos ? (
               <Info id={props.id}>營業至 下午{timestamp}:00</Info>
             ) : props.product.opening_hours.weekday_text ? (
               <Info id={props.id}>營業時間：{timestamp}</Info>
             ) : (
               <Info id={props.id}>營業中</Info>
-            )
-          ) : null}
+            ))}
 
           {typesCheck && (
             <RatingDiv id={props.id}>
-              <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
+              <CheckIcon src="/true.png" /> <Info>內用</Info>
               <Info>．</Info>
-              <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
+              <CheckIcon src="/true.png" />
+              <Info>外帶</Info>
               <Info>．</Info>
-              <CheckIcon src={deliverCgeck ? '/true.png' : '/false.png'}></CheckIcon> <Info>外送</Info>
+              <CheckIcon src={deliverCheck ? '/true.png' : '/false.png'} />
+              <Info>外送</Info>
             </RatingDiv>
           )}
         </StoreInfo>
         {props.product.photos && props.product.photos.length > 0 ? (
-          <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>
+          <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id} />
         ) : props.product.photo ? (
-          <StoreImg alt="" src={props.product.photo[0]} id={props.id}></StoreImg>
+          <StoreImg alt="" src={props.product.photo[0]} id={props.id} />
         ) : (
-          <WithoutImg></WithoutImg>
+          <WithoutImg />
         )}
       </Store>
-      {menu ? menu.map((data, key) => <SearchMenuCard key={key} content={data}></SearchMenuCard>) : <></>}
+      {menu && menu.map((data, key) => <SearchMenuCard key={key} content={data} />)}
     </StoreL>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { deviceSize } from '../../responsive/responsive';
+import { deviceSize } from '../../properties/properties';
 
 const Pagetitle = styled.div`
   font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
@@ -145,6 +145,23 @@ const LinkTag = styled.a`
   }
 `;
 
+const LinkInfo = styled.a`
+  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #1e1e1e;
+  margin: 1px;
+  letter-spacing: 0.5px;　
+  text-decoration:none;
+
+  cursor: pointer;
+`;
+
 function PageTitle(props) {
   const { padding } = props;
   return (
@@ -223,4 +240,13 @@ function Link(props) {
     </LinkTag>
   );
 }
-export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title, AlertText };
+function InfoLink(props) {
+  const { padding, color, name } = props;
+  return (
+    <LinkInfo padding={padding} color={color} name={name}>
+      {props.children}
+    </LinkInfo>
+  );
+}
+
+export { PageTitle, Description, SubTitle, ItemTitle, Content, SubItemTitle, Link, H3Title, AlertText, InfoLink };

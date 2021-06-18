@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 
 import StoreCardL from '../Components/StoreCardL';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 import SearchMenuCard from '../Components/SearchMenuCard';
 import FilterBox from '../Components/FilterBox';
 import { ItemTitle } from '../Components/UIComponents/Typography';
@@ -58,38 +58,45 @@ function SearchList({ service }) {
   const searchMenu = useSelector((state) => state.searchMenu);
   const [visibleType, setVisibleType] = useState(false);
   const [visibleOpt, setVisibleOpt] = useState(false);
-  const [ratingType, setRatingType] = useState('upToDown');
-  const [checkType, setCheckType] = useState('store');
+  const [ratingType, setRatingType] = useState(requirement.one.type);
+  const [checkType, setCheckType] = useState(species.one.type);
 
   const [store, setStore] = useState(storeData);
   const [menu, setMenu] = useState(searchMenu);
 
   const dispatch = useDispatch();
 
-  // let listRequirements = Object.values(requirement);
-  // let listSpecies = Object.values(species);
-
   useEffect(() => {
-    if (checkType === species.one.type && ratingType === requirement.one.type) {
-      chronologicalUpToDown(storeData, 'rating', setStore);
-    } else if (checkType === species.one.type && ratingType === requirement.two.type) {
-      chronologicalDownToUp(storeData, 'rating', setStore);
+    function checkRatingType() {
+      if (ratingType === requirement.one.type || ratingType === requirement.two.type) {
+        return 'rating';
+      } else if (ratingType === requirement.three.type || ratingType === requirement.four.type) {
+        return 'user_ratings_total';
+      }
     }
-    if (checkType === species.two.type && ratingType === requirement.one.type) {
-      chronologicalUpToDown(searchMenu, 'rating', setMenu);
-    } else if (checkType === species.two.type && ratingType === requirement.two.type) {
-      chronologicalDownToUp(searchMenu, 'rating', setMenu);
+
+    function checkSort() {
+      if (ratingType === requirement.one.type || ratingType === requirement.three.type) {
+        return true;
+      } else if (ratingType === requirement.two.type || ratingType === requirement.four.type) {
+        return false;
+      }
     }
-    ////////////////////////////
-    if (checkType === species.one.type && ratingType === requirement.three.type) {
-      chronologicalUpToDown(storeData, 'user_ratings_total', setStore);
-    } else if (checkType === species.one.type && ratingType === requirement.four.type) {
-      chronologicalDownToUp(storeData, 'user_ratings_total', setStore);
+
+    function checkSpeciesType() {
+      if (checkType === species.one.type) {
+        return { data: storeData, state: setStore };
+      } else if (checkType === species.two.type) {
+        return { data: searchMenu, state: setMenu };
+      }
     }
-    if (checkType === species.two.type && ratingType === requirement.three.type) {
-      chronologicalUpToDown(searchMenu, 'user_ratings_total', setMenu);
-    } else if (checkType === species.two.type && ratingType === requirement.four.type) {
-      chronologicalDownToUp(searchMenu, 'user_ratings_total', setMenu);
+
+    const rule = checkSpeciesType();
+
+    if (checkSort()) {
+      chronologicalUpToDown(rule.data, checkRatingType(), rule.state);
+    } else {
+      chronologicalDownToUp(rule.data, checkRatingType(), rule.state);
     }
   }, [checkType, ratingType, searchMenu, storeData]);
 

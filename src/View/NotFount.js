@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { SubTitle, Description } from '../Components/UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 
 const InformationBox = styled.div`
   background: #fff;
@@ -12,7 +12,6 @@ const InformationBox = styled.div`
   top: 78px;
   overflow: auto;
   padding-top: 20px;
-  //   margin: 20px;
 
   @media screen and (max-width: ${deviceSize.mobile}px) {
     width: 100vw;

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { deviceSize } from '../../responsive/responsive';
+import { deviceSize } from '../../properties/properties';
 
 const ButtonprimaryFlat = styled.button`
   border: none;

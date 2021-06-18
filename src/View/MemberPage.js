@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
+
 import styled from 'styled-components';
-import { deviceSize } from '../responsive/responsive';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typography';
-import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../Utils/firebase';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
-import useMediaQuery from '../Utils/useMediaQuery';
-import toast from 'react-hot-toast';
 import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
-import Confim from '../Components/Confim';
+
+import useMediaQuery from '../Utils/useMediaQuery';
+import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../Utils/firebase';
 import useUserDataCheck from '../Utils/useUserDataCheck';
+import { logOutNotify, noListNotify } from '../Utils/toasts';
+
+import Confim from '../Components/Confim';
+import { deviceSize, collectionBasicLists } from '../properties/properties';
 
 const Member = styled.div`
   position: fixed;
@@ -125,25 +129,21 @@ function MemberPage(props) {
   const userStatus = useSelector((state) => state.userStatus);
   const customList = useSelector((state) => state.customList);
 
+  const userData = useUserDataCheck();
   const dispatch = useDispatch();
 
   const [wantList, setWantList] = useState([]);
   const [likeList, setLikeList] = useState([]);
   const [starList, setStarList] = useState([]);
   const [customListCounts, setCustomListCount] = useState([]);
-  // const [loading, setLoading] = useState(true);
-
   const [deleteTarget, setDeleteTarget] = useState('');
-
   const [comfimShow, setComfimShow] = useState(false);
 
-  const basicLists = [
-    { collectName: '想去的地點', defaultIcon: '/falg.png', click: wantList },
-    { collectName: '喜愛的地點', defaultIcon: '/heart.png', click: likeList },
-    { collectName: '已加星號的地點', defaultIcon: '/active_star.png', click: starList }
-  ];
-
-  const userData = useUserDataCheck();
+  let basicLists = collectionBasicLists;
+  basicLists.want.check = wantList;
+  basicLists.like.check = likeList;
+  basicLists.star.check = starList;
+  let basicListsToArray = Object.values(basicLists);
 
   useEffect(() => {
     let want = [];
@@ -152,28 +152,22 @@ function MemberPage(props) {
     let custom = [];
     let ListCount = [];
 
-    if (userData) {
-      if (userData.collection && userData.collection.length !== 0) {
-        userData.collection.forEach((collect) => {
-          if (collect.collectName === '想去的地點') {
-            want.push(collect);
-          } else if (collect.collectName === '喜愛的地點') {
-            like.push(collect);
-          } else if (collect.collectName === '已加星號的地點') {
-            star.push(collect);
-          } else if (
-            collect.collectName !== '已加星號的地點' &&
-            collect.collectName !== '已加星號的地點' &&
-            collect.collectName !== '想去的地點'
-          ) {
-            custom.push(collect);
-          }
-        });
-      }
+    if (userData && userData.collection && userData.collection.length !== 0) {
+      userData.collection.forEach((collect) => {
+        if (collect.collectName === collectionBasicLists.want.collectName) {
+          want.push(collect);
+        } else if (collect.collectName === collectionBasicLists.like.collectName) {
+          like.push(collect);
+        } else if (collect.collectName === collectionBasicLists.star.collectName) {
+          star.push(collect);
+        } else {
+          custom.push(collect);
+        }
+      });
+
       if (customList) {
         customList.forEach((list, index) => {
           index = custom.filter((data) => data.collectName === list);
-
           ListCount.push(index.length);
         });
       }
@@ -207,24 +201,6 @@ function MemberPage(props) {
     props.show(false);
   }
 
-  const notify = () =>
-    toast('成功登出', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
-
-  const listNotify = () =>
-    toast('目前此清單沒有任何品項', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
-
   function handleDeleteList(e) {
     removeCollectList(userStatus.email, deleteTarget.id).then(async () => {
       if (deleteTarget.name > 0) {
@@ -247,6 +223,15 @@ function MemberPage(props) {
     props.check(true);
   }
 
+  const logOutOnClickHandler = (e) => {
+    googleAccountLogOut(e, dispatch);
+
+    logOutNotify();
+    dispatch({
+      type: 'setlogOutData'
+    });
+  };
+
   return (
     <Member>
       <Confim
@@ -255,62 +240,60 @@ function MemberPage(props) {
         onClick={handleDeleteList}
         show={comfimShow}
         control={setComfimShow}
-      ></Confim>
+      />
 
       {isMobile && (
-        <Icon src="/close_big.png" style={{ position: 'fixed', right: '0px', top: '10px' }} onClick={close}></Icon>
+        <Icon src="/close_big.png" style={{ position: 'fixed', right: '0px', top: '10px' }} onClick={close} />
       )}
-      <AuthorImg src={userStatus.photoURL} alt=""></AuthorImg>
+      <AuthorImg src={userStatus.photoURL} alt="" />
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
-      <Separator style={{ width: '90%' }}></Separator>
+      <Separator style={{ width: '90%' }} />
       {!userData ? (
-        <InfiniteLoading marginTop={20}></InfiniteLoading>
+        <InfiniteLoading marginTop={20} />
       ) : (
         <CollectLists>
-          {basicLists.map((list, index) => (
-            <ItemBox onClick={list.click.length > 0 ? handleCollectionList : listNotify} key={index}>
+          {basicListsToArray.map((list, index) => (
+            <ItemBox onClick={list.check.length > 0 ? handleCollectionList : noListNotify} key={index}>
               <CollectListBox id={list.collectName}>
-                <Icon src={list.defaultIcon} id={list.collectName}></Icon>
+                <Icon src={list.defaultIcon} id={list.collectName} />
                 <ItemTitle id={list.collectName} padding={'0 10px 0 0}'}>
                   {list.collectName}
                 </ItemTitle>
-                <Description id={list.collectName}>({list.click.length > 0 ? list.click.length : 0}) </Description>
+                <Description id={list.collectName}>({list.check.length > 0 ? list.check.length : 0}) </Description>
               </CollectListBox>
             </ItemBox>
           ))}
-          {customList &&
-            customList.length > 0 &&
-            customList.map((list, index) => (
-              <EditList key={index}>
-                <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : listNotify}>
-                  <CollectListBox id={list}>
-                    <Icon src={'/custom.png'} id={list}></Icon>
-                    <ItemTitle
-                      id={list}
-                      padding={'0 10px 0 0}'}
-                      style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        maxWidth: '112px'
-                      }}
-                    >
-                      {list}
-                    </ItemTitle>
+          {customList?.map((list, index) => (
+            <EditList key={index}>
+              <ItemBox onClick={customListCounts[index] > 0 ? handleCollectionList : noListNotify}>
+                <CollectListBox id={list}>
+                  <Icon src={'/custom.png'} id={list} />
+                  <ItemTitle
+                    id={list}
+                    padding={'0 10px 0 0}'}
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '112px'
+                    }}
+                  >
+                    {list}
+                  </ItemTitle>
 
-                    <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
-                  </CollectListBox>
-                </ItemBox>
-                <CloseButton onClick={showConfim} id={list} name={customListCounts[index]}>
-                  ×
-                </CloseButton>
-              </EditList>
-            ))}
+                  <Description id={list}>({customListCounts.length > 0 ? customListCounts[index] : 0})</Description>
+                </CollectListBox>
+              </ItemBox>
+              <CloseButton onClick={showConfim} id={list} name={customListCounts[index]}>
+                ×
+              </CloseButton>
+            </EditList>
+          ))}
 
           <ItemBox onClick={callModal}>
             <CollectListBox id="add">
-              <Icon src="/add.png" id="add" alt="add"></Icon>
+              <Icon src="/add.png" id="add" alt="add" />
               <ItemTitle id="add" padding={'0 10px 0 0}'}>
                 新增清單
               </ItemTitle>
@@ -319,32 +302,8 @@ function MemberPage(props) {
         </CollectLists>
       )}
 
-      <Separator></Separator>
-      <ButtonGhostRound
-        onClick={(e) => {
-          googleAccountLogOut(e, dispatch);
-
-          notify();
-
-          dispatch({
-            type: 'setCollectionTitle',
-            data: false
-          });
-          dispatch({
-            type: 'setloginToast',
-            data: false
-          });
-          dispatch({
-            type: 'setUserState',
-            data: null
-          });
-          dispatch({
-            type: 'setCustomList',
-            data: []
-          });
-        }}
-        margin={'6px 0 16px 0'}
-      >
+      <Separator />
+      <ButtonGhostRound onClick={logOutOnClickHandler} margin={'6px 0 16px 0'}>
         登出
       </ButtonGhostRound>
     </Member>

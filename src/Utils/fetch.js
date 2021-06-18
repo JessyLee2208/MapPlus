@@ -21,7 +21,6 @@ function getStoreUrl(placeName, place) {
       ...place,
       opening_hours: place.opening_hours
         ? {
-            isOpen: place.opening_hours.isOpen(),
             weekday_text: place.weekday_text || '',
             periods: place.periods || ''
           }

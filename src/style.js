@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { deviceSize } from './responsive/responsive';
+import { deviceSize } from './properties/properties';
 
 const SearchInput = styled.input`
   brackground: none;

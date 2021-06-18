@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import StoreCardS from '../Components/StoreCardS';
 import { useSelector, useDispatch } from 'react-redux';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 
 const UserPositionCheck = styled.div`
   width: 50px;

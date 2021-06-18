@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userReviewGet } from '../Utils/firebase';
 import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
 import { ItemTitle, Description } from './UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 
 const Menu = styled.div`
   background: #ffffff;

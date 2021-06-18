@@ -8,7 +8,7 @@ import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents
 import { PageTitle, SubTitle, SubItemTitle, H3Title } from '../Components/UIComponents/Typography';
 
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize, collectionBasicLists } from '../properties/properties';
 import useUserDataCheck from '../Utils/useUserDataCheck';
 
 const Separator = styled.div`
@@ -170,6 +170,7 @@ function DishDetail(props) {
   const collectData = useSelector((state) => state.collectData);
   const userReviewSet = useSelector((state) => state.userReviewSet);
   const customList = useSelector((state) => state.customList);
+  const selectedStore = useSelector((state) => state.selectedStore);
 
   const dispatch = useDispatch();
 
@@ -177,14 +178,11 @@ function DishDetail(props) {
   const [select, selected] = useState(false);
 
   let customArray = [];
-  let newRating = selectedDish.rating.toFixed(1);
-  let noImg = '/noImg.png';
+  const newRating = selectedDish.rating.toFixed(1);
+  const noImg = '/noImg.png';
 
-  const basicLists = [
-    { collectName: '想去的地點', defaultIcon: '/falg.png', activeIcon: '/falg_select.png' },
-    { collectName: '喜愛的地點', defaultIcon: '/heart.png', activeIcon: '/heart_select.png' },
-    { collectName: '已加星號的地點', defaultIcon: '/active_star.png', activeIcon: '/star_select.png' }
-  ];
+  const basicLists = collectionBasicLists;
+  const basicListsToArray = Object.values(basicLists);
 
   const infoStyled = {
     fontWeight: '600',
@@ -192,6 +190,8 @@ function DishDetail(props) {
     margin: '0px 18px 0 0',
     cursor: 'pointer'
   };
+
+  console.log(selectedStore);
 
   useEffect(() => {
     const unsubscribe = getAllDishReviews(selectedDish, callback);
@@ -228,7 +228,7 @@ function DishDetail(props) {
             });
       }
 
-      if (userData && userData.collection && userData.collection.length !== 0) {
+      if (userData?.collection?.length !== 0) {
         let collectionArray = [];
         userData.collection.forEach((collect) => {
           if (collect.storeCollectionID === selectedDish.storeCollectionID && collect.name === selectedDish.name) {
@@ -294,17 +294,10 @@ function DishDetail(props) {
   }
 
   if (collectData && collectData.length > 0) {
-    collectData.forEach((data, key) => {
+    collectData.forEach((data) => {
       if (customList) {
         let result = customList.find((check) => check === data.collectName);
         result !== undefined && customArray.push(result);
-      }
-
-      if (
-        data.collectName === '想去的地點' ||
-        data.collectName === '喜愛的地點' ||
-        data.collectName === '已加星號的地點'
-      ) {
       }
     });
   }
@@ -377,28 +370,25 @@ function DishDetail(props) {
       </TopDiv>
 
       <DivBox>
-        {collectData &&
-          collectData.length > 0 &&
-          collectData.map((data, key) =>
-            basicLists.map(
-              (list) =>
-                data.collectName === list.collectName && (
-                  <RatingDiv key={key}>
-                    <Icon src={list.activeIcon} />
-                    <CollectionBox>
-                      <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
-                      <Info style={infoStyled} onClick={handleCollectionList} id={list.collectName}>
-                        查看清單
-                      </Info>
-                    </CollectionBox>
-                  </RatingDiv>
-                )
-            )
-          )}
+        {collectData?.map((data, key) =>
+          basicListsToArray.map(
+            (list) =>
+              data.collectName === list.collectName && (
+                <RatingDiv key={key}>
+                  <Icon src={list.activeIcon} />
+                  <CollectionBox>
+                    <Info style={{ fontSize: '15px' }}>已儲存於「{data.collectName}」</Info>
+                    <Info style={infoStyled} onClick={handleCollectionList} id={list.collectName}>
+                      查看清單
+                    </Info>
+                  </CollectionBox>
+                </RatingDiv>
+              )
+          )
+        )}
 
-        {collectData.length > 0 &&
-          customArray.length > 0 &&
-          customArray.map((list, key) => (
+        {collectData?.length > 0 &&
+          customArray?.map((list, key) => (
             <RatingDiv key={key}>
               <Icon src="/custom.png" />
               <CollectionBox>
@@ -421,14 +411,14 @@ function DishDetail(props) {
         </div>
       )}
 
-      {!userReviewSet ? (
-        <ButtonGhostRound onClick={callModal} style={{ margin: '0px 18px' }}>
-          評論
-        </ButtonGhostRound>
-      ) : (
+      {userReviewSet ? (
         <ButtonPrimaryRound onClick={callModal} style={{ margin: '0px 18px' }}>
           編輯你的評論
         </ButtonPrimaryRound>
+      ) : (
+        <ButtonGhostRound onClick={callModal} style={{ margin: '0px 18px' }}>
+          評論
+        </ButtonGhostRound>
       )}
 
       <Box>

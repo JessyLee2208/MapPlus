@@ -1,6 +1,46 @@
 import { postStoreData } from './firebase';
 import { getStoreUrl } from './fetch';
 
+function formatStoreData(all) {
+  const upLoadDataToFirebaseData = {
+    address_components: all.address_components || '',
+    business_status: all.business_status || '',
+    deliver: all.deliver,
+    formatted_address: all.formatted_address || '',
+    formatted_phone_number: all.formatted_phone_number || '',
+    geometry:
+      all.geometry.lat && all.geometry.lng
+        ? {
+            lat: all.geometry.lat,
+            lng: all.geometry.lng
+          }
+        : {
+            lat: all.geometry.location.lat(),
+            lng: all.geometry.location.lng()
+          },
+    icon: all.icon || '',
+    name: all.name || '',
+    rating: all.rating || 0,
+    opening_hours: all.opening_hours
+      ? {
+          weekday_text: all.opening_hours.weekday_text,
+          periods: all.opening_hours.periods
+        }
+      : {},
+
+    place_id: all.place_id || '',
+    plus_code: all.plus_code || '',
+    price_level: all.price_level || '',
+
+    photo: all.photos ? [all.photos[0].getUrl()] : all.photo,
+    reviews: all.reviews || [],
+    types: all.types || [],
+    user_ratings_total: all.user_ratings_total || '',
+    website: all.website || ''
+  };
+  return upLoadDataToFirebaseData;
+}
+
 function getMorereDetail(product, service) {
   const request = {
     placeId: product.place_id,
@@ -10,7 +50,6 @@ function getMorereDetail(product, service) {
       'place_id',
       'geometry',
       'opening_hours',
-      'utc_offset_minutes',
       'reviews',
       'formatted_phone_number',
       'website'
@@ -56,43 +95,7 @@ function getMorereDetail(product, service) {
 
       const all = { ...product, ...moreDetail };
       res(all);
-
-      let upLoadDataToFirebaseData = {
-        address_components: all.address_components || '',
-        business_status: all.business_status || '',
-        deliver: all.deliver,
-        formatted_address: all.formatted_address || '',
-        formatted_phone_number: all.formatted_phone_number || '',
-        geometry:
-          all.geometry.lat && all.geometry.lng
-            ? {
-                lat: all.geometry.lat,
-                lng: all.geometry.lng
-              }
-            : {
-                lat: all.geometry.location.lat(),
-                lng: all.geometry.location.lng()
-              },
-        icon: all.icon || '',
-        name: all.name || '',
-        rating: all.rating || 0,
-        opening_hours: all.opening_hours
-          ? {
-              weekday_text: all.opening_hours.weekday_text,
-              periods: all.opening_hours.periods
-            }
-          : {},
-
-        place_id: all.place_id || '',
-        plus_code: all.plus_code || '',
-        price_level: all.price_level || '',
-
-        photo: all.photos ? [all.photos[0].getUrl()] : all.photo,
-        reviews: all.reviews || [],
-        types: all.types || [],
-        user_ratings_total: all.user_ratings_total || '',
-        website: all.website || ''
-      };
+      const upLoadDataToFirebaseData = formatStoreData(all);
       postStoreData(upLoadDataToFirebaseData);
     });
   });
@@ -107,7 +110,6 @@ function getStoreDetail(place_id, service) {
       'place_id',
       'geometry',
       'opening_hours',
-      'utc_offset_minutes',
       'reviews',
       'formatted_phone_number',
       'website',
@@ -132,6 +134,9 @@ function getStoreDetail(place_id, service) {
         const newData = { ...place, opening_hours: place.opening_hours ? opening_hours : '' };
         getStoreUrl(place.name, newData).then((data) => {
           res(data);
+
+          const upLoadDataToFirebaseData = formatStoreData(data);
+          postStoreData(upLoadDataToFirebaseData);
         });
       }
     });

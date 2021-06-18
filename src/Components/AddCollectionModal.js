@@ -7,8 +7,8 @@ import { addCollectList } from '../Utils/firebase';
 import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 
 import { PageTitle, Description, AlertText } from './UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
-import toast from 'react-hot-toast';
+import { deviceSize } from '../properties/properties';
+import { addListNotify } from '../Utils/toasts';
 
 const ContentBackground = styled.div`
   position: relative;
@@ -98,18 +98,9 @@ function AddCollectionModal(props) {
         data: inputText
       });
       props.check(false);
-      notify();
+      addListNotify();
     });
   }
-
-  const notify = () =>
-    toast('成功新增清單', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
 
   return (
     <Modal visible={props.show} onCancel={handleClose} style={{ padding: '0px' }} width={46} left={30}>

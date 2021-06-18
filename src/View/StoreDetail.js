@@ -1,13 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { deviceSize } from '../properties/properties';
 import StarRender from '../Utils/StarRender';
 import MenuCard from '../Components/MenuCard';
-import { useDispatch, useSelector } from 'react-redux';
-import { PageTitle, Description, SubTitle, SubItemTitle, ItemTitle } from '../Components/UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
+import TabBar from '../Components/TabBar';
+import {
+  PageTitle,
+  Description,
+  SubTitle,
+  SubItemTitle,
+  ItemTitle,
+  InfoLink
+} from '../Components/UIComponents/Typography';
+
 import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
+
+import { tagType } from '../properties/properties';
 
 const Store = styled.div`
   position: relative;
@@ -70,24 +81,8 @@ const CheckIcon = styled.img`
   padding-right: 2px;
 `;
 
-const InfoLink = styled.a`
-  font-family: Roboto, 'Noto Sans TC', Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  color: #1e1e1e;
-  margin: 1px;
-  letter-spacing: 0.5px;　
-  text-decoration:none;
-`;
-
 const InfoBox = styled.div`
   display: flex;
-
   align-items: center;
   padding: 8px 20px;
 
@@ -98,7 +93,6 @@ const InfoBox = styled.div`
 
 const Box = styled.div`
   display: flex;
-
   align-items: center;
   padding: 18px 20px;
 `;
@@ -127,45 +121,6 @@ const AuthorImg = styled.img`
   padding-right: 12px;
 `;
 
-const TabBox = styled.div`
-  display: flex;
-  margin-top: 10px;
-  padding: 0 20px;
-  height: 36px;
-`;
-const TabActive = styled.div`
-  margin: 10px 20px 0px 0;
-  padding-bottom: 6px;
-  border-bottom: 3px solid #185ee6;
-  color: #185ee6;
-  font-size: 15px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  display: block;
-  height: 18px;
-
-  cursor: pointer;
-`;
-const Tab = styled.div`
-  margin: 10px 20px 0px 0;
-  padding-bottom: 6px;
-  font-size: 15px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  display: block;
-  height: 18px;
-
-  cursor: pointer;
-`;
-
 const WithoutDishImg = styled.div`
   width: 100%;
   height: 112px;
@@ -186,6 +141,7 @@ function StoreDetail({ product, menu, input }) {
   const storeData = useSelector((state) => state.storeData);
 
   const locationCheck = product.types[0].includes('administrative_area_level');
+
   const deliverCheck = product.deliver.foodPandaUrl !== null || product.deliver.uberEatUrl !== null;
   const deliverShow = product.deliver.uberEatUrl || product.deliver.foodPandaUrl;
 
@@ -212,6 +168,11 @@ function StoreDetail({ product, menu, input }) {
     } else if (product.deliver.foodPandaUrl) {
       deliverSite = product.deliver.foodPandaUrl.split('/');
     }
+  }
+
+  if (input.current.value === '') {
+    input.setSearchText(product.name);
+    input.current.value = product.name;
   }
 
   const AllReviews = [];
@@ -257,24 +218,16 @@ function StoreDetail({ product, menu, input }) {
         }
       });
     }
-
-    if (e.target.id === 'information') {
-      dispatch({
-        type: 'setSelectedTab',
-        data: 'information'
-      });
-    } else if (e.target.id === 'menu') {
-      dispatch({
-        type: 'setSelectedTab',
-        data: 'menu'
-      });
-    }
   }
 
   function handleBack() {
     dispatch({
       type: 'setSelectedStore',
       data: null
+    });
+    dispatch({
+      type: 'setMenuData',
+      data: []
     });
   }
 
@@ -316,22 +269,11 @@ function StoreDetail({ product, menu, input }) {
             <Description>{product.user_ratings_total} 則評論</Description>
           </RatingDiv>
           <Separator />
-          {deliverShow && (
-            <div>
-              <TabBox>
-                {tab === 'information' ? (
-                  <TabActive id="information">資訊</TabActive>
-                ) : (
-                  <Tab id="information">資訊</Tab>
-                )}
-                {tab === 'menu' ? <TabActive id="menu">菜單</TabActive> : <Tab id="menu">菜單</Tab>}
-              </TabBox>
-            </div>
-          )}
+          {deliverShow && <TabBar />}
 
           <Separator />
 
-          {tab === 'information' ? (
+          {tab === tagType.default ? (
             <div>
               {typesCheck && (
                 <Box>
@@ -398,10 +340,8 @@ function StoreDetail({ product, menu, input }) {
               {AllReviews}
             </div>
           ) : (
-            menu &&
-            menu !== null &&
-            tab === 'menu' &&
-            (menu.length > 0 ? (
+            tab === tagType.second &&
+            (menu?.length > 0 ? (
               menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
             ) : (
               <Loading marginTop={'7vh'} />

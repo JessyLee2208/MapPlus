@@ -8,7 +8,7 @@ import { SubTitle, Description } from './UIComponents/Typography';
 import StarRender from '../Utils/StarRender';
 import getMorereDetail from '../Utils/getMoreDetail';
 import useMediaQuery from '../Utils/useMediaQuery';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 
 import './inforWindow.css';
 
@@ -34,7 +34,6 @@ const RatingDiv = styled.div`
 function MapInforWindow(props) {
   const [position, setPosition] = useState(null);
   const dispatch = useDispatch();
-  // let starArry = [];
   const infoWindowRef = useRef();
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);

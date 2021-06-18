@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { getDishData } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { SubItemTitle } from './UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 import StarRender from '../Utils/StarRender';
 
 const Menu = styled.div`
@@ -98,6 +98,7 @@ function SearchMenuCard({ content }) {
 
   function click() {
     getDishData(content.name).then((res) => {
+      console.log(res);
       dispatch({
         type: 'setSelectedDish',
         data: res
