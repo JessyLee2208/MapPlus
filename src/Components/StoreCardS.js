@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getStoreMenu } from '../Utils/fetch';
-import getMorereDetail from '../Utils/getMoreDetail';
-import { getMenuData } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { Description, Link } from './UIComponents/Typography';
+import { getStoreMenu } from '../utils/fetch';
+import getMorereDetail from '../utils/getMoreDetail';
+import { getMenuData } from '../utils/firebase';
+import { tagType } from '../properties/properties';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -106,6 +108,7 @@ function StoreCardS(props, key) {
   const [selectedStyle, setSelectedStyle] = useState({ border: '1px solid #efefef' });
 
   let selected = props.product.name === selectedStore.name;
+  const deliverCheck = props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl;
 
   let priceLevel = [];
   const dispatch = useDispatch();
@@ -130,13 +133,13 @@ function StoreCardS(props, key) {
     });
     dispatch({
       type: 'setSelectedTab',
-      data: 'information'
+      data: tagType.information
     });
 
-    if (e.target.name === 'menu') {
+    if (e.target.name === tagType.menu) {
       dispatch({
         type: 'setSelectedTab',
-        data: 'menu'
+        data: tagType.menu
       });
     }
 
@@ -148,7 +151,7 @@ function StoreCardS(props, key) {
         data: res
       });
     });
-    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
+    if (deliverCheck) {
       function setData(data) {
         dispatch({
           type: 'setMenuData',
@@ -179,6 +182,14 @@ function StoreCardS(props, key) {
     });
   }
 
+  function imgTypeUseMethod() {
+    if (props.product.photos?.length > 0) {
+      return props.product.photos[0].getUrl();
+    } else {
+      return props.product.photo && props.product.photo[0];
+    }
+  }
+
   return (
     <Store
       id={props.id}
@@ -187,15 +198,11 @@ function StoreCardS(props, key) {
       onMouseOver={handleHoverEvent}
       onMouseOut={handleHoverOutEvent}
     >
-      {(props.product.photos && props.product.photos.length > 0) || props.product.photo ? (
+      {props.product.photos?.length > 0 || props.product.photo ? (
         <StoreImg
           id={props.id}
           alt=""
-          src={
-            props.product.photos && props.product.photos.length > 0
-              ? props.product.photos[0].getUrl()
-              : props.product.photo && props.product.photo[0]
-          }
+          src={imgTypeUseMethod()}
           style={selected ? { borderRadius: '4px 4px 0 0' } : { borderRadius: '8px 8px 0 0' }}
         ></StoreImg>
       ) : (
@@ -217,10 +224,8 @@ function StoreCardS(props, key) {
         </Div>
         <LinkDiv id={props.id} className="Link">
           {props.product.website && <Link href={props.product.website}>網站</Link>}
-          {props.product.website && (props.product.deliver.foodPandaUrl || props.product.deliver.uberEatUrl) && (
-            <Border>|</Border>
-          )}
-          {(props.product.deliver.foodPandaUrl || props.product.deliver.uberEatUrl) && (
+          {props.product.website && deliverCheck && <Border>|</Border>}
+          {deliverCheck && (
             <Link id={props.id} name="menu">
               菜單
             </Link>

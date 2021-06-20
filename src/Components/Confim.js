@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import Modal from './Modal';
 
 import { ButtonPrimaryFlat, ButtonSecondaryFlat } from './UIComponents/Button';
-import toast from 'react-hot-toast';
+
 import { PageTitle, Description } from './UIComponents/Typography';
+import { deleteListNotify } from '../utils/toasts';
 
 const ContentBackground = styled.div`
   position: relative;
@@ -26,18 +27,10 @@ function Confim(props) {
   function handleClose() {
     props.control(false);
   }
-  const notify = () =>
-    toast('成功刪除清單', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
 
   const handleDeleteButton = () => {
     props.onClick();
-    notify();
+    deleteListNotify();
   };
 
   return (

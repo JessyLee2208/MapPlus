@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 
 const ModalContainer = styled.div`
   position: absolute;
@@ -94,7 +94,7 @@ function Modal(props) {
   }, [props.visible, animateIn, animateOut]);
 
   return (
-    <ModalContainer>
+    <ModalContainer data-testid="confimModal">
       <div hidden={!visible}>
         <Overlay ref={overlayRef} onClick={onCancel} />
         <ModalContent ref={contentRef} width={width} left={left}>

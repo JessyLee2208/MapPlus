@@ -8,7 +8,7 @@ const Test = styled.div`
   width: auto;
   height: 150px;
 
-  margin-top: ${({ marginTop }) => (marginTop ? marginTop : '25vh')};
+  padding-top: ${({ paddingTop }) => (paddingTop ? paddingTop : '25vh')};
 `;
 
 const Infinite = styled.div`
@@ -19,7 +19,7 @@ const Infinite = styled.div`
 `;
 
 function Loading(props) {
-  const { marginTop } = props;
+  const { paddingTop } = props;
   useEffect(() => {
     lottie.loadAnimation({
       container: document.querySelector('#loading'),
@@ -29,7 +29,7 @@ function Loading(props) {
 
   return (
     <div>
-      <Test id="loading" marginTop={marginTop}></Test>
+      <Test id="loading" paddingTop={paddingTop}></Test>
     </div>
   );
 }

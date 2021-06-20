@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-
 import { useSelector, useDispatch } from 'react-redux';
-import SearchMenuCard from './SearchMenuCard';
-import { getStoreMenu } from '../Utils/fetch';
-import getMorereDetail from '../Utils/getMoreDetail';
-import { getMenuData } from '../Utils/firebase';
 
-import StarRender from '../Utils/StarRender';
+import SearchMenuCard from './SearchMenuCard';
+import StarRender from './StarRender';
+import DeliverStateCheck from './DeliverStateCheck';
+import { getStoreMenu } from '../utils/fetch';
+import getMorereDetail from '../utils/getMoreDetail';
+import { getMenuData } from '../utils/firebase';
+import { tagType } from '../properties/properties';
 
 const StoreInfo = styled.div`
   display: flex;
@@ -92,52 +93,45 @@ const PriceLevel = styled.div`
   align-items: center;
 `;
 
-const CheckIcon = styled.img`
-  width: 24px;
-  height: 24px;
-  padding-right: 2px;
-`;
-
-function StoreCard(props) {
+function StoreCard({ product, id, service }) {
   const searchMenu = useSelector((state) => state.searchMenu);
+
   const [menu, setmenu] = React.useState(null);
   const dispatch = useDispatch();
 
   let priceLevel = [];
-  let typesCheck = props.product.types.includes('food');
-
   let timestamp = '';
 
-  const deliverCgeck = props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl;
+  const deliverCheck = product.deliver.uberEatUrl || product.deliver.foodPandaUrl;
 
   useEffect(() => {
     if (searchMenu) {
       let menuArray = [];
       searchMenu.forEach((data) => {
-        if (data.storeName === props.product.name) {
+        if (data.storeName === product.name) {
           menuArray.push(data);
         }
       });
       setmenu(menuArray);
     }
-  }, [searchMenu, props.product]);
+  }, [searchMenu, product]);
 
-  const star = StarRender(props.product.rating, { width: 16, height: 16 });
+  const star = StarRender(product.rating, { width: 16, height: 16 });
 
-  if (props.product.price_level !== undefined) {
-    for (let i = 0; i < props.product.price_level; i++) {
+  if (product.price_level !== undefined) {
+    for (let i = 0; i < product.price_level; i++) {
       const leval = <Info key={i}>$</Info>;
       priceLevel.push(leval);
     }
   }
 
-  if (props.product.opening_hours !== undefined) {
+  if (product.opening_hours !== undefined) {
     const today = new Date().getDay();
 
-    if (props.product.peridos) {
-      timestamp = props.product.peridos[today].close.time.substring(0, 2);
-    } else if (props.product.opening_hours.weekday_text) {
-      timestamp = props.product.opening_hours.weekday_text[today].slice(5);
+    if (product.peridos) {
+      timestamp = product.peridos[today].close.time.substring(0, 2);
+    } else if (product.opening_hours.weekday_text) {
+      timestamp = product.opening_hours.weekday_text[today].slice(5);
     }
   }
 
@@ -148,30 +142,38 @@ function StoreCard(props) {
     });
     dispatch({
       type: 'setSelectedTab',
-      data: 'information'
+      data: tagType.information
     });
 
-    if (e.target.name === 'menu') {
+    if (e.target.name === tagType.menu) {
       dispatch({
         type: 'setSelectedTab',
-        data: 'menu'
+        data: tagType.menu
       });
     }
-    getStoreMenu(props.product.deliver);
-    getMorereDetail(props.product, props.service).then((res) => {
+    getStoreMenu(product.deliver);
+    if (!product.reviews) {
+      getMorereDetail(product, service).then((res) => {
+        dispatch({
+          type: 'setSelectedStore',
+          data: res
+        });
+      });
+    } else {
       dispatch({
         type: 'setSelectedStore',
-        data: res
+        data: product
       });
-    });
-    if (props.product.deliver.uberEatUrl || props.product.deliver.foodPandaUrl) {
+    }
+
+    if (deliverCheck) {
       function setData(data) {
         dispatch({
           type: 'setMenuData',
           data: data
         });
       }
-      getMenuData(props.product.name, setData);
+      getMenuData(product.name, setData);
     } else {
       dispatch({
         type: 'setMenuData',
@@ -183,7 +185,7 @@ function StoreCard(props) {
   function handleHoverEvent() {
     dispatch({
       type: 'setStoreHover',
-      data: props.product
+      data: product
     });
   }
   function handleHoverOutEvent() {
@@ -195,51 +197,41 @@ function StoreCard(props) {
 
   return (
     <StoreL onClick={handleStoreListClick} onMouseOver={handleHoverEvent} onMouseOut={handleHoverOutEvent}>
-      <Store id={props.id}>
-        <StoreInfo id={props.id}>
-          <StoreTitle id={props.id}>{props.product.name}</StoreTitle>
-          <RatingDiv id={props.id}>
-            <Info id={props.id}>{props.product.rating}</Info>
+      <Store id={id}>
+        <StoreInfo id={id}>
+          <StoreTitle id={id}>{product.name}</StoreTitle>
+          <RatingDiv id={id}>
+            <Info id={id}>{product.rating}</Info>
 
-            <StarBox id={props.id}>{star}</StarBox>
-            <Info id={props.id}>({props.product.user_ratings_total})</Info>
-            {props.product.price_level ? (
+            <StarBox id={id}>{star}</StarBox>
+            <Info id={id}>({product.user_ratings_total})</Info>
+            {product.price_level && (
               <PriceLevel>
                 <Info>・</Info> {priceLevel}
               </PriceLevel>
-            ) : null}
+            )}
           </RatingDiv>
-          <Info id={props.id}>{props.product.formatted_address}</Info>
-          <Info id={props.id}>{props.product.formatted_phone_number}</Info>
-          {props.product.opening_hours ? (
-            props.product.peridos ? (
-              <Info id={props.id}>營業至 下午{timestamp}:00</Info>
-            ) : props.product.opening_hours.weekday_text ? (
-              <Info id={props.id}>營業時間：{timestamp}</Info>
+          <Info id={id}>{product.formatted_address}</Info>
+          <Info id={id}>{product.formatted_phone_number}</Info>
+          {product.opening_hours &&
+            (product.peridos ? (
+              <Info id={id}>營業至 下午{timestamp}:00</Info>
+            ) : product.opening_hours.weekday_text ? (
+              <Info id={id}>營業時間：{timestamp}</Info>
             ) : (
-              <Info id={props.id}>營業中</Info>
-            )
-          ) : null}
-
-          {typesCheck && (
-            <RatingDiv id={props.id}>
-              <CheckIcon src="/true.png"></CheckIcon> <Info>內用</Info>
-              <Info>．</Info>
-              <CheckIcon src="/true.png"></CheckIcon> <Info>外帶</Info>
-              <Info>．</Info>
-              <CheckIcon src={deliverCgeck ? '/true.png' : '/false.png'}></CheckIcon> <Info>外送</Info>
-            </RatingDiv>
-          )}
+              <Info id={id}>營業中</Info>
+            ))}
+          <DeliverStateCheck product={product} padding={'0'}></DeliverStateCheck>
         </StoreInfo>
-        {props.product.photos && props.product.photos.length > 0 ? (
-          <StoreImg alt="" src={props.product.photos[0].getUrl()} id={props.id}></StoreImg>
-        ) : props.product.photo ? (
-          <StoreImg alt="" src={props.product.photo[0]} id={props.id}></StoreImg>
+        {product.photos && product.photos.length > 0 ? (
+          <StoreImg alt="" src={product.photos[0].getUrl()} id={id} />
+        ) : product.photo ? (
+          <StoreImg alt="" src={product.photo[0]} id={id} />
         ) : (
-          <WithoutImg></WithoutImg>
+          <WithoutImg />
         )}
       </Store>
-      {menu ? menu.map((data, key) => <SearchMenuCard key={key} content={data}></SearchMenuCard>) : <></>}
+      {menu && menu.map((data, key) => <SearchMenuCard key={key} content={data} />)}
     </StoreL>
   );
 }

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import Modal from './Modal';
-import useMediaQuery from '../Utils/useMediaQuery';
-import { addCollectList } from '../Utils/firebase';
-import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 
+import Modal from './Modal';
+import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, Description, AlertText } from './UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
-import toast from 'react-hot-toast';
+import useMediaQuery from '../useHook/useMediaQuery';
+import { addCollectList } from '../utils/firebase';
+import { addListNotify } from '../utils/toasts';
+import { deviceSize } from '../properties/properties';
 
 const ContentBackground = styled.div`
   position: relative;
@@ -98,18 +98,9 @@ function AddCollectionModal(props) {
         data: inputText
       });
       props.check(false);
-      notify();
+      addListNotify();
     });
   }
-
-  const notify = () =>
-    toast('成功新增清單', {
-      style: {
-        borderRadius: '4px',
-        background: '#333',
-        color: '#fff'
-      }
-    });
 
   return (
     <Modal visible={props.show} onCancel={handleClose} style={{ padding: '0px' }} width={46} left={30}>
