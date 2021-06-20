@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
-import StarRender from '../Utils/StarRender';
-
+import StarRender from './StarRender';
 import { Content, Description } from './UIComponents/Typography';
 
 const ReviewerBox = styled.div`
@@ -46,31 +45,26 @@ const MenuImg = styled.img`
 `;
 
 function ReviewCard(props) {
-  const { borderBottom } = props;
-  // let reviewRatingArray = [];
-  let time = new Date(props.review.time).toISOString().split('T')[0];
-  const star = StarRender(Number(props.review.rating), { width: 16, height: 16 });
+  const { borderBottom, review } = props;
+  let time = new Date(review.time).toISOString().split('T')[0];
+  const star = StarRender(Number(review.rating), { width: 16, height: 16 });
 
   return (
     <ReviewerBox borderBottom={borderBottom}>
       <AuthorBox>
-        <AuthorImg src={props.review.userPhotoUrl}></AuthorImg>
+        <AuthorImg src={review.userPhotoUrl} />
         <Authortitle>
-          <div>{props.review.name}</div>
+          <div>{review.name}</div>
           <Description padding={'4px 0 '}>{time}</Description>
         </Authortitle>
       </AuthorBox>
 
       <StarBoxReview>
         {star}
-        <Description padding={'0 0 0 8px'}>{props.review.rating}</Description>
+        <Description padding={'0 0 0 8px'}>{review.rating}</Description>
       </StarBoxReview>
-      {props.review.comment !== '' && <Content padding={'8px 0 12px 0'}>{props.review.comment}</Content>}
-      {props.review.imageUrl.length > 0 ? (
-        props.review.imageUrl.map((url, index) => <MenuImg src={url} key={index}></MenuImg>)
-      ) : (
-        <></>
-      )}
+      {review.comment !== '' && <Content padding={'8px 0 12px 0'}>{review.comment}</Content>}
+      {review.imageUrl.length > 0 && review.imageUrl.map((url, index) => <MenuImg src={url} key={index} />)}
     </ReviewerBox>
   );
 }

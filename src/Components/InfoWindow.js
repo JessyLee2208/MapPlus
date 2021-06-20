@@ -5,10 +5,10 @@ import { InfoWindow } from '@react-google-maps/api';
 import { useDispatch } from 'react-redux';
 import { SubTitle, Description } from './UIComponents/Typography';
 
-import StarRender from '../Utils/StarRender';
-import getMorereDetail from '../Utils/getMoreDetail';
-import useMediaQuery from '../Utils/useMediaQuery';
-import { deviceSize } from '../responsive/responsive';
+import StarRender from './StarRender';
+import getMorereDetail from '../utils/getMoreDetail';
+import useMediaQuery from '../useHook/useMediaQuery';
+import { deviceSize } from '../properties/properties';
 
 import './inforWindow.css';
 
@@ -34,7 +34,6 @@ const RatingDiv = styled.div`
 function MapInforWindow(props) {
   const [position, setPosition] = useState(null);
   const dispatch = useDispatch();
-  // let starArry = [];
   const infoWindowRef = useRef();
 
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);

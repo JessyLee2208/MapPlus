@@ -58,7 +58,12 @@ function getStoreData(collectionID) {
     .doc(collectionID)
     .get()
     .then((data) => {
-      return data.data();
+      const dataCheck = data.data();
+      if (dataCheck !== undefined) {
+        return data.data();
+      } else {
+        return null;
+      }
     });
 }
 

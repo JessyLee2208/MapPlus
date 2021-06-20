@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import StoreCardS from '../Components/StoreCardS';
 import { useSelector, useDispatch } from 'react-redux';
-import { deviceSize } from '../responsive/responsive';
+import { deviceSize } from '../properties/properties';
 
 const UserPositionCheck = styled.div`
   width: 50px;
@@ -95,17 +95,17 @@ function SearchListS(props) {
 
   return (
     <DicContainer onMouseOver={handleHoverEvent} onMouseOut={handleHoverOutEvent}>
-      {!scrollXRight || scrollXRight > -415 ? (
+      {(!scrollXRight || scrollXRight > -415) && (
         <UserPositionCheck onClick={executeScrollRight} style={{ right: '8px', display: iconShow ? 'flex' : 'none' }}>
-          <img src="/right.png" alt=""></img>
+          <img src="/right.png" alt="" />
         </UserPositionCheck>
-      ) : null}
+      )}
 
-      {scrollXLeft && scrollXLeft > 0 ? (
+      {scrollXLeft && scrollXLeft > 0 && (
         <UserPositionCheck onClick={executeScrollLeft} style={{ left: '444px', display: iconShow ? 'flex' : 'none' }}>
-          <img src="/left.png" alt=""></img>
+          <img src="/left.png" alt="" />
         </UserPositionCheck>
-      ) : null}
+      )}
       <InformationBoxS id="smallCardList" ref={myRef}>
         {storeData.length > 1 &&
           storeData.map((product, key) => (

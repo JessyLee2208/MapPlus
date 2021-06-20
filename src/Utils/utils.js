@@ -1,17 +1,13 @@
-function getTopTenItemInArray(NewCollections, callback) {
-  const countMethod = NewCollections.length / 10;
-  const count = parseInt(countMethod);
-
-  let rule = count === 0 ? 1 : count;
-
-  for (let i = 0; i < rule; i++) {
-    let newArray = NewCollections.slice(0, 10);
-    newArray.forEach(async (collect) => {
-      callback(collect);
-    });
+function fitBoundsHandler(view, bounds) {
+  if (view.geometry) {
+    if (view.geometry.viewport) {
+      bounds.union(view.geometry.viewport);
+    } else {
+      bounds.extend(view.geometry.location);
+    }
   }
 
-  return;
+  return bounds;
 }
 
-export { getTopTenItemInArray };
+export { fitBoundsHandler };

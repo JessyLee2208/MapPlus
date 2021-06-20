@@ -184,6 +184,24 @@ export default function storeReducer(preState = initState, action) {
       };
     }
 
+    case 'selectMapIcon': {
+      return {
+        ...preState,
+        storeData: [data],
+        selectedDish: null,
+        selectedStore: null,
+
+        mapMarkers: [
+          {
+            lat: data.geometry.location.lat(),
+            lng: data.geometry.location.lng(),
+            place_id: data.place_id,
+            storename: data.name
+          }
+        ]
+      };
+    }
+
     case 'initMapMarkers': {
       return {
         ...preState,
@@ -230,6 +248,66 @@ export default function storeReducer(preState = initState, action) {
       return {
         ...preState,
         customList: [...preState.customList]
+      };
+    }
+
+    case 'searchInputUpdate': {
+      return {
+        ...preState,
+        storeData: [],
+        collectionMarks: [],
+        selectedStore: null,
+        selectedDish: null,
+        mapMarkers: [],
+        storeHover: null,
+        selectedTab: 'information'
+      };
+    }
+
+    case 'searchInputInit': {
+      return {
+        ...preState,
+        storeData: [],
+        mapMarkers: [],
+        selectedStore: null,
+        selectedDish: null,
+        menuData: null,
+        searchMenu: null
+      };
+    }
+
+    case 'webDataInit': {
+      return {
+        ...preState,
+        storeData: [],
+        mapMarkers: [],
+        selectedStore: null,
+        selectedDish: null,
+        menuData: null,
+        searchMenu: null,
+        collectionTitle: false,
+        collectionMarks: [],
+        selectedTab: 'information'
+      };
+    }
+
+    case 'setlogOutData': {
+      return {
+        ...preState,
+        collectionTitle: false,
+        loginToast: false,
+        userStatus: null,
+        customList: []
+      };
+    }
+
+    case 'setCollectionData': {
+      return {
+        ...preState,
+        collectionTitle: false,
+        mapMarkers: [data.mapMarker],
+        collectionMarks: [],
+        storeData: [data.collection]
       };
     }
 

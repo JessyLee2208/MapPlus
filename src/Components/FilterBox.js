@@ -20,7 +20,7 @@ const FilterListBox = styled.div`
   margin: 0;
   padding: 8px 16px 10px 12px;
   align-items: center;
-
+  cursor: pointer;
   &:hover {
     background: #eef0f1;
   }
@@ -28,7 +28,6 @@ const FilterListBox = styled.div`
 
 function FilterBox(props) {
   const { top, width, option, visibleCheck, visible, setType } = props;
-
   const [checkType, setCheckType] = useState(option.one.type);
 
   function handleFilterSelecter() {
@@ -37,57 +36,33 @@ function FilterBox(props) {
     }
   }
 
+  let listOptions = Object.values(option);
+
   function handleChangeType(e) {
-    if (e.target.id === option.one.type) {
-      setCheckType(option.one.type);
-      setType(option.one.type);
-      visible(false);
-    } else if (e.target.id === option.two.type) {
-      setCheckType(option.two.type);
-      setType(option.two.type);
-      visible(false);
-    } else if (e.target.id === option.three.type) {
-      setCheckType(option.three.type);
-      setType(option.three.type);
-      visible(false);
-    } else if (e.target.id === option.four.type) {
-      setCheckType(option.four.type);
-      setType(option.four.type);
-      visible(false);
-    }
+    listOptions.forEach((opt) => {
+      if (e.target.id === opt.type) {
+        setCheckType(opt.type);
+        setType(opt.type);
+        visible(false);
+      }
+    });
   }
 
   return (
     <div>
-      {visibleCheck && (
-        <Filter top={top} width={width}>
-          <FilterListBox onClick={handleChangeType} id={option.one.type}>
-            {option.one.value}
-          </FilterListBox>
-          <FilterListBox onClick={handleChangeType} id={option.two.type}>
-            {option.two.value}
-          </FilterListBox>
-          {option.three !== undefined && (
-            <FilterListBox onClick={handleChangeType} id={option.three.type}>
-              {option.three.value}
-            </FilterListBox>
-          )}
-          {option.four !== undefined && (
-            <FilterListBox onClick={handleChangeType} id={option.four.type}>
-              {option.four.value}
-            </FilterListBox>
-          )}
-        </Filter>
-      )}
+      <Filter top={top} width={width}>
+        {listOptions.map(
+          (opt) =>
+            visibleCheck && (
+              <FilterListBox onClick={handleChangeType} id={opt.type}>
+                {opt.value}
+              </FilterListBox>
+            )
+        )}
+      </Filter>
 
       <ButtonGhostRoundIcon src={'/down.png'} margin={'4px 0px 0 16px'} onClick={handleFilterSelecter}>
-        {checkType === option.one.type
-          ? option.one.value
-          : checkType === option.two.type
-          ? option.two.value
-          : checkType === option.three.type
-          ? option.three.value
-          : checkType === option.four.type && option.four.value}
+        {listOptions.map((opt) => checkType === opt.type && opt.value)}
       </ButtonGhostRoundIcon>
     </div>
   );

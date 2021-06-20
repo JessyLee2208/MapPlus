@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-
-import { getDishData } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
+
+import StarRender from './StarRender';
 import { SubItemTitle } from './UIComponents/Typography';
-import { deviceSize } from '../responsive/responsive';
-import StarRender from '../Utils/StarRender';
+import { getDishData } from '../utils/firebase';
+import { deviceSize } from '../properties/properties';
 
 const Menu = styled.div`
   display: grid;
@@ -90,14 +90,15 @@ const MenuImg = styled.img`
   }
 `;
 
-function SearchMenuCard(props) {
+function SearchMenuCard({ content }) {
   const collectionCheck = useSelector((state) => state.collectionTitle);
   const dispatch = useDispatch();
 
-  const star = StarRender(props.content.rating, { width: 16, height: 16 });
+  const star = StarRender(content.rating, { width: 16, height: 16 });
 
-  function click(e) {
-    getDishData(props.content.name).then((res) => {
+  function click() {
+    getDishData(content.name).then((res) => {
+      console.log(res);
       dispatch({
         type: 'setSelectedDish',
         data: res
@@ -116,27 +117,27 @@ function SearchMenuCard(props) {
   }
 
   return (
-    <Menu onClick={click} id={props.content.name}>
-      {props.content.imageUrl !== '' ? (
-        <MenuImg src={props.content.imageUrl} alt="" id={props.content.name}></MenuImg>
+    <Menu onClick={click} id={content.name}>
+      {content.imageUrl !== '' ? (
+        <MenuImg src={content.imageUrl} alt="" id={content.name} />
       ) : (
-        <MenuImg src="/onphoto.png" alt="" id={props.content.name}></MenuImg>
+        <MenuImg src="/onphoto.png" alt="" id={content.name} />
       )}
 
-      <MenuInfo id={props.content.name}>
-        <SubItemTitle id={props.content.name}>{props.content.name}</SubItemTitle>
-        <SubTitle id={props.content.name}>NT.{props.content.price}</SubTitle>
+      <MenuInfo id={content.name}>
+        <SubItemTitle id={content.name}>{content.name}</SubItemTitle>
+        <SubTitle id={content.name}>NT.{content.price}</SubTitle>
       </MenuInfo>
       <Box style={{ flexDirection: 'column', paddingRight: '20px' }}>
         <Box style={{ justifyContent: 'center' }}>
-          <RatingTitle style={{ textAlign: 'center' }} id={props.content.name}>
-            {props.content.rating}
+          <RatingTitle style={{ textAlign: 'center' }} id={content.name}>
+            {content.rating}
           </RatingTitle>
-          <RatingTitle style={{ color: '#868686' }} id={props.content.name}>
+          <RatingTitle style={{ color: '#868686' }} id={content.name}>
             /5
           </RatingTitle>
         </Box>
-        <RatingDiv id={props.content.name}>{star}</RatingDiv>
+        <RatingDiv id={content.name}>{star}</RatingDiv>
       </Box>
     </Menu>
   );

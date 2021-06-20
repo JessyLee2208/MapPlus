@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { addDishToCollectList, removeDishToCollectList } from '../Utils/firebase';
 import { useSelector } from 'react-redux';
+
+import { addDishToCollectList, removeDishToCollectList } from '../utils/firebase';
+import { collectionBasicLists } from '../properties/properties';
 
 const CollectBox = styled.div`
   width: 220px;
@@ -86,24 +88,26 @@ function Collection(props) {
   const [customCheck, setCustomCheck] = useState([]);
   const [want, setWant] = useState(false);
   const [like, setLike] = useState(false);
-  const [stare, setStare] = useState(false);
+  const [star, setstar] = useState(false);
 
-  const basicLists = [
-    { collectName: '想去的地點', defaultIcon: '/falg.png', activeIcon: '/falg_select.png', check: want },
-    { collectName: '喜愛的地點', defaultIcon: '/heart.png', activeIcon: '/heart_select.png', check: like },
-    { collectName: '已加星號的地點', defaultIcon: '/active_star.png', activeIcon: '/star_select.png', check: stare }
-  ];
+  let basicLists = collectionBasicLists;
+
+  basicLists.want.check = want;
+  basicLists.like.check = like;
+  basicLists.star.check = star;
+
+  let basicListsToArray = Object.values(basicLists);
 
   useEffect(() => {
     const listArray = [];
     if (collectData !== []) {
       collectData.forEach((check) => {
-        if (check.collectName === '想去的地點') {
+        if (check.collectName === basicLists.want.collectName) {
           setWant(true);
-        } else if (check.collectName === '喜愛的地點') {
+        } else if (check.collectName === basicLists.like.collectName) {
           setLike(true);
-        } else if (check.collectName === '已加星號的地點') {
-          setStare(true);
+        } else if (check.collectName === basicLists.star.collectName) {
+          setstar(true);
         } else if (check.collectName !== '') {
           customList.map((list) => check.collectName === list && listArray.push(list));
         }
@@ -112,7 +116,7 @@ function Collection(props) {
 
       setCustomCheck(result);
     }
-  }, [collectData, customList]);
+  }, [collectData, customList, basicLists]);
 
   function handleCollectListClick(e) {
     let selectedCollect = e.target.innerHTML;
@@ -141,15 +145,15 @@ function Collection(props) {
     <CollectBox onClick={handleCollectListClick} top={selectedDish.imageUrl === '' ? '148px' : '294px'}>
       <InfoBold style={{ color: 'black', padding: '10px 0 10px 0px' }}>儲存至清單中</InfoBold>
 
-      {basicLists.map((list, index) =>
+      {basicListsToArray.map((list, index) =>
         list.check ? (
           <CollectListBoxSelect id="removeCollection" key={index}>
-            <Icon src={list.activeIcon} id="removeCollection" alt={list.collectName}></Icon>
+            <Icon src={list.activeIcon} id="removeCollection" alt={list.collectName} />
             <CollectTitle id="removeCollection">{list.collectName}</CollectTitle>
           </CollectListBoxSelect>
         ) : (
           <CollectListBox key={index}>
-            <Icon src={list.defaultIcon} id="collect" alt={list.collectName}></Icon>
+            <Icon src={list.defaultIcon} id="collect" alt={list.collectName} />
             <CollectTitle id="collect">{list.collectName}</CollectTitle>
           </CollectListBox>
         )
@@ -160,14 +164,14 @@ function Collection(props) {
         customList.map((list, index) =>
           customCheck.find((check) => check === list) !== undefined ? (
             <CollectListBoxSelect key={index} id="removeCollection">
-              <Icon src="/custom_select.png" id="removeCollection" alt={list}></Icon>
+              <Icon src="/custom_select.png" id="removeCollection" alt={list} />
               <CollectTitle id="removeCollection" value={list}>
                 {list}
               </CollectTitle>
             </CollectListBoxSelect>
           ) : (
             <CollectListBox key={index}>
-              <Icon src="/custom.png" id="collect" alt={list}></Icon>
+              <Icon src="/custom.png" id="collect" alt={list} />
               <CollectTitle id="collect" value={list}>
                 {list}
               </CollectTitle>
@@ -176,7 +180,7 @@ function Collection(props) {
         )}
 
       <CollectListBox onClick={callModal}>
-        <Icon src="/add.png" id="add" alt="add"></Icon>
+        <Icon src="/add.png" id="add" alt="add" />
         <CollectTitle id="add" value="add">
           新增清單
         </CollectTitle>
