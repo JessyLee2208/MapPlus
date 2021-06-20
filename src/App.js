@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
-import { GoogleMap, useLoadScript, StandaloneSearchBox, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, StandaloneSearchBox } from '@react-google-maps/api';
 import { Toaster } from 'react-hot-toast';
 import algoliasearch from 'algoliasearch';
 import { useDispatch, useSelector } from 'react-redux';
-import { SearchInput, SearchBox, Frame, SearchBoxShow } from './style';
 
 import StoreDetail from './View/StoreDetail';
 import DishDetail from './View/DishDetail';
@@ -14,52 +13,71 @@ import MemberPage from './View/MemberPage';
 import CollectionList from './View/CollectionList';
 import NotFound from './View/NotFount';
 
-import { getMenuData, getStoreData, googleAccountStateChanged } from './Utils/firebase';
-import { getStoreDetail } from './Utils/getMoreDetail';
-import useMediaQuery from './Utils/useMediaQuery';
-import { getStoreMenu, getStoreUrl } from './Utils/fetch';
-import { fitBoundsHandler } from './Utils/utils';
-import { customNotify } from './Utils/toasts';
-
 import CommentModal from './Components/CommentModal';
 import ReminderModal from './Components/ReminderModal';
-
-import { Loading } from './Components/UIComponents/LottieAnimat';
 import MapInfoWindow from './Components/InfoWindow';
 import Markers from './Components/Marker';
+import AddCollectionModal from './Components/AddCollectionModal';
 import LoginState from './Components/LogInState';
+import CurrentLoction from './Components/CurrentLoction';
 import { ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
+import { Loading } from './Components/UIComponents/LottieAnimat';
+
+import { getMenuData, getStoreData } from './utils/firebase';
+import { getStoreDetail } from './utils/getMoreDetail';
+import useMediaQuery from './useHook/useMediaQuery';
+import { getStoreMenu, getStoreUrl } from './utils/fetch';
+import { fitBoundsHandler } from './utils/utils';
 import { deviceSize } from './properties/properties';
 
-import AddCollectionModal from './Components/AddCollectionModal';
+const Frame = styled.div`
+  position: absolute;
+  top:0,
+  left:0
+`;
 
-const UserPositionCheck = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
+const SearchBox = styled.div`
+  background: #ffffff;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border-radius: 8px;
+  width: 376px;
+  height: 48px;
+  padding: 0 12px;
   position: fixed;
-  right: 10px;
-  top: 64px;
+  display: flex;
 
-  cursor: pointer;
-  transition: all 150ms ease-in-out;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  fontsize: 14px;
+  textoverflow: ellipses;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  left: 8px;
+  top: 12px;
+  margin-left: 8px;
+
+  transition-duration: 0.3s;
+  outline: none;
+
+  z-index: 5;
+
   @media screen and (max-width: ${deviceSize.mobile}px) {
-    position: fixed;
-    right: 10px;
-    top: 396px;
-    z-index: 6;
+    width: calc(100vw - 140px);
+    margin: 0px 8px;
   }
+`;
+const SearchBoxShow = styled(SearchBox)`
+  transition-property: background, box-shadow;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%), 0 -1px 0px rgb(0 0 0 / 2%);
+  z-index: 4;
+`;
+
+const SearchInput = styled.input`
+  brackground: none;
+  position: relative;
+  height: 100%;
+  width: 95%;
+  padding: 0;
+  border: none;
+  outline: none;
+  font-size: initial;
 `;
 
 const Delete = styled.div`
@@ -137,8 +155,6 @@ function App() {
   const [markerLoad, setMarkerLoad] = useState([]);
   const [zoom, setZoom] = useState(initZoom);
 
-  const [currentLoction, setcurrentLoction] = useState(null);
-
   const [algoliaStore, setAlgoliaStore] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [placrCheck, setPlacrCheck] = useState(false);
@@ -184,6 +200,14 @@ function App() {
   const dishDetailExist = selectedDish && !collectionCheck;
   const smalleStoreExist = selectedStore && !collectionCheck && storeData.length > 1;
   const pageExist = storeListExist || storeDetailExist || collectionCheck || dishDetailExist;
+  const loadingCfeck =
+    !storeListExist &&
+    !storeDetailExist &&
+    !dishDetailExist &&
+    !collectionCheck &&
+    !storeDetailOnlyOneExist &&
+    searchMenu &&
+    !isMobile;
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
@@ -207,10 +231,9 @@ function App() {
   useEffect(() => {
     if (mapStore?.length > 1 && algoliaStore) {
       algoliaStore.forEach((store) => {
-        const condition = mapStore.find((storename) => storename.name === store.name);
-        if (!condition) {
+        const findStoreFromDishData = mapStore.find((storename) => storename.name === store.name);
+        if (!findStoreFromDishData) {
           mapStore.unshift(store);
-
           dispatch({
             type: 'updateMapMarkers',
             data: store
@@ -257,25 +280,12 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    function callback(user) {
-      dispatch({
-        type: 'setUserState',
-        data: user
-      });
-    }
-
-    return googleAccountStateChanged(callback);
-  }, [dispatch]);
-
   const defaultMapOptions = {
     mapTypeControl: false
   };
 
   if (loadError) return 'ErrorLoading';
   if (!isLoaded) return 'Loading Maps';
-
-  const currentLoctionIconSize = new window.google.maps.Size(44, 44);
 
   const onBoundsChanged = () => {
     setBounds(mapRef.current.getBounds());
@@ -295,8 +305,7 @@ function App() {
     const placePromises = [];
 
     places.forEach(async (place) => {
-      let set = place.name.replaceAll('/', ' ');
-      let placeName = set.replaceAll('%', '%25');
+      const placeName = place.name.replaceAll('/', ' ').replaceAll('#', '%23').replaceAll('%', '%25');
 
       dispatch({
         type: 'setMapMarkers',
@@ -332,14 +341,14 @@ function App() {
           data: hits
         });
 
-        let algoliaSearchData = [];
-        hits.forEach((hit) => {
-          const data = getStoreData(hit.storeCollectionID);
-          algoliaSearchData.push(data);
-        });
+        const algoliaSearchData = hits.map((hit) => getStoreData(hit.storeCollectionID));
 
         Promise.all(algoliaSearchData).then((res) => {
-          setAlgoliaStore(res);
+          const checkData = res.splice(
+            res.findIndex((item) => item === undefined),
+            1
+          );
+          setAlgoliaStore(checkData);
         });
       });
     } catch (error) {
@@ -365,21 +374,6 @@ function App() {
     }
   }
 
-  function getCurrentLoction() {
-    if (navigator.geolocation) {
-      customNotify();
-      navigator.geolocation.getCurrentPosition((position) => {
-        const positionObj = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        setcurrentLoction(positionObj);
-        panTo(positionObj);
-        setMapZoomSize();
-      });
-    }
-  }
-
   function onInformationChangeHandler() {
     if (informationWindow) {
       dispatch({
@@ -391,15 +385,6 @@ function App() {
         type: 'setInformationWindow',
         data: true
       });
-    }
-  }
-
-  function setMapZoomSize() {
-    const updateZoom = 17;
-    if (zoom === initZoom) {
-      setZoom(updateZoom);
-    } else if (zoom === updateZoom) {
-      setZoom(initZoom);
     }
   }
 
@@ -456,29 +441,13 @@ function App() {
     return mapStyle.defaultStyle;
   }
 
-  // console.log(
-  //   'app',
-  //   'collectionMarks',
-  //   collectionMarks,
-  //   'mapMarkers',
-  //   mapMarkers,
-  //   'storeDetailOnlyOneExist',
-  //   storeDetailOnlyOneExist
-  // );
-
   return (
     <Frame>
-      {!storeListExist &&
-        !storeDetailExist &&
-        !dishDetailExist &&
-        !collectionCheck &&
-        !storeDetailOnlyOneExist &&
-        searchMenu &&
-        !isMobile && (
-          <div style={{ width: '435px', height: '100vh' }}>
-            {!placrCheck ? <Loading /> : <NotFound searchText={searchText} />}
-          </div>
-        )}
+      {loadingCfeck && (
+        <div style={{ width: '435px', height: '100vh' }}>
+          {!placrCheck ? <Loading /> : <NotFound searchText={searchText} />}
+        </div>
+      )}
 
       <Toaster />
       {userStatus && memberPageShow && <MemberPage show={setMemberPageShow} check={setListCheck} />}
@@ -551,15 +520,7 @@ function App() {
       {smalleStoreExist && !isMobile && <SearchListS service={serviceRef.current} />}
 
       <LoginState setMemberPageShow={setMemberPageShow} memberPageShow={memberPageShow}></LoginState>
-      <UserPositionCheck
-        onClick={getCurrentLoction}
-        panTo={panTo}
-        style={{
-          display: informationWindow && pageExist && isMobile ? 'none' : 'flex'
-        }}
-      >
-        <img src="/current.png" alt=""></img>
-      </UserPositionCheck>
+
       <GoogleMap
         mapContainerStyle={checkMapSize()}
         zoom={zoom}
@@ -584,15 +545,14 @@ function App() {
             collectionMarks.map((marker, key) => (
               <Markers tag={collectionCheck} marker={marker} key={key} onLoad={markeronLoad} />
             ))}
-        {currentLoction && (
-          <Marker
-            position={{ lat: currentLoction.lat, lng: currentLoction.lng }}
-            icon={{
-              url: '/loction.png',
-              scaledSize: currentLoctionIconSize
-            }}
-          />
-        )}
+
+        <CurrentLoction
+          panTo={panTo}
+          zoom={{ zoom: zoom, initZoom: initZoom, setZoom: setZoom }}
+          style={{
+            display: informationWindow && pageExist && isMobile ? 'none' : 'flex'
+          }}
+        ></CurrentLoction>
 
         {selectedStore && isMobile && <MapInfoWindow product={selectedStore} service={serviceRef.current} />}
         {markerHover && !isMobile && <MapInfoWindow product={markerHover} service={serviceRef.current} />}

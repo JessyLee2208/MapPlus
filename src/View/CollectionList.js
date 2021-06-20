@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { getStoreData, getDishData } from '../Utils/firebase';
+
+import { getStoreData, getDishData } from '../utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
-import { deviceSize } from '../properties/properties';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
 import { ItemTitle } from '../Components/UIComponents/Typography';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
-import useUserDataCheck from '../Utils/useUserDataCheck';
-import { getStoreDetail } from '../Utils/getMoreDetail';
+import useUserDataCheck from '../useHook/useUserDataCheck';
+import { getStoreDetail } from '../utils/getMoreDetail';
+import { deviceSize } from '../properties/properties';
 
 const Collection = styled.div`
   position: relative;
@@ -111,14 +112,11 @@ function CollectionList(props) {
     if (userStatus && processedDishData.length > 0) {
       let store = [];
       let removed = [];
-
-      let restStoreDatas = null;
       const NewStoreData = [...processedStoreData];
 
       function getTopTenStoreData(NewStoreData) {
         const countMethod = NewStoreData.length / 10;
         const count = String(countMethod).split('.');
-
         let rule = count[0] === 0 ? 1 : parseInt(count[0]);
 
         for (let i = 0; i < rule; i++) {
@@ -129,31 +127,27 @@ function CollectionList(props) {
             store.push(data);
           });
         }
-
         getRestData(count);
       }
 
       function getRestData(count) {
         const countStart = count[0] * 10;
         let newArray = NewStoreData.slice(countStart);
-        restStoreDatas = newArray.map((resData) => getStoreData(resData.storeCollectionID));
+        const restStoreDatas = newArray.map((resData) => getStoreData(resData.storeCollectionID));
         store.push(...restStoreDatas);
       }
 
       if (NewStoreData.length > 10) getTopTenStoreData(NewStoreData, getRestData);
-
       if (NewStoreData.length < 10) {
         removed = NewStoreData;
+        removed.forEach((collect) => {
+          const data = getStoreDetail(collect.storeCollectionID, props.service);
+          store.push(data);
+        });
       }
-
-      removed.forEach((collect) => {
-        const data = getStoreDetail(collect.storeCollectionID, props.service);
-        store.push(data);
-      });
 
       Promise.all(store).then(async (res) => {
         setStoreArray(res);
-
         dispatch({
           type: 'setCollectionList',
           data: res

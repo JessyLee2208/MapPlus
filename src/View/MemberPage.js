@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
+import Confim from '../Components/Confim';
 import { Description, H3Title, ItemTitle } from '../Components/UIComponents/Typography';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
 import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
+import { Separator } from '../Components/UIComponents/common';
 
-import useMediaQuery from '../Utils/useMediaQuery';
-import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../Utils/firebase';
-import useUserDataCheck from '../Utils/useUserDataCheck';
-import { logOutNotify, noListNotify } from '../Utils/toasts';
-
-import Confim from '../Components/Confim';
+import useMediaQuery from '../useHook/useMediaQuery';
+import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../utils/firebase';
+import useUserDataCheck from '../useHook/useUserDataCheck';
+import { logOutNotify, noListNotify } from '../utils/toasts';
 import { deviceSize, collectionBasicLists } from '../properties/properties';
 
 const Member = styled.div`
@@ -53,13 +52,6 @@ const AuthorImg = styled.img`
   @media screen and (max-width: ${deviceSize.mobile}px) {
     margin-top: 50px;
   }
-`;
-
-const Separator = styled.div`
-  width: 100%;
-  min-height: 1px;
-  background: #efefef;
-  margin: 10px 0;
 `;
 
 const ItemBox = styled.div`
@@ -180,11 +172,6 @@ function MemberPage(props) {
     }
   }, [customList, userData]);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => setLoading(false), 300);
-  //   return () => clearTimeout(timer);
-  // }, []);
-
   function handleCollectionList(e) {
     dispatch({
       type: 'setCollectionTitle',
@@ -248,7 +235,7 @@ function MemberPage(props) {
       <AuthorImg src={userStatus.photoURL} alt="" />
       <H3Title>{userStatus.displayName}</H3Title>
       <Description padding={'0 0 8px 0'}>{userStatus.email}</Description>
-      <Separator style={{ width: '90%' }} />
+      <Separator width={'100%'} margin={'10px 0'} />
       {!userData ? (
         <InfiniteLoading marginTop={20} />
       ) : (
@@ -302,7 +289,7 @@ function MemberPage(props) {
         </CollectLists>
       )}
 
-      <Separator />
+      <Separator width={'100%'} margin={'10px 0'} />
       <ButtonGhostRound onClick={logOutOnClickHandler} margin={'6px 0 16px 0'}>
         登出
       </ButtonGhostRound>

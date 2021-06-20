@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getStoreMenu } from '../Utils/fetch';
-import getMorereDetail from '../Utils/getMoreDetail';
-import { getMenuData } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { Description, Link } from './UIComponents/Typography';
+import { getStoreMenu } from '../utils/fetch';
+import getMorereDetail from '../utils/getMoreDetail';
+import { getMenuData } from '../utils/firebase';
 import { tagType } from '../properties/properties';
 
 const StoreInfo = styled.div`
@@ -132,13 +133,13 @@ function StoreCardS(props, key) {
     });
     dispatch({
       type: 'setSelectedTab',
-      data: tagType.default
+      data: tagType.information
     });
 
-    if (e.target.name === tagType.second) {
+    if (e.target.name === tagType.menu) {
       dispatch({
         type: 'setSelectedTab',
-        data: tagType.second
+        data: tagType.menu
       });
     }
 

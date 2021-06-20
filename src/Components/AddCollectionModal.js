@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import Modal from './Modal';
-import useMediaQuery from '../Utils/useMediaQuery';
-import { addCollectList } from '../Utils/firebase';
-import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 
+import Modal from './Modal';
+import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, Description, AlertText } from './UIComponents/Typography';
+import useMediaQuery from '../useHook/useMediaQuery';
+import { addCollectList } from '../utils/firebase';
+import { addListNotify } from '../utils/toasts';
 import { deviceSize } from '../properties/properties';
-import { addListNotify } from '../Utils/toasts';
 
 const ContentBackground = styled.div`
   position: relative;

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-
-import StarRender from '../Utils/StarRender';
 import { useDispatch, useSelector } from 'react-redux';
-import { userReviewGet } from '../Utils/firebase';
+
+import StarRender from './StarRender';
 import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
 import { ItemTitle, Description } from './UIComponents/Typography';
+import { userReviewGet } from '../utils/firebase';
 import { deviceSize } from '../properties/properties';
 
 const Menu = styled.div`
@@ -74,7 +74,6 @@ const RatingDiv = styled.div`
 `;
 
 function MenuCard({ data }) {
-  // let starArry = [];
   const [userDatasCheck, setuserDatasCheck] = React.useState(null);
 
   const dispatch = useDispatch();
@@ -94,8 +93,6 @@ function MenuCard({ data }) {
 
           target ? setuserDatasCheck(target) : setuserDatasCheck(null);
         }
-
-        // }
       }
       reviewData();
     }

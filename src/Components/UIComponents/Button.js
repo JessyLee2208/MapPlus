@@ -216,7 +216,7 @@ const ButtongprimaryRoundWithIcon = styled.button`
 function ButtonPrimaryRound(props) {
   const { zIndex } = props;
   return (
-    <ButtonprimaryRound onClick={props.onClick} style={props.style} zIndex={zIndex}>
+    <ButtonprimaryRound onClick={props.onClick} style={props.style} zIndex={zIndex} data-testid="primaryRoundButton">
       {props.children}
     </ButtonprimaryRound>
   );

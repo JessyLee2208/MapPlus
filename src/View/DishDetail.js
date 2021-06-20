@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllDishReviews } from '../Utils/firebase';
+
 import Collection from '../Components/Collection';
 import ReviewCard from '../Components/reviewCard';
+import SearchBack from '../Components/SearchBack';
 import { ButtonPrimaryRound, ButtonGhostRound } from '../Components/UIComponents/Button';
-import { PageTitle, SubTitle, SubItemTitle, H3Title } from '../Components/UIComponents/Typography';
+import { PageTitle, SubTitle, H3Title } from '../Components/UIComponents/Typography';
 
-import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
+import { Separator } from '../Components/UIComponents/common';
 import { deviceSize, collectionBasicLists } from '../properties/properties';
-import useUserDataCheck from '../Utils/useUserDataCheck';
-
-const Separator = styled.div`
-  width: auto;
-  min-height: 1px;
-  background: #efefef;
-`;
+import { getAllDishReviews } from '../utils/firebase';
+import useUserDataCheck from '../useHook/useUserDataCheck';
 
 const Dish = styled.div`
   position: relative;
@@ -323,23 +319,8 @@ function DishDetail(props) {
 
   return (
     <Dish onClick={handleStatusCheck} onMouseOver={handle}>
-      <SearchSeparator />
-      <Back>
-        <SubItemTitle
-          onClick={handleBack}
-          color={'185ee6'}
-          style={{
-            position: 'relative',
-            bottom: '-56px',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
-          }}
-        >
-          回到 {selectedDish.storeName}
-        </SubItemTitle>
-      </Back>
-      <SearchBg />
+      <SearchBack onClick={handleBack}>回到 {selectedDish.storeName}</SearchBack>
+
       {select && <Collection select={selected} check={props.check} />}
       <DishImg
         src={selectedDish.imageUrl || noImg}
@@ -401,20 +382,18 @@ function DishDetail(props) {
           ))}
       </DivBox>
 
-      {userReviewSet && (
-        <div>
+      {userReviewSet ? (
+        <>
           <CommentDiv>
             <CommentTitle style={{ color: 'black', margin: '10px 0 0px 18px' }}>你的評論</CommentTitle>
             <Separator />
           </CommentDiv>
           <ReviewCard review={userReviewSet} borderBottom={'none'} />
-        </div>
-      )}
 
-      {userReviewSet ? (
-        <ButtonPrimaryRound onClick={callModal} style={{ margin: '0px 18px' }}>
-          編輯你的評論
-        </ButtonPrimaryRound>
+          <ButtonPrimaryRound onClick={callModal} style={{ margin: '0px 18px' }}>
+            編輯你的評論
+          </ButtonPrimaryRound>
+        </>
       ) : (
         <ButtonGhostRound onClick={callModal} style={{ margin: '0px 18px' }}>
           評論

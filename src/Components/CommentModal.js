@@ -2,21 +2,15 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 
-import StarRender from '../Utils/StarRender';
+import StarRender from './StarRender';
 import Modal from './Modal';
 import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typography';
-import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
-import useMediaQuery from '../Utils/useMediaQuery';
+import { Separator } from './UIComponents/common';
+import useMediaQuery from '../useHook/useMediaQuery';
 import { deviceSize } from '../properties/properties';
-import { commentSuccessnNtify, editSuccessNotify } from '../Utils/toasts';
-
-const Separator = styled.div`
-  width: auto;
-  min-height: 1px;
-  background: #efefef;
-  margin: 14px 0 16px 0;
-`;
+import { commentSuccessnNtify, editSuccessNotify } from '../utils/toasts';
+import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../utils/firebase';
 
 const Textarea = styled.textarea`
   font-family: Roboto, Noto Sans TC, Arial, sans-serif;
@@ -230,7 +224,7 @@ function CommentModal({ show }) {
         <ModalContent>
           <PageTitle padding={'0'}>{DishData.name}</PageTitle>
           <Description padding={'4px 0 0 0'}>店家：{DishData.storeName}</Description>
-          <Separator></Separator>
+          <Separator margin={'14px 0 16px 0'} />
           <Content>{userStatus.displayName}</Content>
           <RatingDiv onClick={handleStarRating}>{star}</RatingDiv>
 

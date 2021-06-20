@@ -94,7 +94,7 @@ function Modal(props) {
   }, [props.visible, animateIn, animateOut]);
 
   return (
-    <ModalContainer>
+    <ModalContainer data-testid="confimModal">
       <div hidden={!visible}>
         <Overlay ref={overlayRef} onClick={onCancel} />
         <ModalContent ref={contentRef} width={width} left={left}>

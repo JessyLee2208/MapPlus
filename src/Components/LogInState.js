@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginSuccessnNotify } from '../Utils/toasts';
-import { googleAccountSignIn } from '../Utils/firebase';
+
 import { ButtonPrimaryFlat } from './UIComponents/Button';
-import useMediaQuery from '../Utils/useMediaQuery';
+import { loginSuccessnNotify } from '../utils/toasts';
+import { googleAccountSignIn, googleAccountStateChanged } from '../utils/firebase';
+import useMediaQuery from '../useHook/useMediaQuery';
 import { deviceSize } from '../properties/properties';
 
 const AuthorImg = styled.img`
@@ -50,8 +51,19 @@ function LoginState(props) {
   const { setMemberPageShow, memberPageShow } = props;
   const dispatch = useDispatch();
   const isMobile = useMediaQuery(`( max-width: ${deviceSize.mobile}px )`);
-
   const userStatus = useSelector((state) => state.userStatus);
+
+  useEffect(() => {
+    function callback(user) {
+      dispatch({
+        type: 'setUserState',
+        data: user
+      });
+    }
+
+    return googleAccountStateChanged(callback);
+  }, [dispatch]);
+
   useEffect(() => {
     if (userStatus) {
       loginSuccessnNotify();

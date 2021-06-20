@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
-import StarRender from '../Utils/StarRender';
-
+import StarRender from './StarRender';
 import { Content, Description } from './UIComponents/Typography';
 
 const ReviewerBox = styled.div`

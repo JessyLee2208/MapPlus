@@ -6,7 +6,7 @@ import Modal from './Modal';
 import { ButtonPrimaryFlat, ButtonSecondaryFlat } from './UIComponents/Button';
 
 import { PageTitle, Description } from './UIComponents/Typography';
-import { deleteListNotify } from '../Utils/toasts';
+import { deleteListNotify } from '../utils/toasts';
 
 const ContentBackground = styled.div`
   position: relative;

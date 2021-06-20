@@ -2,23 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deviceSize } from '../properties/properties';
-import StarRender from '../Utils/StarRender';
+import StarRender from '../Components/StarRender';
 import MenuCard from '../Components/MenuCard';
 import TabBar from '../Components/TabBar';
-import {
-  PageTitle,
-  Description,
-  SubTitle,
-  SubItemTitle,
-  ItemTitle,
-  InfoLink
-} from '../Components/UIComponents/Typography';
-
-import { SearchBg, SearchSeparator, Back } from '../Components/UIComponents/common';
+import SearchBack from '../Components/SearchBack';
+import DeliverStateCheck from '../Components/DeliverStateCheck';
+import { PageTitle, Description, SubTitle, ItemTitle, InfoLink } from '../Components/UIComponents/Typography';
+import { Separator } from '../Components/UIComponents/common';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
 
-import { tagType } from '../properties/properties';
+import { tagType, deviceSize } from '../properties/properties';
 
 const Store = styled.div`
   position: relative;
@@ -52,12 +45,6 @@ const RatingDiv = styled.div`
   padding: 0 20px;
 `;
 
-const Separator = styled.div`
-  width: auto;
-  min-height: 1px;
-  background: #efefef;
-`;
-
 const StarBoxStore = styled.div`
   display: flex;
   margin: 0 6px;
@@ -75,12 +62,6 @@ const Icon = styled.img`
   padding-right: 18px;
 `;
 
-const CheckIcon = styled.img`
-  width: 24px;
-  height: 24px;
-  padding-right: 2px;
-`;
-
 const InfoBox = styled.div`
   display: flex;
   align-items: center;
@@ -89,12 +70,6 @@ const InfoBox = styled.div`
   &:hover {
     background: #f7f7f7;
   }
-`;
-
-const Box = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 18px 20px;
 `;
 
 const InforList = styled.div`
@@ -145,9 +120,6 @@ function StoreDetail({ product, menu, input }) {
   const deliverCheck = product.deliver.foodPandaUrl !== null || product.deliver.uberEatUrl !== null;
   const deliverShow = product.deliver.uberEatUrl || product.deliver.foodPandaUrl;
 
-  let typesCheck = product.types.includes('food') || product.types.includes('cafe');
-  const star = StarRender(product.rating, { width: 16, height: 16 });
-
   let timestamp = '';
   let websitesURL = '';
   let deliverSite = '';
@@ -173,30 +145,6 @@ function StoreDetail({ product, menu, input }) {
   if (input.current.value === '') {
     input.setSearchText(product.name);
     input.current.value = product.name;
-  }
-
-  const AllReviews = [];
-  if (product.reviews) {
-    product.reviews.forEach((review, key) => {
-      const revirwStar = StarRender(review.rating, { width: 16, height: 16 });
-      // let reviewArry = [];
-      let reviewer = (
-        <ReviewerBox key={key}>
-          <AuthorBox>
-            <AuthorImg src={review.profile_photo_url} />
-            <div>{review.author_name}</div>
-          </AuthorBox>
-          <StarBoxReview>
-            {revirwStar}
-            <Description padding={'0 0 0 10px'}>{review.relative_time_description}</Description>
-          </StarBoxReview>
-          <Description color={'000000'} padding={'8px 0px'}>
-            {review.text}
-          </Description>
-        </ReviewerBox>
-      );
-      AllReviews.push(reviewer);
-    });
   }
 
   function handleClickEvent(e) {
@@ -240,17 +188,7 @@ function StoreDetail({ product, menu, input }) {
 
   return (
     <Store onClick={handleClickEvent} onMouseOver={handle}>
-      {storeData.length > 1 && (
-        <>
-          <SearchSeparator />
-          <Back>
-            <SubItemTitle onClick={handleBack} color={'185ee6'} style={{ position: 'relative', bottom: '-56px' }}>
-              回到搜尋列表
-            </SubItemTitle>
-          </Back>
-          <SearchBg />
-        </>
-      )}
+      {storeData.length > 1 && <SearchBack onClick={handleBack}>回到搜尋列表</SearchBack>}
 
       {product.photos && product.photos.length !== 0 ? (
         <StoreImg alt="" src={product.photos[0].getUrl()} />
@@ -265,28 +203,15 @@ function StoreDetail({ product, menu, input }) {
         <>
           <RatingDiv>
             <Description>{product.rating}</Description>
-            <StarBoxStore>{star}</StarBoxStore>
+            <StarBoxStore>{StarRender(product.rating, { width: 16, height: 16 })}</StarBoxStore>
             <Description>{product.user_ratings_total} 則評論</Description>
           </RatingDiv>
           <Separator />
           {deliverShow && <TabBar />}
 
-          <Separator />
-
-          {tab === tagType.default ? (
+          {tab === tagType.information ? (
             <div>
-              {typesCheck && (
-                <Box>
-                  <CheckIcon src="/true.png" />
-                  <Description>內用</Description>
-                  <Description>．</Description>
-                  <CheckIcon src="/true.png" />
-                  <Description>外帶</Description>
-                  <Description>．</Description>
-                  <CheckIcon src={deliverShow ? '/true.png' : '/false.png'}></CheckIcon>
-                  <Description>外送</Description>
-                </Box>
-              )}
+              <DeliverStateCheck product={product}></DeliverStateCheck>
 
               <InforList>
                 <InfoBox>
@@ -336,11 +261,26 @@ function StoreDetail({ product, menu, input }) {
                 </InfoBox>
               </InforList>
               <Separator />
+
               <SubTitle>評論摘要</SubTitle>
-              {AllReviews}
+              {product.reviews.map((review, key) => (
+                <ReviewerBox key={key}>
+                  <AuthorBox>
+                    <AuthorImg src={review.profile_photo_url} />
+                    <div>{review.author_name}</div>
+                  </AuthorBox>
+                  <StarBoxReview>
+                    {StarRender(review.rating, { width: 16, height: 16 })}
+                    <Description padding={'0 0 0 10px'}>{review.relative_time_description}</Description>
+                  </StarBoxReview>
+                  <Description color={'000000'} padding={'8px 0px'}>
+                    {review.text}
+                  </Description>
+                </ReviewerBox>
+              ))}
             </div>
           ) : (
-            tab === tagType.second &&
+            tab === tagType.menu &&
             (menu?.length > 0 ? (
               menu.map((item) => <MenuCard data={item} key={item.dishCollectionID} id={item.dishCollectionID} />)
             ) : (

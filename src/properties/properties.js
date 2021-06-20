@@ -27,6 +27,6 @@ const collectionBasicLists = {
   }
 };
 
-const tagType = { default: 'information', second: 'menu' };
+const tagType = { information: 'information', menu: 'menu' };
 
 export { deviceSize, collectionBasicLists, tagType };

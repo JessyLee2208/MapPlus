@@ -5,9 +5,9 @@ import { InfoWindow } from '@react-google-maps/api';
 import { useDispatch } from 'react-redux';
 import { SubTitle, Description } from './UIComponents/Typography';
 
-import StarRender from '../Utils/StarRender';
-import getMorereDetail from '../Utils/getMoreDetail';
-import useMediaQuery from '../Utils/useMediaQuery';
+import StarRender from './StarRender';
+import getMorereDetail from '../utils/getMoreDetail';
+import useMediaQuery from '../useHook/useMediaQuery';
 import { deviceSize } from '../properties/properties';
 
 import './inforWindow.css';

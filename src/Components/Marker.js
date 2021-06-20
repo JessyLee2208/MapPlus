@@ -1,8 +1,9 @@
 import React, { useCallback, useRef } from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMenuData } from '../Utils/firebase';
-import getMorereDetail from '../Utils/getMoreDetail';
+
+import { getMenuData } from '../utils/firebase';
+import getMorereDetail from '../utils/getMoreDetail';
 import { collectionBasicLists } from '../properties/properties';
 
 function Markers(props) {

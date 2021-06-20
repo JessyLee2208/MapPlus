@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { userDatasCheck } from './firebase';
 import { useDispatch, useSelector } from 'react-redux';
+import { userDatasCheck } from '../utils/firebase';
 
 function useUserDataCheck() {
   const userStatus = useSelector((state) => state.userStatus);

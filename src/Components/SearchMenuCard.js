@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-
-import { getDishData } from '../Utils/firebase';
 import { useDispatch, useSelector } from 'react-redux';
+
+import StarRender from './StarRender';
 import { SubItemTitle } from './UIComponents/Typography';
+import { getDishData } from '../utils/firebase';
 import { deviceSize } from '../properties/properties';
-import StarRender from '../Utils/StarRender';
 
 const Menu = styled.div`
   display: grid;

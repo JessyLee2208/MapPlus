@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { Separator } from '../Components/UIComponents/common';
 import { tagType } from '../properties/properties';
 
 const TabBox = styled.div`
@@ -36,15 +37,15 @@ function TabBar() {
   const dispatch = useDispatch();
 
   const tabOnClickHandler = (e) => {
-    if (e.target.id === tagType.default) {
+    if (e.target.id === tagType.information) {
       dispatch({
         type: 'setSelectedTab',
-        data: tagType.default
+        data: tagType.information
       });
-    } else if (e.target.id === tagType.second) {
+    } else if (e.target.id === tagType.menu) {
       dispatch({
         type: 'setSelectedTab',
-        data: tagType.second
+        data: tagType.menu
       });
     }
   };
@@ -52,13 +53,14 @@ function TabBar() {
   return (
     <div>
       <TabBox onClick={tabOnClickHandler}>
-        {tab === tagType.default ? (
-          <TabActive id={tagType.default}>資訊</TabActive>
+        {tab === tagType.information ? (
+          <TabActive id={tagType.information}>資訊</TabActive>
         ) : (
-          <Tab id={tagType.default}>資訊</Tab>
+          <Tab id={tagType.information}>資訊</Tab>
         )}
-        {tab === tagType.second ? <TabActive id={tagType.second}>菜單</TabActive> : <Tab id={tagType.second}>菜單</Tab>}
+        {tab === tagType.menu ? <TabActive id={tagType.menu}>菜單</TabActive> : <Tab id={tagType.menu}>菜單</Tab>}
       </TabBox>
+      <Separator />
     </div>
   );
 }
