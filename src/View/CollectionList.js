@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getStoreData, getDishData } from '../utils/firebase';
+import { getStoreData, getDishData } from '../Utils/firebase';
 import StoreCardL from '../Components/StoreCardL';
 import { Loading } from '../Components/UIComponents/LottieAnimat';
 import { ItemTitle } from '../Components/UIComponents/Typography';
 import { ButtonGhostRound } from '../Components/UIComponents/Button';
 import useUserDataCheck from '../useHook/useUserDataCheck';
-import { getStoreDetail } from '../utils/getMoreDetail';
+import { getStoreDetail } from '../Utils/getMoreDetail';
 import { deviceSize } from '../properties/properties';
 
 const Collection = styled.div`

@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ButtonPrimaryFlat } from './UIComponents/Button';
-import { loginSuccessnNotify } from '../utils/toasts';
-import { googleAccountSignIn, googleAccountStateChanged } from '../utils/firebase';
+import { loginSuccessnNotify } from '../Utils/toasts';
+import { googleAccountSignIn, googleAccountStateChanged } from '../Utils/firebase';
 import useMediaQuery from '../useHook/useMediaQuery';
 import { deviceSize } from '../properties/properties';
 

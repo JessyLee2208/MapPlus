@@ -5,9 +5,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import SearchMenuCard from './SearchMenuCard';
 import StarRender from './StarRender';
 import DeliverStateCheck from './DeliverStateCheck';
-import { getStoreMenu } from '../utils/fetch';
-import getMorereDetail from '../utils/getMoreDetail';
-import { getMenuData } from '../utils/firebase';
+import { getStoreMenu } from '../Utils/fetch';
+import getMorereDetail from '../Utils/getMoreDetail';
+import { getMenuData } from '../Utils/firebase';
 import { tagType } from '../properties/properties';
 
 const StoreInfo = styled.div`

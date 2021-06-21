@@ -6,8 +6,8 @@ import Modal from './Modal';
 import { ButtonPrimaryFlat, ButtonDisableFlat } from './UIComponents/Button';
 import { PageTitle, Description, AlertText } from './UIComponents/Typography';
 import useMediaQuery from '../useHook/useMediaQuery';
-import { addCollectList } from '../utils/firebase';
-import { addListNotify } from '../utils/toasts';
+import { addCollectList } from '../Utils/firebase';
+import { addListNotify } from '../Utils/toasts';
 import { deviceSize } from '../properties/properties';
 
 const ContentBackground = styled.div`

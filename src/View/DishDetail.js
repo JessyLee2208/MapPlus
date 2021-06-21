@@ -10,7 +10,7 @@ import { PageTitle, SubTitle, H3Title } from '../Components/UIComponents/Typogra
 
 import { Separator } from '../Components/UIComponents/common';
 import { deviceSize, collectionBasicLists } from '../properties/properties';
-import { getAllDishReviews } from '../utils/firebase';
+import { getAllDishReviews } from '../Utils/firebase';
 import useUserDataCheck from '../useHook/useUserDataCheck';
 
 const Dish = styled.div`

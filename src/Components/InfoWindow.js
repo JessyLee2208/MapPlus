@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { SubTitle, Description } from './UIComponents/Typography';
 
 import StarRender from './StarRender';
-import getMorereDetail from '../utils/getMoreDetail';
+import getMorereDetail from '../Utils/getMoreDetail';
 import useMediaQuery from '../useHook/useMediaQuery';
 import { deviceSize } from '../properties/properties';
 
