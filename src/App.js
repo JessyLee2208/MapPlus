@@ -23,7 +23,7 @@ import CurrentLoction from './Components/CurrentLoction';
 import { ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
 import { Loading } from './Components/UIComponents/LottieAnimat';
 
-import { getMenuData, getStoreData } from './utils/firebase';
+import { getMenuData, getStoreData } from './Utils/firebase';
 import { getStoreDetail } from './utils/getMoreDetail';
 import useMediaQuery from './useHook/useMediaQuery';
 import { getStoreMenu, getStoreUrl } from './utils/fetch';
