@@ -7,6 +7,10 @@ name: Deploy to Firebase Hosting on PR
     branches:
       - master
       - develop
+env:
+  REACT_APP_GOOGLE_MAPS_API_KRY: ${{secrets.GOOGLE_MAPS_API_KRY}}
+  REACT_APP_ALGOLIA_SEARCH_KEY: ${{secrets.ALGOLIA_SEARCH_KEY}}
+  REACT_APP_ALGOLIA_API_ID: ${{secrets.ALGOLIA_API_ID}}
 jobs:
   build_and_preview:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'

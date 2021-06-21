@@ -6,6 +6,10 @@ name: Deploy to Firebase Hosting on merge
   push:
     branches:
       - master
+env:
+  REACT_APP_GOOGLE_MAPS_API_KRY: ${{secrets.GOOGLE_MAPS_API_KRY}}
+  REACT_APP_ALGOLIA_SEARCH_KEY: ${{secrets.ALGOLIA_SEARCH_KEY}}
+  REACT_APP_ALGOLIA_API_ID: ${{secrets.ALGOLIA_API_ID}}
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
