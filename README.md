@@ -120,8 +120,6 @@
 
 ## Mobile Demo
 
----
-
 <kbd>
     <img src="./public/readme/phone.gif" >
 </kbd>
@@ -132,8 +130,6 @@
 </br>
 
 ## Contact
-
----
 
 Feel free to contact me if you have any questions.<br>
 E-mail: jessylee2208@gmail.com
