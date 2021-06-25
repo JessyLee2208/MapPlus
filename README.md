@@ -25,7 +25,7 @@
 - JavaScript (ES6)
 - Responsive Web Design (RWD)
 
-### Front-End Frameworks & Libray
+### Front-End Frameworks & Library
 
 - React
 - Redux
@@ -55,9 +55,16 @@
 
 ## Features
 
----
+### Search
 
-### Search Filter
+<kbd>
+<img src="./public/readme/search.gif" >
+</kbd>
+
+</br>
+</br>
+
+### Filter
 
 <kbd>
 <img src="./public/readme/filter.gif" >
@@ -93,7 +100,7 @@
 </br>
 </br>
 
-### User current postion check
+### User current position
 
 <kbd>
 <img src="./public/readme/currentPosition.gif" >
@@ -102,7 +109,7 @@
 </br>
 </br>
 
-### Store Preview
+### Store preview
 
 <kbd>
 <img src="./public/readme/storePreview.gif" >
