@@ -1,70 +1,132 @@
-# Getting Started with Create React App
+<p align="center">
+    <h1 align="center">Map Plus</h1>
+  <p align="center">
+  Google Map Redesign </br>
+   Solve the problem that Google Map cannot able to search for menu items.
+    <br />
+    <a href="https://map-780c3.web.app/"><strong>View Website »</strong></a>
+    <br />
+  </p>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<kbd>
+    <img src="./public/readme/mapplus.png" >
 
-## Available Scripts
+</kbd>
 
-In the project directory, you can run:
+</br>
+</br>
 
-### `npm start`
+# Technologies
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Front-End Basic
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- HTML
+- CSS
+- JavaScript (ES6)
+- Responsive Web Design (RWD)
 
-### `npm test`
+### Front-End Frameworks & Libray
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- React
+- Redux
+- styled-components
+- react-hot-toast
 
-### `npm run build`
+### Firebase Services
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Authentication
+- Cloud Storage
+- Cloud Firestore
+- Hosting
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Third party Servies
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Google Maps JavaScript API
+- Google Maps Place API
+- Algolia
 
-### `npm run eject`
+### Tool for Development
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Node Package Manager (NPM)
+- ESLint
+- Prettier
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+</br>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Features
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+---
 
-## Learn More
+### Search Filter
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<kbd>
+<img src="./public/readme/filter.gif" >
+</kbd>
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+</br>
+</br>
 
-### Code Splitting
+### Collect & Creat collection List Element
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+<kbd>
+<img src="./public/readme/creatList.gif" >
+</kbd>
 
-### Analyzing the Bundle Size
+</br>
+</br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Comment element
 
-### Making a Progressive Web App
+<kbd>
+<img src="./public/readme/comment.gif" >
+</kbd>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+</br>
+</br>
 
-### Advanced Configuration
+### Check favorites
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+<kbd>
+<img src="./public/readme/favorites.gif" >
+</kbd>
 
-### Deployment
+</br>
+</br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### User current postion check
 
-### `npm run build` fails to minify
+<kbd>
+<img src="./public/readme/currentPosition.gif" >
+</kbd>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+</br>
+</br>
+
+### Store Preview
+
+<kbd>
+<img src="./public/readme/storePreview.gif" >
+</kbd>
+
+</br>
+</br>
+
+## Mobile Demo
+
+---
+
+<kbd>
+    <img src="./public/readme/phone.gif" >
+</kbd>
+
+</br>
+</br>
+</br>
+</br>
+
+## Contact
+
+---
+
+Feel free to contact me if you have any questions.<br>
+E-mail: jessylee2208@gmail.com
