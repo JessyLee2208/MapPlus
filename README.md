@@ -131,5 +131,8 @@
 
 ## Contact
 
+More detail about this project <a href="https://www.notion.so/jessylee2208/Google-Map-Plus-7f8097e07d3a42d487cddc6a0ab73f21"><strong>View Project »</strong></a>
+
 Feel free to contact me if you have any questions.<br>
 E-mail: jessylee2208@gmail.com
+
