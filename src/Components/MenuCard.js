@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import StarRender from './StarRender';
 import { ButtonPrimaryRound, ButtonGhostRound } from './UIComponents/Button';
 import { ItemTitle, Description } from './UIComponents/Typography';
-import { userReviewGet } from '../utils/firebase';
+import { userReviewGet } from '../Utils/firebase';
 import { deviceSize } from '../properties/properties';
 
 const Menu = styled.div`

@@ -9,8 +9,8 @@ import { PageTitle, SubTitle, Description, Content } from './UIComponents/Typogr
 import { Separator } from './UIComponents/common';
 import useMediaQuery from '../useHook/useMediaQuery';
 import { deviceSize } from '../properties/properties';
-import { commentSuccessnNtify, editSuccessNotify } from '../utils/toasts';
-import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../utils/firebase';
+import { commentSuccessnNtify, editSuccessNotify } from '../Utils/toasts';
+import { upLoadPhotoToFirebase, upLoadReview, userReviewEdit } from '../Utils/firebase';
 
 const Textarea = styled.textarea`
   font-family: Roboto, Noto Sans TC, Arial, sans-serif;

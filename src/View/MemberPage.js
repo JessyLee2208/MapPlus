@@ -9,9 +9,9 @@ import { InfiniteLoading } from '../Components/UIComponents/LottieAnimat';
 import { Separator } from '../Components/UIComponents/common';
 
 import useMediaQuery from '../useHook/useMediaQuery';
-import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../utils/firebase';
+import { googleAccountLogOut, removeCollectList, removeDishToCollectList } from '../Utils/firebase';
 import useUserDataCheck from '../useHook/useUserDataCheck';
-import { logOutNotify, noListNotify } from '../utils/toasts';
+import { logOutNotify, noListNotify } from '../Utils/toasts';
 import { deviceSize, collectionBasicLists } from '../properties/properties';
 
 const Member = styled.div`

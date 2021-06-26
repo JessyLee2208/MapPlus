@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import Modal from './Modal';
-import { googleAccountSignIn } from '../utils/firebase';
+import { googleAccountSignIn } from '../Utils/firebase';
 import { ButtonPrimaryFlat, ButtonSecondaryFlat } from './UIComponents/Button';
 
 const TopBackground = styled.div`
