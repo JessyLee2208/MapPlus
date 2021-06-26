@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
-import { addDishToCollectList, removeDishToCollectList } from '../utils/firebase';
+import { addDishToCollectList, removeDishToCollectList } from '../Utils/firebase';
 import { collectionBasicLists } from '../properties/properties';
 
 const CollectBox = styled.div`

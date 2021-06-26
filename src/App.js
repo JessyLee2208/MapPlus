@@ -23,11 +23,11 @@ import CurrentLoction from './Components/CurrentLoction';
 import { ButtonPrimaryRoundIcon } from './Components/UIComponents/Button';
 import { Loading } from './Components/UIComponents/LottieAnimat';
 
-import { getMenuData, getStoreData } from './utils/firebase';
-import { getStoreDetail } from './utils/getMoreDetail';
+import { getMenuData, getStoreData } from './Utils/firebase';
+import { getStoreDetail } from './Utils/getMoreDetail';
 import useMediaQuery from './useHook/useMediaQuery';
-import { getStoreMenu, getStoreUrl } from './utils/fetch';
-import { fitBoundsHandler } from './utils/utils';
+import { getStoreMenu, getStoreUrl } from './Utils/fetch';
+import { fitBoundsHandler } from './Utils/utils';
 import { deviceSize } from './properties/properties';
 
 const Frame = styled.div`

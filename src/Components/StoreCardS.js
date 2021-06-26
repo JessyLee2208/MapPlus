@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Description, Link } from './UIComponents/Typography';
-import { getStoreMenu } from '../utils/fetch';
-import getMorereDetail from '../utils/getMoreDetail';
-import { getMenuData } from '../utils/firebase';
+import { getStoreMenu } from '../Utils/fetch';
+import getMorereDetail from '../Utils/getMoreDetail';
+import { getMenuData } from '../Utils/firebase';
 import { tagType } from '../properties/properties';
 
 const StoreInfo = styled.div`

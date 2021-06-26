@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Marker } from '@react-google-maps/api';
 
-import { customNotify } from '../utils/toasts';
+import { customNotify } from '../Utils/toasts';
 import { deviceSize } from '../properties/properties';
 
 const UserPositionCheck = styled.div`

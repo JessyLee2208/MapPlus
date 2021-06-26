@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import StarRender from './StarRender';
 import { SubItemTitle } from './UIComponents/Typography';
-import { getDishData } from '../utils/firebase';
+import { getDishData } from '../Utils/firebase';
 import { deviceSize } from '../properties/properties';
 
 const Menu = styled.div`
