@@ -31,6 +31,7 @@
 - Redux
 - styled-components
 - react-hot-toast
+- lottie-web
 
 ### Firebase Services
 
